@@ -8,16 +8,12 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.loading.FMLEnvironment;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class RedstoneLinkNetwork {
 
-	public final AtomicInteger localPowerVersion = new AtomicInteger();
-
 	private final Map<Couple<RedstoneLinkNetworkHandler.Frequency>, Couple<Set<IRedstoneLinkable>>> channels = new HashMap<>();
 
-	//Using a IdentityHashMap to avoid bugs if some IRedstoneLinkable overrides .equals/.hashcode
-	private final Set<IRedstoneLinkable> receiverUpdates = Collections.newSetFromMap(new IdentityHashMap<>());
+	private final Queue<IRedstoneLinkable> receiverUpdates = new ArrayDeque<>();
 
 	private final HashMap<IRedstoneLinkable, Integer> queuedRemovals = new HashMap<>();
 
@@ -35,13 +31,13 @@ public class RedstoneLinkNetwork {
 			}
 		}
 
+		while (!delayedUpdates.isEmpty() || !receiverUpdates.isEmpty()) {
+			while (!delayedUpdates.isEmpty()) {
+				delayedUpdates.remove().delayedUpdate();
+			}
 
-		while (!delayedUpdates.isEmpty()) {
-			delayedUpdates.remove().delayedUpdate();
-		}
-
-		if (!receiverUpdates.isEmpty()) {
-			receiverUpdates.forEach(link -> {
+			while (!receiverUpdates.isEmpty()) {
+				IRedstoneLinkable link = receiverUpdates.remove();
 				Set<IRedstoneLinkable> candidates = getChannel(link.getChannelKey()).get(false);
 
 				if (link instanceof ICustomReceive customReceiveLinkable) {
@@ -63,11 +59,8 @@ public class RedstoneLinkNetwork {
 					}
 				}
 				link.setReceivedStrength(maxStrength);
-			});
+			}
 		}
-
-		receiverUpdates.clear();
-		localPowerVersion.incrementAndGet();
 	}
 
 	public void getInRange(IRedstoneLinkable link, Set<IRedstoneLinkable> destination) {
@@ -80,6 +73,22 @@ public class RedstoneLinkNetwork {
 		} else {
 			for (IRedstoneLinkable link2 : getChannel(link.getChannelKey()).get(true)) {
 				if (canSendTo(link, link2)) {
+					destination.add(link2);
+				}
+			}
+		}
+	}
+
+	public void queueInRange(IRedstoneLinkable link, Queue<IRedstoneLinkable> destination) {
+		if (link.isListening()) {
+			for (IRedstoneLinkable link2 : getChannel(link.getChannelKey()).get(false)) {
+				if (link2.allowQueue() && canReceiveFrom(link, link2)) {
+					destination.add(link2);
+				}
+			}
+		} else {
+			for (IRedstoneLinkable link2 : getChannel(link.getChannelKey()).get(true)) {
+				if (link2.allowQueue() && canSendTo(link, link2)) {
 					destination.add(link2);
 				}
 			}
@@ -135,10 +144,10 @@ public class RedstoneLinkNetwork {
 			throw new IllegalStateException("This method is meant to be called from the link. If you want to set a links network call link.setNetwork()");
 		}
 		getChannel(link.getChannelKey()).get(link.isListening()).add(link);
-		if (link.isListening()) {
+		if (link.isListening() && link.allowQueue()) {
 			receiverUpdates.add(link);
 		} else if (link.getTransmittedStrength() != 0) {
-			getInRange(link, receiverUpdates);
+			queueInRange(link, receiverUpdates);
 		}
 	}
 
@@ -149,12 +158,12 @@ public class RedstoneLinkNetwork {
 	public void remove(IRedstoneLinkable link) {
 		getChannel(link.getChannelKey()).get(link.isListening()).remove(link);
 		if (!link.isListening() && link.getTransmittedStrength() != 0) {
-			getInRange(link, receiverUpdates);
+			queueInRange(link, receiverUpdates);
 		}
 	}
 
 	public void signalChanged(IRedstoneLinkable link) {
-		getInRange(link, receiverUpdates);
+		queueInRange(link, receiverUpdates);
 	}
 
 	public void linkMoved(IRedstoneLinkable link, Vec3 oldPos) {

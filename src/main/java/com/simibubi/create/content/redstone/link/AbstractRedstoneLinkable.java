@@ -41,6 +41,11 @@ public abstract class AbstractRedstoneLinkable implements IRedstoneLinkable {
 	}
 
 	@Override
+	public boolean allowQueue() {
+		return !queued;
+	}
+
+	@Override
 	public void delayedUpdate() {
 		queued = false;
 	}
@@ -67,6 +72,7 @@ public abstract class AbstractRedstoneLinkable implements IRedstoneLinkable {
 
 	@Override
 	public final void setReceivedStrength(int power) {
+		queued = false;
 		signalCallback.accept(power);
 	}
 

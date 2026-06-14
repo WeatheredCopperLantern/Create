@@ -30,6 +30,8 @@ public interface IRedstoneLinkable {
 
 	public boolean isListening();
 
+	public boolean allowQueue();
+
 	public void queueUpdate();
 
 	public void delayedUpdate();

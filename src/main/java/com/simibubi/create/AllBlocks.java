@@ -229,7 +229,7 @@ import com.simibubi.create.content.redstone.diodes.ToggleLatchGenerator;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlock;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlockItem;
 import com.simibubi.create.content.redstone.link.RedstoneLinkBlock;
-import com.simibubi.create.content.redstone.link.RedstoneLinkGenerator;
+import com.simibubi.create.content.redstone.link.RedstoneLinkMovementBehaviour;
 import com.simibubi.create.content.redstone.link.controller.LecternControllerBlock;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlock;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeGenerator;
@@ -2097,14 +2097,13 @@ public class AllBlocks {
 	public static final BlockEntry<RedstoneLinkBlock> REDSTONE_LINK =
 		REGISTRATE.block("redstone_link", RedstoneLinkBlock::new)
 			.initialProperties(SharedProperties::wooden)
-			.properties(p -> p.mapColor(MapColor.TERRACOTTA_BROWN)
-				.forceSolidOn())
+			.properties(p -> p.mapColor(MapColor.TERRACOTTA_BROWN).forceSolidOn().lightLevel(s -> s.getValue(RedstoneLinkBlock.POWERED) ? 7 : 0))
 			.transform(axeOrPickaxe())
 			.tag(AllBlockTags.BRITTLE.tag, AllBlockTags.SAFE_NBT.tag)
-			.blockstate(new RedstoneLinkGenerator()::generate)
+			.onRegister(movementBehaviour(new RedstoneLinkMovementBehaviour()))
 			.addLayer(() -> RenderType::cutoutMipped)
 			.item()
-			.transform(customItemModel("_", "transmitter"))
+			.transform(customItemModel())
 			.register();
 
 	public static final BlockEntry<AnalogLeverBlock> ANALOG_LEVER =

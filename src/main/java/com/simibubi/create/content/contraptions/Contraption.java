@@ -19,6 +19,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
+import net.minecraft.world.level.SignalGetter;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Contract;
@@ -130,8 +131,9 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import net.neoforged.neoforge.registries.GameData;
+import org.jspecify.annotations.NonNull;
 
-public abstract class Contraption {
+public abstract class Contraption implements SignalGetter {
 
 	public final CollisionList simplifiedEntityColliders = new CollisionList();
 	public AbstractContraptionEntity entity;
@@ -1590,5 +1592,31 @@ public abstract class Contraption {
 		}
 
 		return maybeNullClientContraption.getBlockEntity(localPos);
+	}
+
+	@Override
+	public @org.jspecify.annotations.Nullable BlockEntity getBlockEntity(@NonNull BlockPos blockPos) {
+		return null;
+	}
+
+	@Override
+	public @NonNull BlockState getBlockState(@NonNull BlockPos blockPos) {
+		StructureBlockInfo info = blocks.get(blockPos);
+		return (info != null) ? info.state() : Blocks.AIR.defaultBlockState();
+	}
+
+	@Override
+	public @NonNull FluidState getFluidState(@NonNull BlockPos blockPos) {
+		return Fluids.EMPTY.defaultFluidState();
+	}
+
+	@Override
+	public int getHeight() {
+		return (int) (bounds.maxY - bounds.minY);
+	}
+
+	@Override
+	public int getMinBuildHeight() {
+		return (int) bounds.minY;
 	}
 }

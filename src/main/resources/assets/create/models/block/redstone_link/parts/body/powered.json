@@ -1,0 +1,6 @@
+{
+  "parent": "create:block/redstone_link/parts/body/unpowered",
+  "textures": {
+    "main": "create:block/redstone_link_powered"
+  }
+}

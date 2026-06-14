@@ -342,7 +342,7 @@ public class NixieTubeBlock extends DoubleFaceAttachedBlock
 		if (be.getLevel() == null || be.getLevel().isClientSide)
 			return;
 		if (be.reactsToRedstone() || force)
-			be.updateRedstoneStrength(getPower(be.getLevel(), state, be.getBlockPos()));
+			be.updateRedstoneStrength(be.getLevel().getBestNeighborSignal(be.getBlockPos()));
 	}
 
 	private void updateDisplayedRedstoneValue(BlockState state, Level level, BlockPos pos) {
@@ -355,17 +355,6 @@ public class NixieTubeBlock extends DoubleFaceAttachedBlock
 		BlockState state = world.getBlockState(pos.above(above ? 1 : -1));
 		return !state.getShape(world, pos)
 			.isEmpty();
-	}
-
-	private static int getPower(Level level, BlockState state, BlockPos pos) {
-		int power = 0;
-		for (Direction direction : Iterate.directions)
-			power = Math.max(level.getSignal(pos.relative(direction), direction), power);
-		for (Direction direction : Iterate.directions) {
-			if (state.getValue(FACING).getOpposite() != direction)
-				power = Math.max(level.getSignal(pos.relative(direction), Direction.UP), power);
-		}
-		return power;
 	}
 
 	@Override

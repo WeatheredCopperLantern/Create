@@ -9,120 +9,102 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import com.simibubi.create.Create;
-import com.simibubi.create.content.redstone.link.IRedstoneLinkable;
-import com.simibubi.create.content.redstone.link.LinkBehaviour;
+import com.simibubi.create.content.redstone.link.EntityRedstoneLinkable;
 import com.simibubi.create.content.redstone.link.RedstoneLinkNetworkHandler.Frequency;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
-
 import net.createmod.catnip.data.Couple;
-import net.createmod.catnip.data.IntAttached;
 import net.createmod.catnip.data.WorldAttached;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LevelAccessor;
 
 public class LinkedControllerServerHandler {
 
-	public static WorldAttached<Map<UUID, Collection<ManualFrequencyEntry>>> receivedInputs =
-		new WorldAttached<>($ -> new HashMap<>());
+	private static final WorldAttached<Map<UUID, Collection<LinkedControllerSignal>>> receivedInputs = new WorldAttached<>($ -> new HashMap<>());
 	static final int TIMEOUT = 30;
 
 	public static void tick(LevelAccessor world) {
-		Map<UUID, Collection<ManualFrequencyEntry>> map = receivedInputs.get(world);
-		for (Iterator<Entry<UUID, Collection<ManualFrequencyEntry>>> iterator = map.entrySet()
-			.iterator(); iterator.hasNext(); ) {
+		Map<UUID, Collection<LinkedControllerSignal>> map = receivedInputs.get(world);
+		for (Iterator<Entry<UUID, Collection<LinkedControllerSignal>>> iterator = map.entrySet().iterator(); iterator.hasNext(); ) {
+			Entry<UUID, Collection<LinkedControllerSignal>> entry = iterator.next();
+			Collection<LinkedControllerSignal> list = entry.getValue();
 
-			Entry<UUID, Collection<ManualFrequencyEntry>> entry = iterator.next();
-			Collection<ManualFrequencyEntry> list = entry.getValue();
-
-			for (Iterator<ManualFrequencyEntry> entryIterator = list.iterator(); entryIterator.hasNext(); ) {
-				ManualFrequencyEntry manualFrequencyEntry = entryIterator.next();
-				manualFrequencyEntry.decrement();
-				if (!manualFrequencyEntry.isAlive()) {
-					Create.REDSTONE_LINK_NETWORK_HANDLER.removeFromNetwork(world, manualFrequencyEntry);
-					entryIterator.remove();
+			list.removeIf(signal -> {
+				if (signal.tickLifetime() <= 0) {
+					signal.clearNetwork();
+					return true;
 				}
-			}
+				return false;
+			});
 
-			if (list.isEmpty())
-				iterator.remove();
+			if (list.isEmpty()) iterator.remove();
 		}
 	}
 
-	public static void receivePressed(LevelAccessor world, BlockPos pos, UUID uniqueID, List<Couple<Frequency>> collect,
+	public static void receivePressed(Entity origin, LevelAccessor world, UUID uniqueID, List<Couple<Frequency>> collect,
 									  boolean pressed) {
-		Map<UUID, Collection<ManualFrequencyEntry>> map = receivedInputs.get(world);
-		Collection<ManualFrequencyEntry> list = map.computeIfAbsent(uniqueID, $ -> new ArrayList<>());
+		Map<UUID, Collection<LinkedControllerSignal>> map = receivedInputs.get(world);
+		Collection<LinkedControllerSignal> list = map.computeIfAbsent(uniqueID, $ -> new ArrayList<>());
 
 		WithNext:
-		for (Couple<Frequency> activated : collect) {
-			for (ManualFrequencyEntry entry : list) {
-				if (entry.getSecond()
-					.equals(activated)) {
-					if (!pressed)
-						entry.setFirst(0);
-					else
-						entry.updatePosition(pos);
-					continue WithNext;
+		for (Couple<Frequency> channel : collect) {
+			for (LinkedControllerSignal signal : list) {
+				if (!signal.getChannelKey().equals(channel)) continue;
+				if (!pressed) {
+					signal.clearNetwork();
+					list.remove(signal);
+				} else {
+					signal.resetLifetime();
 				}
+				continue WithNext;
 			}
-
-			if (!pressed)
-				continue;
-
-			ManualFrequencyEntry entry = new ManualFrequencyEntry(pos, activated);
-			Create.REDSTONE_LINK_NETWORK_HANDLER.addToNetwork(world, entry);
+			LinkedControllerSignal entry = new LinkedControllerSignal(channel, origin);
 			list.add(entry);
-
-			for (IRedstoneLinkable linkable : Create.REDSTONE_LINK_NETWORK_HANDLER.getNetworkOf(world, entry))
-				if (linkable instanceof LinkBehaviour lb && lb.isListening())
-					AllAdvancements.LINKED_CONTROLLER.awardTo(world.getPlayerByUUID(uniqueID));
+			if (!entry.getNetwork().getChannel(entry.getChannelKey()).get(true).isEmpty()) {
+				AllAdvancements.LINKED_CONTROLLER.awardTo(world.getPlayerByUUID(uniqueID));
+			}
 		}
 	}
 
-	static class ManualFrequencyEntry extends IntAttached<Couple<Frequency>> implements IRedstoneLinkable {
+	static class LinkedControllerSignal extends EntityRedstoneLinkable {
 
-		private BlockPos pos;
+		private int lifetime;
 
-		public ManualFrequencyEntry(BlockPos pos, Couple<Frequency> second) {
-			super(TIMEOUT, second);
-			this.pos = pos;
+		private LinkedControllerSignal(Couple<Frequency> channel, Entity entity) {
+			super(channel, Mode.TRANSMIT, value -> {
+			}, () -> 15, entity);
+			lifetime = TIMEOUT;
 		}
 
-		public void updatePosition(BlockPos pos) {
-			this.pos = pos;
-			setFirst(TIMEOUT);
+
+		private int tickLifetime() {
+			tick();
+			return --lifetime;
 		}
 
-		@Override
-		public int getTransmittedStrength() {
-			return isAlive() ? 15 : 0;
-		}
-
-		@Override
-		public boolean isAlive() {
-			return getFirst() > 0;
+		private void resetLifetime() {
+			lifetime = TIMEOUT;
 		}
 
 		@Override
-		public BlockPos getLocation() {
-			return pos;
-		}
-
-		@Override
-		public void setReceivedStrength(int power) {
-		}
-
-		@Override
-		public boolean isListening() {
+		protected boolean shouldSetMode(Mode newMode) {
 			return false;
 		}
 
 		@Override
-		public Couple<Frequency> getNetworkKey() {
-			return getSecond();
+		protected boolean shouldSetFrequency(boolean first, ItemStack stack) {
+			return false;
 		}
 
+		@Override
+		protected void onModeChanged(Mode newMode) {
+
+		}
+
+		@Override
+		protected void onFrequencyChanged(boolean first, ItemStack stack) {
+
+		}
 	}
 
 }

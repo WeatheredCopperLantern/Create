@@ -1,11 +1,14 @@
 package com.simibubi.create;
 
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
+import com.simibubi.create.api.registry.SimpleRegistry;
 import com.simibubi.create.content.contraptions.behaviour.BellMovementBehaviour;
+import com.simibubi.create.content.contraptions.behaviour.ButtonMovementBehaviour;
 import com.simibubi.create.content.contraptions.behaviour.CampfireMovementBehaviour;
 import com.simibubi.create.content.contraptions.behaviour.dispenser.DispenserMovementBehaviour;
 import com.simibubi.create.content.contraptions.behaviour.dispenser.DropperMovementBehaviour;
 
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
 
 public class AllMovementBehaviours {
@@ -15,5 +18,6 @@ public class AllMovementBehaviours {
 		MovementBehaviour.REGISTRY.register(Blocks.SOUL_CAMPFIRE, new CampfireMovementBehaviour());
 		MovementBehaviour.REGISTRY.register(Blocks.DISPENSER, new DispenserMovementBehaviour());
 		MovementBehaviour.REGISTRY.register(Blocks.DROPPER, new DropperMovementBehaviour());
+		MovementBehaviour.REGISTRY.registerProvider(SimpleRegistry.Provider.forBlockTag(BlockTags.BUTTONS, new ButtonMovementBehaviour()));
 	}
 }

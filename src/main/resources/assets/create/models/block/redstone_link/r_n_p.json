@@ -1,0 +1,7 @@
+{
+  "parent": "create:block/redstone_link/base",
+  "visibility": {
+    "body_powered": true,
+    "r_n_p": true
+  }
+}

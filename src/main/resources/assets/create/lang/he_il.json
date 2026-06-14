@@ -1632,7 +1632,7 @@
   "create.ponder.radial_chassis.text_6": "בכל פעם שבלוק נמצא ליד פרצוף דביק...",
   "create.ponder.radial_chassis.text_7": "...הוא יצמיד את כל הבלוקים הניתנים לנגישות ברדיוס מסוים בשכבה זו",
   "create.ponder.radial_chassis.text_9": "בלוקים שלא ניתן להגיע אליהם באמצעות אף משטח דביק לא יתחברו",
-  "create.ponder.redstone_link.text_4": "מקלטים פולטים את עוצמת האדום של משדרים בטווח של 256 בלוקים",
+  "create.ponder.redstone_link.text_4": "מקלטים פולטים את עוצמת האדום של משדרים בטווח של %1$s בלוקים",
   "create.ponder.repackager.text_2": "הזמנה א",
   "create.ponder.repackager.text_3": "הזמנה ב",
   "create.ponder.rope_pulley.text_1": "גלגלות חבל יכולות להזיז בלוקים אנכית כאשר ניתנת להן כוח סיבובי",

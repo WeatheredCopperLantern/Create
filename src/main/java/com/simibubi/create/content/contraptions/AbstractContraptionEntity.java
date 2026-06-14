@@ -425,6 +425,12 @@ public abstract class AbstractContraptionEntity extends Entity implements IEntit
 	}
 
 	public void setBlock(BlockPos localPos, StructureBlockInfo newInfo) {
+		MutablePair<StructureBlockInfo, MovementContext> actor = contraption.getActorAt(localPos);
+		if(actor != null) {
+			actor.left = newInfo;
+			actor.right.state = newInfo.state();
+			actor.right.blockEntityData = newInfo.nbt();
+		}
 		contraption.blocks.put(localPos, newInfo);
 		CatnipServices.NETWORK.sendToClientsTrackingEntity(this, new ContraptionBlockChangedPacket(getId(), localPos, newInfo.state()));
 	}

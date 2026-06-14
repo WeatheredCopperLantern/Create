@@ -2291,7 +2291,7 @@
   "create.ponder.redstone_link.text_1": "레드스톤 링크는 레드스톤 신호를 무선으로 전달합니다.",
   "create.ponder.redstone_link.text_2": "웅크리면서 우클릭하여 신호를 수신하게 만듭니다.",
   "create.ponder.redstone_link.text_3": "렌치로 우클릭도 같은 기능을 합니다.",
-  "create.ponder.redstone_link.text_4": "수신기는 256 블록 안에 설치된 발신기로부터 레드스톤 신호 세기를 전달합니다.",
+  "create.ponder.redstone_link.text_4": "수신기는 %1$s 블록 안에 설치된 발신기로부터 레드스톤 신호 세기를 전달합니다.",
   "create.ponder.redstone_link.text_5": "두 슬롯에 아이템을 두어 주파수를 설정할 수 있습니다.",
   "create.ponder.redstone_link.text_6": "맞는 주파수끼리만 레드스톤 링크가 작동합니다.",
   "create.ponder.redstone_requester.header": "레드스톤 요청기로 주문 자동화 하기",

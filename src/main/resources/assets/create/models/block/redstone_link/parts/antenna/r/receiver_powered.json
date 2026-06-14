@@ -1,0 +1,6 @@
+{
+  "parent": "create:block/redstone_link/parts/antenna/r/receiver",
+  "textures": {
+    "main": "create:block/redstone_link_powered"
+  }
+}

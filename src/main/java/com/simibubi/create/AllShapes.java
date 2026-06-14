@@ -203,7 +203,7 @@ public class AllShapes {
 			shape(CASING_12PX.get(UP)).add(FOUR_VOXEL_POLE.get(Axis.Y))
 				.build(),
 		SMALL_GEAR_SHAPE = cuboid(2, 6, 2, 14, 10, 14), LARGE_GEAR_SHAPE = cuboid(0, 6, 0, 16, 10, 16),
-		VERTICAL_TABLET_SHAPE = cuboid(3, 1, -1, 13, 15, 3), SQUARE_TABLET_SHAPE = cuboid(2, 2, -1, 14, 14, 3),
+		VERTICAL_TABLET_SHAPE = cuboid(3, 1, 0, 13, 15, 3), SQUARE_TABLET_SHAPE = cuboid(2, 2, -1, 14, 14, 3),
 		LOGISTICS_TABLE_SLOPE = shape(0, 10, 10.667, 16, 14, 15).add(0, 12, 6.333, 16, 16, 10.667)
 			.add(0, 14, 2, 16, 18, 6.333)
 			.build(),
@@ -342,9 +342,7 @@ public class AllShapes {
 			.forAxis(),
 		LARGE_GEAR = shape(LARGE_GEAR_SHAPE).add(SIX_VOXEL_POLE.get(Axis.Y))
 			.forAxis(),
-		LOGISTICAL_CONTROLLER = shape(SQUARE_TABLET_SHAPE).forDirectional(SOUTH),
-		REDSTONE_BRIDGE = shape(VERTICAL_TABLET_SHAPE).forDirectional(SOUTH)
-			.withVerticalShapes(LOGISTICAL_CONTROLLER.get(UP)),
+		REDSTONE_LINK = shape(VERTICAL_TABLET_SHAPE).forDirectional(SOUTH),
 		LOGISTICS_TABLE = shape(TABLE_POLE_SHAPE).add(LOGISTICS_TABLE_SLOPE)
 			.forHorizontal(SOUTH),
 		SCHEMATICS_TABLE = shape(4, 0, 4, 12, 12, 12).add(0, 11, 2, 16, 14, 14)

@@ -5,6 +5,7 @@ import com.simibubi.create.api.registry.SimpleRegistry;
 import com.simibubi.create.content.contraptions.behaviour.DoorMovingInteraction;
 import com.simibubi.create.content.contraptions.behaviour.LeverMovingInteraction;
 import com.simibubi.create.content.contraptions.behaviour.TrapdoorMovingInteraction;
+import com.simibubi.create.content.contraptions.behaviour.ButtonMovingInteraction;
 
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
@@ -16,5 +17,6 @@ public class AllInteractionBehaviours {
 		MovingInteractionBehaviour.REGISTRY.registerProvider(SimpleRegistry.Provider.forBlockTag(BlockTags.WOODEN_DOORS, new DoorMovingInteraction()));
 		MovingInteractionBehaviour.REGISTRY.registerProvider(SimpleRegistry.Provider.forBlockTag(BlockTags.WOODEN_TRAPDOORS, new TrapdoorMovingInteraction()));
 		MovingInteractionBehaviour.REGISTRY.registerProvider(SimpleRegistry.Provider.forBlockTag(BlockTags.FENCE_GATES, new TrapdoorMovingInteraction()));
+		MovingInteractionBehaviour.REGISTRY.registerProvider(SimpleRegistry.Provider.forBlockTag(BlockTags.BUTTONS, new ButtonMovingInteraction()));
 	}
 }

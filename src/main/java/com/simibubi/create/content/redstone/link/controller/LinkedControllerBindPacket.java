@@ -40,7 +40,7 @@ public class LinkedControllerBindPacket extends LinkedControllerPacketBase {
 		if (linkBehaviour == null)
 			return;
 
-		linkBehaviour.getNetworkKey()
+		linkBehaviour.link.getChannelKey()
 			.forEachWithContext((f, first) -> frequencyItems.setStackInSlot(button * 2 + (first ? 0 : 1), f.getStack()
 				.copy()));
 

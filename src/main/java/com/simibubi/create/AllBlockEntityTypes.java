@@ -201,6 +201,7 @@ import com.simibubi.create.content.redstone.diodes.PulseRepeaterBlockEntity;
 import com.simibubi.create.content.redstone.diodes.PulseTimerBlockEntity;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlockEntity;
 import com.simibubi.create.content.redstone.displayLink.LinkBulbRenderer;
+import com.simibubi.create.content.redstone.link.LinkRenderer;
 import com.simibubi.create.content.redstone.link.RedstoneLinkBlockEntity;
 import com.simibubi.create.content.redstone.link.controller.LecternControllerBlockEntity;
 import com.simibubi.create.content.redstone.link.controller.LecternControllerRenderer;
@@ -817,7 +818,7 @@ public class AllBlockEntityTypes {
 	public static final BlockEntityEntry<RedstoneLinkBlockEntity> REDSTONE_LINK = REGISTRATE
 		.blockEntity("redstone_link", RedstoneLinkBlockEntity::new)
 		.validBlocks(AllBlocks.REDSTONE_LINK)
-		.renderer(() -> SmartBlockEntityRenderer::new)
+		.renderer(() -> LinkRenderer::new)
 		.register();
 
 	public static final BlockEntityEntry<NixieTubeBlockEntity> NIXIE_TUBE = REGISTRATE

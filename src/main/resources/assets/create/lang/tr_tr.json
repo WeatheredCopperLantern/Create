@@ -2291,7 +2291,7 @@
   "create.ponder.redstone_link.text_1": "Kızıltaş Bağlantıları kızıltaş sinyallerini kablosuz bir şekilde iletebilir",
   "create.ponder.redstone_link.text_2": "Eğilirken sağ tıklayarak alıcı modunu aç",
   "create.ponder.redstone_link.text_3": "Ayarlı anahtar ile basit bir sağ tıklama da aynı şeyi yapabilir",
-  "create.ponder.redstone_link.text_4": "Alıcılar 256 blok içindeki vericilerin kızıltaş gücünü yayar",
+  "create.ponder.redstone_link.text_4": "Alıcılar %1$s blok içindeki vericilerin kızıltaş gücünü yayar",
   "create.ponder.redstone_link.text_5": "İki slotun içine eşyalar koymak bir frekans belirler",
   "create.ponder.redstone_link.text_6": "Sadece frekansları eşleşen bağlantılar iletişim kurar",
   "create.ponder.redstone_requester.header": "Redstone Talep Ediciler ile otomatik siparişler",

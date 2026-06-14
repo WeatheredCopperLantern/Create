@@ -24,6 +24,7 @@
     "WaterWheelFluidSpreadMixin",
     "accessor.BlockBehaviourAccessor",
     "accessor.BlockLootSubProviderAccessor",
+    "accessor.ButtonBlockAccessor",
     "accessor.ConcretePowderBlockAccessor",
     "accessor.CropBlockAccessor",
     "accessor.DispenserBlockAccessor",

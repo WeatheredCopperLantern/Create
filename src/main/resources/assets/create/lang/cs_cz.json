@@ -2291,7 +2291,7 @@
   "create.ponder.redstone_link.text_1": "Redstonové vysílače mohou bezdrátově přenášet redstonové signály",
   "create.ponder.redstone_link.text_2": "Kliknutím pravého tlačítka při plížení přepnete přijímací režim",
   "create.ponder.redstone_link.text_3": "Jednoduchým kliknutím pravým tlačítkem s montážním klíčem dokážete totéž",
-  "create.ponder.redstone_link.text_4": "Přijímače vysílají redstonovou energii vysílačů v rámci 256 bloků",
+  "create.ponder.redstone_link.text_4": "Přijímače vysílají redstonovou energii vysílačů v rámci %1$s bloků",
   "create.ponder.redstone_link.text_5": "Umístěním předmětů do dvou slotů lze určit frekvenci",
   "create.ponder.redstone_link.text_6": "Pouze vysílače s odpovídajícími frekvencemi budou komunikovat",
   "create.ponder.redstone_requester.header": "Automatizované objednávky pomocí redstonových žadatelů",

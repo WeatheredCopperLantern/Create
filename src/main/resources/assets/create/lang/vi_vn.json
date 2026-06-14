@@ -2291,7 +2291,7 @@
   "create.ponder.redstone_link.text_1": "Liên kết Redstone có thể truyền tín hiệu từ xa",
   "create.ponder.redstone_link.text_2": "Chuột phải + Cúi để kích hoạt chế độ nhận tín hiệu",
   "create.ponder.redstone_link.text_3": "Chuột phải với Cờ lê cũng có tác dụng tương tự",
-  "create.ponder.redstone_link.text_4": "Liên kết nhận sẽ phát ra tín hiệu Redstone giống liên kết phát trong khoảng cách 256 khối",
+  "create.ponder.redstone_link.text_4": "Liên kết nhận sẽ phát ra tín hiệu Redstone giống liên kết phát trong khoảng cách %1$s khối",
   "create.ponder.redstone_link.text_5": "Đặt vật phẩm trong hai ô có thể quy định Tần số",
   "create.ponder.redstone_link.text_6": "Chỉ các liên kết cùng tần số mới tương tác với nhau",
   "create.ponder.redstone_requester.header": "Đơn hàng tự động với Bộ yêu cầu Đá đỏ",

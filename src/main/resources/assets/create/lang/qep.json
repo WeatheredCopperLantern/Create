@@ -2291,7 +2291,7 @@
   "create.ponder.redstone_link.text_1": "Redstone Links can broadcast redstone beacons wirelessly",
   "create.ponder.redstone_link.text_2": "Right-click while Sneaking to toggle reap wayset",
   "create.ponder.redstone_link.text_3": "A onefold Right-click with a Wrench works the same",
-  "create.ponder.redstone_link.text_4": "Reapers yeave off the redstone might of broadcasters within 256 clots",
+  "create.ponder.redstone_link.text_4": "Reapers yeave off the redstone might of broadcasters within %1$s clots",
   "create.ponder.redstone_link.text_5": "Laying things in the two groovesteads can set a Quivering",
   "create.ponder.redstone_link.text_6": "Only the links with matching Quiverings will speak to each other",
   "create.ponder.redstone_requester.header": "Self-asking with Redstone Askers",

@@ -19,6 +19,7 @@ import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlock;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 
+import com.simibubi.create.infrastructure.config.AllConfigs;
 import net.createmod.catnip.math.Pointing;
 import net.createmod.ponder.api.PonderPalette;
 import net.createmod.ponder.api.element.ElementLink;
@@ -748,9 +749,10 @@ public class RedstoneScenes {
 		scene.effects().indicateRedstone(link3Pos);
 
 		scene.idle(10);
+
 		scene.overlay().showText(70)
 			.colored(PonderPalette.GREEN)
-			.text("Receivers emit the redstone power of transmitters within 256 blocks")
+			.text("Receivers emit the redstone power of transmitters within %1$s blocks", AllConfigs.server().logistics.linkRange.get())
 			.placeNearTarget()
 			.pointAt(link2Vec);
 		scene.idle(80);

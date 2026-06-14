@@ -2289,7 +2289,7 @@
   "create.ponder.redstone_link.text_1": "Redstone Links kan sende Rødsten signaler trådløst",
   "create.ponder.redstone_link.text_2": "Højreklik mens Sneaking for at skifte modtagetilstand",
   "create.ponder.redstone_link.text_3": "Et simpelt højreklik med en skruenøgle kan gøre det samme",
-  "create.ponder.redstone_link.text_4": "Modtagere udsender senderens redstone effekt inden for 256 blokke",
+  "create.ponder.redstone_link.text_4": "Modtagere udsender senderens redstone effekt inden for %1$s blokke",
   "create.ponder.redstone_link.text_5": "Placering af elementer i de to felter kan angive en frekvens",
   "create.ponder.redstone_link.text_6": "Kun links med matchende frekvenser vil kommunikere",
   "create.ponder.redstone_requester.header": "Automatiserede ordrer med Redstone-anmodninger",

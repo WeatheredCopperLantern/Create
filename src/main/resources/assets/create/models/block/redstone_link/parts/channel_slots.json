@@ -1,0 +1,30 @@
+{
+    "textures": {
+        "particle": "create:block/redstone_link",
+        "main": "create:block/redstone_link"
+    },
+    "elements": [
+        {
+            "from": [6, 8.5, 3],
+            "to": [10, 12.5, 3.5],
+            "faces": {
+                "down": {"uv": [11.5, 6.5, 13.5, 7], "texture": "#main"},
+                "east": {"uv": [11.5, 6.5, 13.5, 7], "texture": "#main"},
+                "up": {"uv": [11.5, 6.5, 13.5, 7], "texture": "#main"},
+                "west": {"uv": [11.5, 6.5, 13.5, 7], "texture": "#main"},
+                "south": {"uv": [11.5, 4.5, 13.5, 6.5], "texture": "#main"}
+            }
+        },
+        {
+            "from": [6, 3.5, 3],
+            "to": [10, 7.5, 3.5],
+            "faces": {
+                "down": {"uv": [11.5, 6.5, 13.5, 7], "texture": "#main"},
+                "east": {"uv": [11.5, 6.5, 13.5, 7], "texture": "#main"},
+                "up": {"uv": [11.5, 6.5, 13.5, 7], "texture": "#main"},
+                "west": {"uv": [11.5, 6.5, 13.5, 7], "texture": "#main"},
+                "south": {"uv": [13.5, 4.5, 15.5, 6.5], "texture": "#main"}
+            }
+        }
+    ]
+}

@@ -1,0 +1,53 @@
+{
+    "loader": "neoforge:composite",
+    "textures": {
+        "particle": "create:block/redstone_link"
+    },
+    "children": {
+        "body": {
+            "parent": "create:block/redstone_link/parts/body/unpowered"
+        },
+        "body_powered": {
+            "parent": "create:block/redstone_link/parts/body/powered"
+        },
+        "channel_slots": {
+            "parent": "create:block/redstone_link/parts/channel_slots"
+        },
+        "r_n": {
+            "parent": "create:block/redstone_link/parts/antenna/n/receiver"
+        },
+        "r_n_p": {
+            "parent": "create:block/redstone_link/parts/antenna/n/receiver_powered"
+        },
+        "t_n": {
+            "parent": "create:block/redstone_link/parts/antenna/n/transmitter"
+        },
+        "t_n_p": {
+            "parent": "create:block/redstone_link/parts/antenna/n/transmitter_powered"
+        },
+        "r_r": {
+            "parent": "create:block/redstone_link/parts/antenna/r/receiver"
+        },
+        "r_r_p": {
+            "parent": "create:block/redstone_link/parts/antenna/r/receiver_powered"
+        },
+        "t_r": {
+            "parent": "create:block/redstone_link/parts/antenna/r/transmitter"
+        },
+        "t_r_p": {
+            "parent": "create:block/redstone_link/parts/antenna/r/transmitter_powered"
+        }
+    },
+    "visibility": {
+        "body": false,
+        "body_powered": false,
+        "r_n": false,
+        "r_n_p": false,
+        "t_n": false,
+        "t_n_p": false,
+        "r_r": false,
+        "r_r_p": false,
+        "t_r": false,
+        "t_r_p": false
+    }
+}

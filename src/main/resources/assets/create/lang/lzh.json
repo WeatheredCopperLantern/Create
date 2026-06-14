@@ -2291,7 +2291,7 @@
   "create.ponder.redstone_link.text_1": "飛鴻器可隔空傳信",
   "create.ponder.redstone_link.text_2": "潛行右擊，以啟閉接收之式",
   "create.ponder.redstone_link.text_3": "以扳手右擊，其效亦同",
-  "create.ponder.redstone_link.text_4": "接收者，可發二百五十六步內，發送者之赤石之力",
+  "create.ponder.redstone_link.text_4": "接收者，可發%1$s步內，發送者之赤石之力",
   "create.ponder.redstone_link.text_5": "置物於二槽，可定其信道",
   "create.ponder.redstone_link.text_6": "唯信道相合者，方能互通",
   "create.ponder.redstone_requester.header": "以赤石請領器自行約貨",

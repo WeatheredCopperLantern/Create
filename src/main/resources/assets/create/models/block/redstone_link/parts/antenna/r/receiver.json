@@ -1,0 +1,57 @@
+{
+    "textures": {
+        "main": "create:block/redstone_link"
+    },
+    "elements": [
+        {
+            "name": "rod",
+            "from": [2, 12, 1],
+            "to": [3, 13, 10],
+            "faces": {
+                "up": {"uv": [13.5, 0, 14, 4.5], "rotation": 180, "texture": "#main"},
+                "down": {"uv": [13.5, 0, 14, 4.5], "texture": "#main"},
+                "north": {"uv": [13.5, 4, 14, 4.5], "texture": "#main"},
+                "east": {"uv": [13.5, 0, 14, 4.5], "rotation": 270, "texture": "#main"},
+                "south": {"uv": [13.5, 0, 14, 0.5], "texture": "#main"},
+                "west": {"uv": [13.5, 0, 14, 4.5], "rotation": 90, "texture": "#main"}
+            }
+        },
+        {
+            "name": "dish",
+            "from": [0, 10, 8],
+            "to": [5, 15, 8],
+            "faces": {
+                "north": {"uv": [11, 0, 13.5, 2.5], "texture": "#main"},
+                "south": {"uv": [11, 0, 13.5, 2.5], "texture": "#main"}
+            }
+        },
+        {
+            "name": "light",
+            "from": [2, 12, 9],
+            "to": [3, 13, 10],
+            "shade": false,
+            "faces": {
+                "up": {"uv": [10, 0.5, 11, 1.5], "rotation": 180, "texture": "#main"},
+                "down": {"uv": [10, 0.5, 11, 1.5], "texture": "#main"},
+                "east": {"uv": [10, 0.5, 11, 1.5], "rotation": 270, "texture": "#main"},
+                "south": {"uv": [10, 0.5, 11, 1.5], "texture": "#main"},
+                "west": {"uv": [10, 0.5, 11, 1.5], "rotation": 90, "texture": "#main"}
+            }
+        },
+        {
+            "name": "glow",
+            "from": [3.25, 13.25, 10.25],
+            "to": [1.75, 11.75, 8.75],
+            "shade": false,
+            "rotation": {"angle": 0, "axis": "y", "origin": [0.5, 8.5, 0.5]},
+            "faces": {
+                "north": {"uv": [10, 0, 10.5, 0.5], "texture": "#main"},
+                "east": {"uv": [10, 0, 10.5, 0.5], "texture": "#main"},
+                "south": {"uv": [10, 0, 10.5, 0.5], "texture": "#main"},
+                "west": {"uv": [10, 0, 10.5, 0.5], "texture": "#main"},
+                "up": {"uv": [10, 0, 10.5, 0.5], "texture": "#main"},
+                "down": {"uv": [10, 0, 10.5, 0.5], "texture": "#main"}
+            }
+        }
+    ]
+}

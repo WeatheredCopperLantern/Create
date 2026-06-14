@@ -75,7 +75,7 @@ public class ValueBoxRenderer {
 	}
 
 	@SuppressWarnings("deprecation")
-	private static float customZOffset(Item item) {
+	public static float customZOffset(Item item) {
 		float nudge = -.1f;
 		if (item instanceof BlockItem) {
 			Block block = ((BlockItem) item).getBlock();

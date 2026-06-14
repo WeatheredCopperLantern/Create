@@ -2291,7 +2291,7 @@
   "create.ponder.redstone_link.text_1": "I connettori redstone possono trasmettere segnali redstone in maniera wireless",
   "create.ponder.redstone_link.text_2": "Fai clic destro da accovacciato per metterli in modalità di ricezione o viceversa",
   "create.ponder.redstone_link.text_3": "Un semplice clic destro con una chiave a pappagallo farà lo stesso",
-  "create.ponder.redstone_link.text_4": "I ricevitori emettono il segnale redstone di trasmettitori entro 256 blocchi",
+  "create.ponder.redstone_link.text_4": "I ricevitori emettono il segnale redstone di trasmettitori entro %1$s blocchi",
   "create.ponder.redstone_link.text_5": "Piazzare oggetti nei due slot specifica una frequenza",
   "create.ponder.redstone_link.text_6": "Solo i connettori con frequenze identiche potranno comunicare tra loro",
   "create.ponder.redstone_requester.header": "Ordini automatizzati con i richieditori redstone",

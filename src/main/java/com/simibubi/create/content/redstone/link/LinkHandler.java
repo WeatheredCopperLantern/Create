@@ -66,7 +66,7 @@ public class LinkHandler {
 		for (boolean first : Arrays.asList(false, true)) {
 			if (behaviour.testHit(first, ray.getLocation()) || fakePlayer && fakePlayerChoice == first) {
 				if (event.getSide() != LogicalSide.CLIENT)
-					behaviour.setFrequency(first, heldItem);
+					behaviour.link.setFrequency(first, heldItem);
 				event.setCanceled(true);
 				event.setCancellationResult(InteractionResult.SUCCESS);
 				world.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, .25f, .1f);

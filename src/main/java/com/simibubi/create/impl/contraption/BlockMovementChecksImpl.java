@@ -38,7 +38,7 @@ import com.simibubi.create.content.kinetics.fan.NozzleBlock;
 import com.simibubi.create.content.logistics.funnel.BeltFunnelBlock;
 import com.simibubi.create.content.logistics.packagerLink.PackagerLinkBlock;
 import com.simibubi.create.content.logistics.vault.ItemVaultBlock;
-import com.simibubi.create.content.redstone.link.RedstoneLinkBlock;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkBlock;
 import com.simibubi.create.content.trains.bogey.AbstractBogeyBlock;
 import com.simibubi.create.content.trains.station.StationBlock;
 import com.simibubi.create.content.trains.track.ITrackBlock;

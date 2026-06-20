@@ -27,6 +27,7 @@
     "accessor.ButtonBlockAccessor",
     "accessor.ConcretePowderBlockAccessor",
     "accessor.CropBlockAccessor",
+    "accessor.CValueAccessor",
     "accessor.DispenserBlockAccessor",
     "accessor.FallingBlockEntityAccessor",
     "accessor.FlowingFluidAccessor",

@@ -1,8 +1,8 @@
-package com.simibubi.create.content.redstone.link;
+package com.simibubi.create.content.redstone.link.ehh;
 
 import com.simibubi.create.Create;
 import net.createmod.catnip.data.Couple;
-import com.simibubi.create.content.redstone.link.RedstoneLinkNetworkHandler.Frequency;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkNetworkHandler.Frequency;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;

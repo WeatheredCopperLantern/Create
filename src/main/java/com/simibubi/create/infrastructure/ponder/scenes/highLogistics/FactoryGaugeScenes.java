@@ -15,7 +15,7 @@ import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntit
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelConnection;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelPosition;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
-import com.simibubi.create.content.redstone.link.RedstoneLinkBlock;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkBlock;
 import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 

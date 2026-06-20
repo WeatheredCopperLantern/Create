@@ -2,8 +2,8 @@ package com.simibubi.create.content.contraptions.behaviour;
 
 import com.simibubi.create.content.contraptions.Contraption;
 
-import com.simibubi.create.content.redstone.link.RedstoneLinkMovementBehaviour;
-import com.simibubi.create.content.redstone.link.interfaces.IRedstoneLinkable;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkMovementBehaviour;
+import com.simibubi.create.content.redstone.link.ehh.interfaces.IRedstoneLinkable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;

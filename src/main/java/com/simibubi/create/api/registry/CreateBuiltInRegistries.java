@@ -1,5 +1,6 @@
 package com.simibubi.create.api.registry;
 
+import com.simibubi.create.content.redstone.link.RedstoneLinkable;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 import com.mojang.serialization.MapCodec;
@@ -43,6 +44,7 @@ public class CreateBuiltInRegistries {
 	public static final Registry<MapCodec<? extends PotatoProjectileRenderMode>> POTATO_PROJECTILE_RENDER_MODE = simple(CreateRegistries.POTATO_PROJECTILE_RENDER_MODE);
 	public static final Registry<MapCodec<? extends PotatoProjectileEntityHitAction>> POTATO_PROJECTILE_ENTITY_HIT_ACTION = simple(CreateRegistries.POTATO_PROJECTILE_ENTITY_HIT_ACTION);
 	public static final Registry<MapCodec<? extends PotatoProjectileBlockHitAction>> POTATO_PROJECTILE_BLOCK_HIT_ACTION = simple(CreateRegistries.POTATO_PROJECTILE_BLOCK_HIT_ACTION);
+	public static final Registry<RedstoneLinkable> REDSTONE_LINKABLE = simple(CreateRegistries.REDSTONE_LINKABLE);
 
 	private static <T> Registry<T> simple(ResourceKey<Registry<T>> key) {
 		return register(key, false, () -> {});

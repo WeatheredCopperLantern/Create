@@ -51,7 +51,7 @@ import com.simibubi.create.content.logistics.tunnel.BrassTunnelBlockEntity;
 import com.simibubi.create.content.logistics.vault.ItemVaultBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlockEntity;
-import com.simibubi.create.content.redstone.link.controller.LinkedControllerServerHandler;
+import com.simibubi.create.content.redstone.link.ehh.controller.LinkedControllerServerHandler;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
 import com.simibubi.create.content.trains.entity.CarriageEntityHandler;
 import com.simibubi.create.content.trains.observer.TrackObserverBlockEntity;

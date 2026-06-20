@@ -1,4 +1,4 @@
-package com.simibubi.create.content.redstone.link.controller;
+package com.simibubi.create.content.redstone.link.ehh.controller;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import com.simibubi.create.content.redstone.link.EntityRedstoneLinkable;
-import com.simibubi.create.content.redstone.link.RedstoneLinkNetworkHandler.Frequency;
+import com.simibubi.create.content.redstone.link.ehh.EntityRedstoneLinkable;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkNetworkHandler.Frequency;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.data.WorldAttached;
@@ -60,7 +60,7 @@ public class LinkedControllerServerHandler {
 			}
 			LinkedControllerSignal entry = new LinkedControllerSignal(channel, origin);
 			list.add(entry);
-			if (!entry.getNetwork().getChannel(entry.getChannelKey()).get(true).isEmpty()) {
+			if (!entry.getNetwork().getChannelMembers(entry.getChannelKey()).get(true).isEmpty()) {
 				AllAdvancements.LINKED_CONTROLLER.awardTo(world.getPlayerByUUID(uniqueID));
 			}
 		}

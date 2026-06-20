@@ -10,6 +10,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import com.simibubi.create.content.redstone.link.RedstoneLinkable;
+import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.CreateClient;
@@ -177,6 +179,12 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 		return this.entry(name, callback -> new SimpleBuilder<>(
 			this, this, name, callback, CreateRegistries.DISPLAY_TARGET, supplier
 		).byBlock(DisplayTarget.BY_BLOCK).byBlockEntity(DisplayTarget.BY_BLOCK_ENTITY));
+	}
+
+	public <T extends RedstoneLinkable> SimpleBuilder<RedstoneLinkable, T, CreateRegistrate> redstoneLinkable(String name, Supplier<T> supplier){
+		return this.entry(name, callback -> new SimpleBuilder<>(
+			this, this, name, callback, CreateRegistries.REDSTONE_LINKABLE, supplier
+		));
 	}
 
 	/* Palettes */

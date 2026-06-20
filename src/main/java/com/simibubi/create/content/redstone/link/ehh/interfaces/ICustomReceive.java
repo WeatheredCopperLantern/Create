@@ -1,4 +1,4 @@
-package com.simibubi.create.content.redstone.link.interfaces;
+package com.simibubi.create.content.redstone.link.ehh.interfaces;
 
 import java.util.Set;
 

@@ -1,4 +1,4 @@
-package com.simibubi.create.content.redstone.link.controller;
+package com.simibubi.create.content.redstone.link.ehh.controller;
 
 import org.jetbrains.annotations.Nullable;
 

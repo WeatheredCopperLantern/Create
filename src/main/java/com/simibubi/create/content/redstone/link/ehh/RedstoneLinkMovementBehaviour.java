@@ -1,11 +1,11 @@
-package com.simibubi.create.content.redstone.link;
+package com.simibubi.create.content.redstone.link.ehh;
 
 import com.simibubi.create.Create;
 import com.simibubi.create.content.contraptions.render.ContraptionMatrices;
-import com.simibubi.create.content.redstone.link.RedstoneLinkNetworkHandler.Frequency;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkNetworkHandler.Frequency;
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
-import com.simibubi.create.content.redstone.link.interfaces.IRedstoneLinkable;
+import com.simibubi.create.content.redstone.link.ehh.interfaces.IRedstoneLinkable;
 import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.math.VecHelper;

@@ -1,10 +1,10 @@
-package com.simibubi.create.content.redstone.link;
+package com.simibubi.create.content.redstone.link.ehh;
 
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
 import com.simibubi.create.Create;
-import com.simibubi.create.content.redstone.link.interfaces.IRedstoneLinkable;
+import com.simibubi.create.content.redstone.link.ehh.interfaces.IRedstoneLinkable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -12,8 +12,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import com.simibubi.create.content.equipment.clipboard.ClipboardCloneable;
-import com.simibubi.create.content.redstone.link.RedstoneLinkNetworkHandler.Frequency;
-import com.simibubi.create.content.redstone.link.interfaces.IRedstoneLinkable.Mode;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkNetworkHandler.Frequency;
+import com.simibubi.create.content.redstone.link.ehh.interfaces.IRedstoneLinkable.Mode;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -116,11 +116,13 @@ public class LinkBehaviour extends BlockEntityBehaviour implements ClipboardClon
 	private static class LinkBehaviourRedstoneLinkable extends AbstractRedstoneLinkable {
 
 		private final LinkBehaviour behaviour;
+		private final Vec3 location;
 
 		public LinkBehaviourRedstoneLinkable(Frequency first, Frequency last, Mode mode, IntConsumer signalCallback,
 			IntSupplier transmission, LinkBehaviour behaviour) {
 			super(first, last, mode, signalCallback, transmission);
 			this.behaviour = behaviour;
+			location = Vec3.atCenterOf(behaviour.getPos());
 		}
 
 		@Override
@@ -152,7 +154,7 @@ public class LinkBehaviour extends BlockEntityBehaviour implements ClipboardClon
 
 		@Override
 		public Vec3 getLocation() {
-			return Vec3.atCenterOf(behaviour.getPos());
+			return location;
 		}
 
 		@Override

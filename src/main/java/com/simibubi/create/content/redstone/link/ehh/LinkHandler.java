@@ -1,4 +1,4 @@
-package com.simibubi.create.content.redstone.link;
+package com.simibubi.create.content.redstone.link.ehh;
 
 import java.util.Arrays;
 

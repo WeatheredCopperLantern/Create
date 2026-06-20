@@ -228,9 +228,9 @@ import com.simibubi.create.content.redstone.diodes.ToggleLatchBlock;
 import com.simibubi.create.content.redstone.diodes.ToggleLatchGenerator;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlock;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlockItem;
-import com.simibubi.create.content.redstone.link.RedstoneLinkBlock;
-import com.simibubi.create.content.redstone.link.RedstoneLinkMovementBehaviour;
-import com.simibubi.create.content.redstone.link.controller.LecternControllerBlock;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkBlock;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkMovementBehaviour;
+import com.simibubi.create.content.redstone.link.ehh.controller.LecternControllerBlock;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlock;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeGenerator;
 import com.simibubi.create.content.redstone.rail.ControllerRailBlock;
@@ -2097,7 +2097,7 @@ public class AllBlocks {
 	public static final BlockEntry<RedstoneLinkBlock> REDSTONE_LINK =
 		REGISTRATE.block("redstone_link", RedstoneLinkBlock::new)
 			.initialProperties(SharedProperties::wooden)
-			.properties(p -> p.mapColor(MapColor.TERRACOTTA_BROWN).forceSolidOn().lightLevel(s -> s.getValue(RedstoneLinkBlock.POWERED) ? 7 : 0))
+			.properties(p -> p.mapColor(MapColor.TERRACOTTA_BROWN).forceSolidOn())
 			.transform(axeOrPickaxe())
 			.tag(AllBlockTags.BRITTLE.tag, AllBlockTags.SAFE_NBT.tag)
 			.onRegister(movementBehaviour(new RedstoneLinkMovementBehaviour()))

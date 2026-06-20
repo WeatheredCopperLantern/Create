@@ -1,15 +1,19 @@
-package com.simibubi.create.content.redstone.link;
+package com.simibubi.create.content.redstone.link.ehh;
 
-import com.simibubi.create.content.redstone.link.interfaces.IRedstoneLinkable;
+import com.simibubi.create.content.redstone.link.ehh.interfaces.IRedstoneLinkable;
+import com.simibubi.create.foundation.mixin.accessor.CValueAccessor;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import net.createmod.catnip.data.Couple;
-import com.simibubi.create.content.redstone.link.RedstoneLinkNetworkHandler.Frequency;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkNetworkHandler.Frequency;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
 public abstract class AbstractRedstoneLinkable implements IRedstoneLinkable {
+
+	private static final ModConfigSpec.ConfigValue<Integer> logistics_linkRange = (ModConfigSpec.ConfigValue<Integer>) ((CValueAccessor) AllConfigs.server().logistics.linkRange).create$getRawValue();
 
 	private Frequency frequencyFirst;
 	private Frequency frequencyLast;
@@ -18,13 +22,16 @@ public abstract class AbstractRedstoneLinkable implements IRedstoneLinkable {
 	protected IntConsumer signalCallback;
 	private RedstoneLinkNetwork network;
 
-	private boolean queued = false;
+	private boolean queuedUpdate = false;
+	private boolean queuedRecalc = false;
 
-	public AbstractRedstoneLinkable(Couple<Frequency> channel, Mode mode, IntConsumer signalCallback, IntSupplier transmission) {
+	public AbstractRedstoneLinkable(Couple<Frequency> channel, Mode mode, IntConsumer signalCallback,
+		IntSupplier transmission) {
 		this(channel.getFirst(), channel.getSecond(), mode, signalCallback, transmission);
 	}
 
-	public AbstractRedstoneLinkable(Frequency first, Frequency last, Mode mode, IntConsumer signalCallback, IntSupplier transmission) {
+	public AbstractRedstoneLinkable(Frequency first, Frequency last, Mode mode, IntConsumer signalCallback,
+		IntSupplier transmission) {
 		frequencyFirst = first;
 		frequencyLast = last;
 		this.signalCallback = signalCallback;
@@ -34,30 +41,45 @@ public abstract class AbstractRedstoneLinkable implements IRedstoneLinkable {
 
 	@Override
 	public void queueUpdate() {
-		if (!queued && getNetwork() != null) {
-			queued = true;
+		if (!queuedUpdate && getNetwork() != null) {
+			queuedUpdate = true;
 			getNetwork().queueDelayedUpdate(this);
 		}
 	}
 
 	@Override
-	public boolean allowQueue() {
-		return !queued;
+	public void considerQueued() {
+		queuedRecalc = true;
+	}
+
+	@Override
+	public void considerDequeued() {
+		queuedRecalc = false;
+	}
+
+	@Override
+	public boolean allowRecalcQueue() {
+		return !queuedRecalc;
+	}
+
+	@Override
+	public boolean allowUpdateQueue() {
+		return !queuedUpdate;
 	}
 
 	@Override
 	public void delayedUpdate() {
-		queued = false;
+		queuedUpdate = false;
 	}
 
 	@Override
 	public int receivingRange() {
-		return AllConfigs.server().logistics.linkRange.get();
+		return logistics_linkRange.get();
 	}
 
 	@Override
 	public int transmissionRange() {
-		return AllConfigs.server().logistics.linkRange.get();
+		return logistics_linkRange.get();
 	}
 
 	public final void notifySignalChange() {
@@ -72,7 +94,6 @@ public abstract class AbstractRedstoneLinkable implements IRedstoneLinkable {
 
 	@Override
 	public final void setReceivedStrength(int power) {
-		queued = false;
 		signalCallback.accept(power);
 	}
 
@@ -101,7 +122,9 @@ public abstract class AbstractRedstoneLinkable implements IRedstoneLinkable {
 
 	@Override
 	public final void clearNetwork(int inTicks) {
-		if (network != null) network.removeIn(this, inTicks);
+		if (network != null) {
+			network.removeIn(this, inTicks);
+		}
 		network = null;
 	}
 
@@ -117,8 +140,8 @@ public abstract class AbstractRedstoneLinkable implements IRedstoneLinkable {
 	}
 
 	/**
-	 * Override {@link com.simibubi.create.content.redstone.link.AbstractRedstoneLinkable#shouldSetMode(Mode)} and/or
-	 * {@link com.simibubi.create.content.redstone.link.AbstractRedstoneLinkable#onModeChanged(Mode)} to change behavior.
+	 * Override {@link AbstractRedstoneLinkable#shouldSetMode(Mode)} and/or
+	 * {@link AbstractRedstoneLinkable#onModeChanged(Mode)} to change behavior.
 	 */
 	@Override
 	public final void setMode(Mode newMode) {
@@ -134,8 +157,8 @@ public abstract class AbstractRedstoneLinkable implements IRedstoneLinkable {
 	}
 
 	/**
-	 * Override {@link com.simibubi.create.content.redstone.link.AbstractRedstoneLinkable#shouldSetFrequency(boolean, ItemStack)} and/or
-	 * {@link com.simibubi.create.content.redstone.link.AbstractRedstoneLinkable#onFrequencyChanged(boolean, ItemStack)} to change behavior.
+	 * Override {@link AbstractRedstoneLinkable#shouldSetFrequency(boolean, ItemStack)} and/or
+	 * {@link AbstractRedstoneLinkable#onFrequencyChanged(boolean, ItemStack)} to change behavior.
 	 */
 	@Override
 	public final void setFrequency(boolean first, ItemStack stack) {

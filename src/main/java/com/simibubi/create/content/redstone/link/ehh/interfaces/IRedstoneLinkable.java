@@ -1,8 +1,9 @@
-package com.simibubi.create.content.redstone.link.interfaces;
+package com.simibubi.create.content.redstone.link.ehh.interfaces;
 
-import com.simibubi.create.content.redstone.link.RedstoneLinkNetwork;
-import com.simibubi.create.content.redstone.link.RedstoneLinkNetworkHandler.Frequency;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkNetwork;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkNetworkHandler.Frequency;
 
+import com.simibubi.create.content.redstone.link.ehh.AbstractRedstoneLinkable;
 import net.createmod.catnip.data.Couple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -10,7 +11,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
- * Extend {@link com.simibubi.create.content.redstone.link.AbstractRedstoneLinkable} or its subclasses whenever possible.
+ * Extend {@link AbstractRedstoneLinkable} or its subclasses whenever possible.
  * Direct implementation of this interface is not considered stable and is likely to break in future versions.
  */
 @Internal
@@ -30,7 +31,12 @@ public interface IRedstoneLinkable {
 
 	public boolean isListening();
 
-	public boolean allowQueue();
+	public void considerQueued();
+
+	public void considerDequeued();
+
+	public boolean allowUpdateQueue();
+	public boolean allowRecalcQueue();
 
 	public void queueUpdate();
 

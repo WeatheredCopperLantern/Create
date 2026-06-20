@@ -1,8 +1,8 @@
 package com.simibubi.create.content.contraptions.behaviour;
 
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
-import com.simibubi.create.content.redstone.link.RedstoneLinkMovementBehaviour;
-import com.simibubi.create.content.redstone.link.interfaces.IRedstoneLinkable;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkMovementBehaviour;
+import com.simibubi.create.content.redstone.link.ehh.interfaces.IRedstoneLinkable;
 import com.simibubi.create.foundation.mixin.accessor.ButtonBlockAccessor;
 import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;

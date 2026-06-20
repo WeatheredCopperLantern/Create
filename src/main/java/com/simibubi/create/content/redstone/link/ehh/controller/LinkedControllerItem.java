@@ -1,12 +1,11 @@
-package com.simibubi.create.content.redstone.link.controller;
+package com.simibubi.create.content.redstone.link.ehh.controller;
 
 import java.util.function.Consumer;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
-import com.simibubi.create.content.redstone.link.RedstoneLinkNetworkHandler;
-import com.simibubi.create.content.redstone.link.RedstoneLinkNetworkHandler.Frequency;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkNetworkHandler.Frequency;
 import com.simibubi.create.foundation.item.ItemHelper;
 import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 
@@ -126,7 +125,7 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 		return newInv;
 	}
 
-	public static Couple<RedstoneLinkNetworkHandler.Frequency> toFrequency(ItemStack controller, int slot) {
+	public static Couple<Frequency> toFrequency(ItemStack controller, int slot) {
 		ItemStackHandler frequencyItems = getFrequencyItems(controller);
 		return Couple.create(Frequency.of(frequencyItems.getStackInSlot(slot * 2)),
 			Frequency.of(frequencyItems.getStackInSlot(slot * 2 + 1)));

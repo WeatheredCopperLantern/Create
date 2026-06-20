@@ -1,11 +1,11 @@
-package com.simibubi.create.content.redstone.link;
+package com.simibubi.create.content.redstone.link.ehh;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.simibubi.create.content.redstone.link.interfaces.IRedstoneLinkable;
+import com.simibubi.create.content.redstone.link.ehh.interfaces.IRedstoneLinkable;
 import net.createmod.catnip.data.Couple;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.Entity;
@@ -53,7 +53,7 @@ public class RedstoneLinkNetworkHandler {
 
 	public boolean hasAnyLoadedPower(Couple<Frequency> frequency) {
 		for (RedstoneLinkNetwork network : networks.values()) {
-			Couple<Set<IRedstoneLinkable>> links = network.getChannel(frequency);
+			Couple<Set<IRedstoneLinkable>> links = network.getChannelMembers(frequency);
 			if (links.get(false).isEmpty()) {
 				return false;
 			}
@@ -100,6 +100,5 @@ public class RedstoneLinkNetworkHandler {
 				return true;
 			return obj instanceof Frequency frequency && frequency.item == item && frequency.color == color;
 		}
-
 	}
 }

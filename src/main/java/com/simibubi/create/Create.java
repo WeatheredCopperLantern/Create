@@ -26,7 +26,7 @@ import com.simibubi.create.content.logistics.packagePort.AllPackagePortTargetTyp
 import com.simibubi.create.content.logistics.packager.AllInventoryIdentifiers;
 import com.simibubi.create.content.logistics.packager.AllUnpackingHandlers;
 import com.simibubi.create.content.logistics.packagerLink.GlobalLogisticsManager;
-import com.simibubi.create.content.redstone.link.RedstoneLinkNetworkHandler;
+import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkNetworkHandler;
 import com.simibubi.create.content.schematics.ServerSchematicLoader;
 import com.simibubi.create.content.trains.GlobalRailwayManager;
 import com.simibubi.create.content.trains.bogey.BogeySizes;
@@ -136,6 +136,7 @@ public class Create {
 		AllDataComponents.register(modEventBus);
 		AllMapDecorationTypes.register(modEventBus);
 		AllMountedStorageTypes.register();
+		AllRedstoneLinkables.register();
 
 		AllConfigs.register(modLoadingContext, modContainer);
 

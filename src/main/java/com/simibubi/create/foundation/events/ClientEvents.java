@@ -47,8 +47,8 @@ import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedClie
 import com.simibubi.create.content.logistics.tableCloth.TableClothOverlayRenderer;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
 import com.simibubi.create.content.redstone.displayLink.ClickToLinkBlockItem;
-import com.simibubi.create.content.redstone.link.LinkRenderer;
-import com.simibubi.create.content.redstone.link.controller.LinkedControllerClientHandler;
+import com.simibubi.create.content.redstone.link.ehh.LinkRenderer;
+import com.simibubi.create.content.redstone.link.ehh.controller.LinkedControllerClientHandler;
 import com.simibubi.create.content.trains.CameraDistanceModifier;
 import com.simibubi.create.content.trains.TrainHUD;
 import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;

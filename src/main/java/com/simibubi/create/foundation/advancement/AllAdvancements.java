@@ -503,7 +503,7 @@ public class AllAdvancements implements DataProvider {
 		.description("Get hold of an Extendo Grip")
 		.after(POTATO_CANNON)),
 
-	LINKED_CONTROLLER = create("linked_controller", b -> b.icon(AllItems.LINKED_CONTROLLER)
+	LINKED_CONTROLLER = create("linked_controller", b -> b.icon(AllItems.ANDESITE_ALLOY) //AllItems.LINKED_CONTROLLER)
 		.title("Remote Activation")
 		.description("Activate a Redstone Link using a Linked Controller")
 		.after(EXTENDO_GRIP)),

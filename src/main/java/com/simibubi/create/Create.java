@@ -2,11 +2,6 @@ package com.simibubi.create;
 
 import java.util.Random;
 
-import org.slf4j.Logger;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.mojang.logging.LogUtils;
 import com.simibubi.create.api.registrate.CreateRegistrateRegistrationCallback;
 import com.simibubi.create.compat.Mods;
 import com.simibubi.create.compat.computercraft.ComputerCraftProxy;
@@ -26,7 +21,7 @@ import com.simibubi.create.content.logistics.packagePort.AllPackagePortTargetTyp
 import com.simibubi.create.content.logistics.packager.AllInventoryIdentifiers;
 import com.simibubi.create.content.logistics.packager.AllUnpackingHandlers;
 import com.simibubi.create.content.logistics.packagerLink.GlobalLogisticsManager;
-import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkNetworkHandler;
+import com.simibubi.create.content.redstone.link.GlobalRedstoneLinkNetworksManager;
 import com.simibubi.create.content.schematics.ServerSchematicLoader;
 import com.simibubi.create.content.trains.GlobalRailwayManager;
 import com.simibubi.create.content.trains.bogey.BogeySizes;
@@ -44,9 +39,9 @@ import com.simibubi.create.infrastructure.config.AllConfigs;
 import com.simibubi.create.infrastructure.data.CreateDatagen;
 import com.simibubi.create.infrastructure.worldgen.AllFeatures;
 import com.simibubi.create.infrastructure.worldgen.AllPlacementModifiers;
-
 import net.createmod.catnip.lang.FontHelper;
 import net.createmod.catnip.lang.LangBuilder;
+
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -54,6 +49,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.Level;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -62,9 +60,11 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.registries.RegisterEvent;
+import org.slf4j.Logger;
 
 @Mod(Create.ID)
 public class Create {
+
 	public static final String ID = "create";
 	public static final String NAME = "Create";
 
@@ -72,9 +72,7 @@ public class Create {
 
 	private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
-	public static final Gson GSON = new GsonBuilder().setPrettyPrinting()
-		.disableHtmlEscaping()
-		.create();
+	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
 	/**
 	 * Use the {@link Random} of a local {@link Level} or {@link Entity} or create one
@@ -88,15 +86,10 @@ public class Create {
 	 * </br
 	 * If you were using this instance to register a callback listener use {@link CreateRegistrateRegistrationCallback#register} instead.
 	 */
-	private static final CreateRegistrate REGISTRATE = CreateRegistrate.create(ID)
-		.defaultCreativeTab((ResourceKey<CreativeModeTab>) null)
-		.setTooltipModifierFactory(item ->
-			new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
-				.andThen(TooltipModifier.mapNull(KineticStats.create(item)))
-		);
+	private static final CreateRegistrate REGISTRATE = CreateRegistrate.create(ID).defaultCreativeTab((ResourceKey<CreativeModeTab>) null).setTooltipModifierFactory(item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE).andThen(TooltipModifier.mapNull(KineticStats.create(item))));
 
 	public static final ServerSchematicLoader SCHEMATIC_RECEIVER = new ServerSchematicLoader();
-	public static final RedstoneLinkNetworkHandler REDSTONE_LINK_NETWORK_HANDLER = new RedstoneLinkNetworkHandler();
+	public static final GlobalRedstoneLinkNetworksManager REDSTONE_LINK_NETWORK = new GlobalRedstoneLinkNetworksManager();
 	public static final TorquePropagator TORQUE_PROPAGATOR = new TorquePropagator();
 	public static final GlobalRailwayManager RAILWAYS = new GlobalRailwayManager();
 	public static final GlobalLogisticsManager LOGISTICS = new GlobalLogisticsManager();
@@ -136,7 +129,6 @@ public class Create {
 		AllDataComponents.register(modEventBus);
 		AllMapDecorationTypes.register(modEventBus);
 		AllMountedStorageTypes.register();
-		AllRedstoneLinkables.register();
 
 		AllConfigs.register(modLoadingContext, modContainer);
 
@@ -196,6 +188,7 @@ public class Create {
 		AllPotatoProjectileRenderModes.init();
 		AllPotatoProjectileEntityHitActions.init();
 		AllPotatoProjectileBlockHitActions.init();
+		AllRedstoneLinkables.init();
 
 		if (event.getRegistry() == BuiltInRegistries.TRIGGER_TYPES) {
 			AllAdvancements.register();
@@ -212,8 +205,9 @@ public class Create {
 	}
 
 	public static CreateRegistrate registrate() {
-		if (!STACK_WALKER.getCallerClass().getPackageName().startsWith("com.simibubi.create"))
+		if (!STACK_WALKER.getCallerClass().getPackageName().startsWith("com.simibubi.create")) {
 			throw new UnsupportedOperationException("Other mods are not permitted to use create's registrate instance.");
+		}
 		return REGISTRATE;
 	}
 }

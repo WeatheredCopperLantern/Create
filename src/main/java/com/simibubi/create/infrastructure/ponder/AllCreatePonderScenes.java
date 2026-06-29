@@ -346,8 +346,8 @@ public class AllCreatePonderScenes {
 			.addStoryBoard("analog_lever", RedstoneScenes::analogLever);
 		HELPER.forComponents(AllBlocks.ORANGE_NIXIE_TUBE)
 			.addStoryBoard("nixie_tube", RedstoneScenes::nixieTube);
-		HELPER.forComponents(AllBlocks.REDSTONE_LINK)
-			.addStoryBoard("redstone_link", RedstoneScenes::redstoneLink);
+		//HELPER.forComponents(AllBlocks.REDSTONE_LINK)
+		//	.addStoryBoard("redstone_link", RedstoneScenes::redstoneLink);
 		HELPER.forComponents(AllBlocks.ROSE_QUARTZ_LAMP)
 			.addStoryBoard("rose_quartz_lamp", RedstoneScenes2::roseQuartzLamp);
 		HELPER.forComponents(AllBlocks.PULSE_TIMER)

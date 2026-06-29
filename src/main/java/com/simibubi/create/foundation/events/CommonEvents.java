@@ -51,7 +51,6 @@ import com.simibubi.create.content.logistics.tunnel.BrassTunnelBlockEntity;
 import com.simibubi.create.content.logistics.vault.ItemVaultBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlockEntity;
-import com.simibubi.create.content.redstone.link.ehh.controller.LinkedControllerServerHandler;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
 import com.simibubi.create.content.trains.entity.CarriageEntityHandler;
 import com.simibubi.create.content.trains.observer.TrackObserverBlockEntity;
@@ -68,6 +67,7 @@ import com.simibubi.create.foundation.utility.TickBasedCache;
 import com.simibubi.create.infrastructure.command.AllCommands;
 
 import net.createmod.catnip.data.WorldAttached;
+
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
@@ -102,7 +102,7 @@ public class CommonEvents {
 
 	@SubscribeEvent
 	public static void onServerTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
-		Create.REDSTONE_LINK_NETWORK_HANDLER.tick();
+		Create.REDSTONE_LINK_NETWORK.tick();
 		Create.SCHEMATIC_RECEIVER.tick();
 		Create.LAGGER.tick();
 		ServerSpeedProvider.serverTick();
@@ -133,12 +133,11 @@ public class CommonEvents {
 	@SubscribeEvent
 	public static void onServerWorldTick(net.neoforged.neoforge.event.tick.LevelTickEvent.Post event) {
 		Level world = event.getLevel();
-		if (world.isClientSide())
-			return;
+		if (world.isClientSide()) return;
 		ContraptionHandler.tick(world);
 		CapabilityMinecartController.tick(world);
 		CouplingPhysics.tick(world);
-		LinkedControllerServerHandler.tick(world);
+		//LinkedControllerServerHandler.tick(world);
 		ControlsServerHandler.tick(world);
 		Create.RAILWAYS.tick(world);
 		Create.LOGISTICS.tick(world);
@@ -193,16 +192,17 @@ public class CommonEvents {
 	@SubscribeEvent
 	public static void onLoadWorld(LevelEvent.Load event) {
 		LevelAccessor world = event.getLevel();
-		Create.REDSTONE_LINK_NETWORK_HANDLER.createNetworkFor(world);
+		//Create.REDSTONE_LINK_NETWORK_HANDLER.createNetworkFor(world);
 		Create.TORQUE_PROPAGATOR.onLoadWorld(world);
 		Create.RAILWAYS.levelLoaded(world);
 		Create.LOGISTICS.levelLoaded(world);
+		Create.REDSTONE_LINK_NETWORK.levelLoaded(world);
 	}
 
 	@SubscribeEvent
 	public static void onUnloadWorld(LevelEvent.Unload event) {
 		LevelAccessor world = event.getLevel();
-		Create.REDSTONE_LINK_NETWORK_HANDLER.deleteNetworkOf(world);
+		//Create.REDSTONE_LINK_NETWORK_HANDLER.deleteNetworkOf(world);
 		Create.TORQUE_PROPAGATOR.onUnloadWorld(world);
 		WorldAttached.invalidateWorld(world);
 		CobbleGenOptimisation.invalidateWorld(world);
@@ -215,9 +215,7 @@ public class CommonEvents {
 
 	@net.neoforged.bus.api.SubscribeEvent
 	public static void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
-		if (!event.getEntity()
-			.isAlive())
-			CapabilityMinecartController.onEntityDeath(event);
+		if (!event.getEntity().isAlive()) CapabilityMinecartController.onEntityDeath(event);
 	}
 
 	@SubscribeEvent
@@ -234,26 +232,27 @@ public class CommonEvents {
 
 	@EventBusSubscriber
 	public static class ModBusEvents {
+
 		@SubscribeEvent
 		public static void addPackFinders(AddPackFindersEvent event) {
 			// Uncomment and rename pack to add built in resource packs
-//			if (event.getPackType() == PackType.CLIENT_RESOURCES) {
-//				IModFileInfo modFileInfo = ModList.get().getModFileById(Create.ID);
-//				if (modFileInfo == null) {
-//					Create.LOGGER.error("Could not find Create mod file info; built-in resource packs will be missing!");
-//					return;
-//				}
-//				IModFile modFile = modFileInfo.getFile();
-//				event.addRepositorySource(consumer -> {
-//                    PackLocationInfo locationInfo = new PackLocationInfo(Create.asResource("legacy_copper").toString(), Component.literal("Create Legacy Copper"), PackSource.BUILT_IN, Optional.empty());
-//					PathPackResources.PathResourcesSupplier resourcesSupplier = new PathPackResources.PathResourcesSupplier(modFile.findResource("resourcepacks/legacy_copper"));
-//					PackSelectionConfig packSelectionConfig = new PackSelectionConfig(false, Pack.Position.TOP, false);
-//					Pack pack = Pack.readMetaAndCreate(locationInfo, resourcesSupplier, PackType.CLIENT_RESOURCES, packSelectionConfig);
-//					if (pack != null) {
-//						consumer.accept(pack);
-//					}
-//				});
-//			}
+			//			if (event.getPackType() == PackType.CLIENT_RESOURCES) {
+			//				IModFileInfo modFileInfo = ModList.get().getModFileById(Create.ID);
+			//				if (modFileInfo == null) {
+			//					Create.LOGGER.error("Could not find Create mod file info; built-in resource packs will be missing!");
+			//					return;
+			//				}
+			//				IModFile modFile = modFileInfo.getFile();
+			//				event.addRepositorySource(consumer -> {
+			//                    PackLocationInfo locationInfo = new PackLocationInfo(Create.asResource("legacy_copper").toString(), Component.literal("Create Legacy Copper"), PackSource.BUILT_IN, Optional.empty());
+			//					PathPackResources.PathResourcesSupplier resourcesSupplier = new PathPackResources.PathResourcesSupplier(modFile.findResource("resourcepacks/legacy_copper"));
+			//					PackSelectionConfig packSelectionConfig = new PackSelectionConfig(false, Pack.Position.TOP, false);
+			//					Pack pack = Pack.readMetaAndCreate(locationInfo, resourcesSupplier, PackType.CLIENT_RESOURCES, packSelectionConfig);
+			//					if (pack != null) {
+			//						consumer.accept(pack);
+			//					}
+			//				});
+			//			}
 
 			if (event.getPackType() == PackType.SERVER_DATA) {
 				DynamicPack dynamicPack = new DynamicPack("create:dynamic_data", PackType.SERVER_DATA);

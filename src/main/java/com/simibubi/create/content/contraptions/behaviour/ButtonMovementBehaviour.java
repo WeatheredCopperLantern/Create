@@ -1,8 +1,6 @@
 package com.simibubi.create.content.contraptions.behaviour;
 
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
-import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkMovementBehaviour;
-import com.simibubi.create.content.redstone.link.ehh.interfaces.IRedstoneLinkable;
 import com.simibubi.create.foundation.mixin.accessor.ButtonBlockAccessor;
 import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -25,10 +23,10 @@ public class ButtonMovementBehaviour implements MovementBehaviour {
 			context.temporaryData = null;
 			context.contraption.entity.setBlock(context.localPos, new StructureTemplate.StructureBlockInfo(context.localPos, context.state.cycle(ButtonBlock.POWERED), context.blockEntityData));
 			context.contraption.forEachActor(null, (behaviour, ctx) -> {
-				if (ctx.localPos.closerThan(context.localPos, 2.1) && behaviour instanceof RedstoneLinkMovementBehaviour linkBehaviour) {
-					IRedstoneLinkable link = linkBehaviour.getLink(ctx);
-					if (link != null && !link.isListening()) link.queueUpdate();
-				}
+				//if (ctx.localPos.closerThan(context.localPos, 2.1) && behaviour instanceof RedstoneLinkMovementBehaviour linkBehaviour) {
+				//	IRedstoneLinkable link = linkBehaviour.getLink(ctx);
+				//	if (link != null && !link.isListening()) link.queueUpdate();
+				//}
 			});
 		}
 	}

@@ -181,12 +181,6 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 		).byBlock(DisplayTarget.BY_BLOCK).byBlockEntity(DisplayTarget.BY_BLOCK_ENTITY));
 	}
 
-	public <T extends RedstoneLinkable> SimpleBuilder<RedstoneLinkable, T, CreateRegistrate> redstoneLinkable(String name, Supplier<T> supplier){
-		return this.entry(name, callback -> new SimpleBuilder<>(
-			this, this, name, callback, CreateRegistries.REDSTONE_LINKABLE, supplier
-		));
-	}
-
 	/* Palettes */
 
 	public <T extends Block> BlockBuilder<T, CreateRegistrate> paletteStoneBlock(String name,

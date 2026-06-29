@@ -1082,12 +1082,12 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 			.pattern("RCR")
 			.pattern("SSS")),
 
-	REDSTONE_LINK = create(AllBlocks.REDSTONE_LINK).returns(2)
-		.unlockedBy(I::andesiteCasing)
-		.viaShaped(b -> b.define('C', AllItems.TRANSMITTER)
-			.define('S', I.andesiteCasing())
-			.pattern("C")
-			.pattern("S")),
+	//REDSTONE_LINK = create(AllBlocks.REDSTONE_LINK).returns(2)
+	//	.unlockedBy(I::andesiteCasing)
+	//	.viaShaped(b -> b.define('C', AllItems.TRANSMITTER)
+	//		.define('S', I.andesiteCasing())
+	//		.pattern("C")
+	//		.pattern("S")),
 
 	ITEM_HATCH = create(AllBlocks.ITEM_HATCH).unlockedBy(I::andesiteAlloy)
 		.viaShapeless(b -> b.requires(I.andesiteAlloy())
@@ -1272,12 +1272,12 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 			.pattern("P P")
 			.pattern("G G")),
 
-	LINKED_CONTROLLER = create(AllItems.LINKED_CONTROLLER).unlockedBy(AllBlocks.REDSTONE_LINK::get)
-		.viaShaped(b -> b.define('S', ItemTags.WOODEN_BUTTONS)
-			.define('P', AllBlocks.REDSTONE_LINK.get())
-			.pattern("SSS")
-			.pattern(" P ")
-			.pattern("SSS")),
+	//LINKED_CONTROLLER = create(AllItems.LINKED_CONTROLLER).unlockedBy(AllBlocks.REDSTONE_LINK::get)
+	//	.viaShaped(b -> b.define('S', ItemTags.WOODEN_BUTTONS)
+	//		.define('P', AllBlocks.REDSTONE_LINK.get())
+	//		.pattern("SSS")
+	//		.pattern(" P ")
+	//		.pattern("SSS")),
 
 	CRAFTING_BLUEPRINT = create(AllItems.CRAFTING_BLUEPRINT).unlockedBy(() -> Items.CRAFTING_TABLE)
 		.viaShapeless(b -> b.requires(Items.PAINTING)

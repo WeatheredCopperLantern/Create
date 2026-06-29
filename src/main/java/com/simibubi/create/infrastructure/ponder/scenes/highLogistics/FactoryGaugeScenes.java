@@ -15,7 +15,6 @@ import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlockEntit
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelConnection;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelPosition;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
-import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkBlock;
 import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 
@@ -1421,9 +1420,9 @@ public class FactoryGaugeScenes {
 			.withItem(AllItems.WRENCH.asStack())
 			.rightClick();
 		scene.idle(7);
-		scene.world()
-			.cycleBlockProperty(util.grid()
-				.at(3, 2, 1), RedstoneLinkBlock.RECEIVER);
+		//scene.world()
+		//	.cycleBlockProperty(util.grid()
+		//		.at(3, 2, 1), RedstoneLinkBlock.RECEIVER);
 		scene.idle(30);
 
 		scene.world()

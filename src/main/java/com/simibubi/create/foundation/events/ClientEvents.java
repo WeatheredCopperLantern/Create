@@ -47,8 +47,6 @@ import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedClie
 import com.simibubi.create.content.logistics.tableCloth.TableClothOverlayRenderer;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
 import com.simibubi.create.content.redstone.displayLink.ClickToLinkBlockItem;
-import com.simibubi.create.content.redstone.link.ehh.LinkRenderer;
-import com.simibubi.create.content.redstone.link.ehh.controller.LinkedControllerClientHandler;
 import com.simibubi.create.content.trains.CameraDistanceModifier;
 import com.simibubi.create.content.trains.TrainHUD;
 import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
@@ -136,7 +134,7 @@ public class ClientEvents {
 
 		Level world = Minecraft.getInstance().level;
 		if (isPreEvent) {
-			LinkedControllerClientHandler.tick();
+			//LinkedControllerClientHandler.tick();
 			ControlsHandler.tick();
 			AirCurrent.Client.tickClientPlayerSounds();
 			return;
@@ -162,7 +160,7 @@ public class ClientEvents {
 		BeltConnectorHandler.tick();
 //		BeltSlicer.tickHoveringInformation();
 		FilteringRenderer.tick();
-		LinkRenderer.tick();
+		//LinkRenderer.tick();
 		ScrollValueRenderer.tick();
 		ChassisRangeDisplay.tick();
 		EdgeInteractionRenderer.tick();
@@ -378,7 +376,7 @@ public class ClientEvents {
 		event.registerAbove(VanillaGuiLayers.HOTBAR, Create.asResource("track_placement"), TrackPlacementOverlay.INSTANCE);
 		event.registerAbove(VanillaGuiLayers.HOTBAR, Create.asResource("goggle_info"), GoggleOverlayRenderer.OVERLAY);
 		event.registerAbove(VanillaGuiLayers.HOTBAR, Create.asResource("blueprint"), BlueprintOverlayRenderer.OVERLAY);
-		event.registerAbove(VanillaGuiLayers.HOTBAR, Create.asResource("linked_controller"), LinkedControllerClientHandler.OVERLAY);
+		//event.registerAbove(VanillaGuiLayers.HOTBAR, Create.asResource("linked_controller"), LinkedControllerClientHandler.OVERLAY);
 		event.registerAbove(VanillaGuiLayers.HOTBAR, Create.asResource("schematic"), CreateClient.SCHEMATIC_HANDLER);
 		event.registerAbove(VanillaGuiLayers.HOTBAR, Create.asResource("toolbox"), ToolboxHandlerClient.OVERLAY);
 	}

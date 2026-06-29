@@ -75,9 +75,6 @@ import com.simibubi.create.content.logistics.stockTicker.StockKeeperLockPacket;
 import com.simibubi.create.content.logistics.tableCloth.ShopUpdatePacket;
 import com.simibubi.create.content.logistics.tunnel.TunnelFlapPacket;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkConfigurationPacket;
-import com.simibubi.create.content.redstone.link.ehh.controller.LinkedControllerBindPacket;
-import com.simibubi.create.content.redstone.link.ehh.controller.LinkedControllerInputPacket;
-import com.simibubi.create.content.redstone.link.ehh.controller.LinkedControllerStopLecternPacket;
 import com.simibubi.create.content.redstone.thresholdSwitch.ConfigureThresholdSwitchPacket;
 import com.simibubi.create.content.schematics.cannon.ConfigureSchematicannonPacket;
 import com.simibubi.create.content.schematics.packet.InstantSchematicPacket;
@@ -138,9 +135,9 @@ public enum AllPackets implements BasePacketPayload.PacketTypeProvider {
 	PLACE_EJECTOR(EjectorPlacementPacket.class, EjectorPlacementPacket.STREAM_CODEC),
 	TRIGGER_EJECTOR(EjectorTriggerPacket.class, EjectorTriggerPacket.STREAM_CODEC),
 	EJECTOR_ELYTRA(EjectorElytraPacket.class, EjectorElytraPacket.STREAM_CODEC),
-	LINKED_CONTROLLER_INPUT(LinkedControllerInputPacket.class, LinkedControllerInputPacket.STREAM_CODEC),
-	LINKED_CONTROLLER_BIND(LinkedControllerBindPacket.class, LinkedControllerBindPacket.STREAM_CODEC),
-	LINKED_CONTROLLER_USE_LECTERN(LinkedControllerStopLecternPacket.class, LinkedControllerStopLecternPacket.STREAM_CODEC),
+	//LINKED_CONTROLLER_INPUT(LinkedControllerInputPacket.class, LinkedControllerInputPacket.STREAM_CODEC),
+	//LINKED_CONTROLLER_BIND(LinkedControllerBindPacket.class, LinkedControllerBindPacket.STREAM_CODEC),
+	//LINKED_CONTROLLER_USE_LECTERN(LinkedControllerStopLecternPacket.class, LinkedControllerStopLecternPacket.STREAM_CODEC),
 	SUBMIT_GHOST_ITEM(GhostItemSubmitPacket.class, GhostItemSubmitPacket.STREAM_CODEC),
 	BLUEPRINT_COMPLETE_RECIPE(BlueprintAssignCompleteRecipePacket.class, BlueprintAssignCompleteRecipePacket.STREAM_CODEC),
 	CONFIGURE_SYMMETRY_WAND(ConfigureSymmetryWandPacket.class, ConfigureSymmetryWandPacket.STREAM_CODEC),

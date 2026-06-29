@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.simibubi.create.api.event.BlockEntityBehaviourEvent;
 import com.simibubi.create.api.schematic.nbt.PartialSafeNBT;
 import com.simibubi.create.api.schematic.requirement.SpecialBlockEntityItemRequirement;
@@ -17,9 +15,8 @@ import com.simibubi.create.foundation.advancement.CreateAdvancement;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.utility.IInteractionChecker;
-
-import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import net.createmod.ponder.api.VirtualBlockEntity;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -28,10 +25,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
+import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import net.neoforged.neoforge.common.NeoForge;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
-	implements PartialSafeNBT, IInteractionChecker, SpecialBlockEntityItemRequirement, VirtualBlockEntity {
+public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity implements PartialSafeNBT, IInteractionChecker, SpecialBlockEntityItemRequirement, VirtualBlockEntity {
 
 	private final Map<BehaviourType<?>, BlockEntityBehaviour> behaviours = new Reference2ObjectArrayMap<>();
 	protected boolean initialized = false;
@@ -59,7 +57,12 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
 	 * Gets called just before reading block entity data for behaviours. Register
 	 * anything here that depends on your custom BE data.
 	 */
-	public void addBehavioursDeferred(List<BlockEntityBehaviour> behaviours) {}
+	public void addBehavioursDeferred(List<BlockEntityBehaviour> behaviours) {
+	}
+
+	public boolean isInitialized() {
+		return initialized;
+	}
 
 	public void initialize() {
 		if (firstNbtRead) {
@@ -85,7 +88,8 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
 		forEachBehaviour(BlockEntityBehaviour::tick);
 	}
 
-	public void lazyTick() {}
+	public void lazyTick() {
+	}
 
 	/**
 	 * Hook only these in future subclasses of STE
@@ -99,8 +103,7 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
 	public void writeSafe(CompoundTag tag, HolderLookup.Provider registries) {
 		super.saveAdditional(tag, registries);
 		forEachBehaviour(tb -> {
-			if (tb.isSafeNBT())
-				tb.writeSafe(tag, registries);
+			if (tb.isSafeNBT()) tb.writeSafe(tag, registries);
 		});
 	}
 
@@ -133,8 +136,7 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
 	@Override
 	public final void setRemoved() {
 		super.setRemoved();
-		if (!chunkUnloaded)
-			remove();
+		if (!chunkUnloaded) remove();
 		invalidate();
 	}
 
@@ -148,7 +150,8 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
 	/**
 	 * Block destroyed or picked up by a contraption. Usually detaches kinetics
 	 */
-	public void remove() {}
+	public void remove() {
+	}
 
 	/**
 	 * Block destroyed or replaced. Requires Block to call IBE::onRemove
@@ -193,8 +196,7 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
 	}
 
 	public ItemRequirement getRequiredItems(BlockState state) {
-		return getAllBehaviours().stream()
-			.reduce(ItemRequirement.NONE, (r, b) -> r.union(b.getRequiredItems()), ItemRequirement::union);
+		return getAllBehaviours().stream().reduce(ItemRequirement.NONE, (r, b) -> r.union(b.getRequiredItems()), ItemRequirement::union);
 	}
 
 	public void removeBehaviour(BehaviourType<?> type) {
@@ -252,14 +254,11 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
 
 	public void award(CreateAdvancement advancement) {
 		AdvancementBehaviour behaviour = getBehaviour(AdvancementBehaviour.TYPE);
-		if (behaviour != null)
-			behaviour.awardPlayer(advancement);
+		if (behaviour != null) behaviour.awardPlayer(advancement);
 	}
 
 	public void awardIfNear(CreateAdvancement advancement, int range) {
 		AdvancementBehaviour behaviour = getBehaviour(AdvancementBehaviour.TYPE);
-		if (behaviour != null)
-			behaviour.awardPlayerIfNear(advancement, range);
+		if (behaviour != null) behaviour.awardPlayerIfNear(advancement, range);
 	}
-
 }

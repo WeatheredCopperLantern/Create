@@ -1,7 +1,7 @@
 {
     "loader": "neoforge:composite",
     "textures": {
-        "particle": "create:block/redstone_link"
+        "particle": "create:block/andesite_casing"
     },
     "children": {
         "body": {

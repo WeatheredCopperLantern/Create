@@ -20,8 +20,6 @@ import com.simibubi.create.content.logistics.stockTicker.StockKeeperCategoryMenu
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperCategoryScreen;
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestMenu;
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen;
-import com.simibubi.create.content.redstone.link.ehh.controller.LinkedControllerMenu;
-import com.simibubi.create.content.redstone.link.ehh.controller.LinkedControllerScreen;
 import com.simibubi.create.content.schematics.cannon.SchematicannonMenu;
 import com.simibubi.create.content.schematics.cannon.SchematicannonScreen;
 import com.simibubi.create.content.schematics.table.SchematicTableMenu;
@@ -57,8 +55,8 @@ public class AllMenuTypes {
 	public static final MenuEntry<BlueprintMenu> CRAFTING_BLUEPRINT =
 		register("crafting_blueprint", BlueprintMenu::new, () -> BlueprintScreen::new);
 
-	public static final MenuEntry<LinkedControllerMenu> LINKED_CONTROLLER =
-		register("linked_controller", LinkedControllerMenu::new, () -> LinkedControllerScreen::new);
+	//public static final MenuEntry<LinkedControllerMenu> LINKED_CONTROLLER =
+	//	register("linked_controller", LinkedControllerMenu::new, () -> LinkedControllerScreen::new);
 
 	public static final MenuEntry<ToolboxMenu> TOOLBOX =
 		register("toolbox", ToolboxMenu::new, () -> ToolboxScreen::new);

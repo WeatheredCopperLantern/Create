@@ -10,7 +10,6 @@ import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorInteracti
 import com.simibubi.create.content.kinetics.chainConveyor.ChainPackageInteractionHandler;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelConnectionHandler;
 import com.simibubi.create.content.logistics.packagePort.PackagePortTargetSelectionHandler;
-import com.simibubi.create.content.redstone.link.ehh.controller.LinkedControllerClientHandler;
 import com.simibubi.create.content.trains.TrainHUD;
 import com.simibubi.create.content.trains.entity.TrainRelocator;
 import com.simibubi.create.content.trains.track.CurvedTrackInteraction;
@@ -104,7 +103,7 @@ public class InputEvents {
 		if (!event.isUseItem())
 			return;
 
-		LinkedControllerClientHandler.deactivateInLectern();
+		//LinkedControllerClientHandler.deactivateInLectern();
 		TrainRelocator.onClicked(event);
 
 		if (ChainConveyorInteractionHandler.onUse()) {

@@ -228,9 +228,7 @@ import com.simibubi.create.content.redstone.diodes.ToggleLatchBlock;
 import com.simibubi.create.content.redstone.diodes.ToggleLatchGenerator;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlock;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlockItem;
-import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkBlock;
-import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkMovementBehaviour;
-import com.simibubi.create.content.redstone.link.ehh.controller.LecternControllerBlock;
+import com.simibubi.create.content.redstone.link.RedstoneLinkBlock;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlock;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeGenerator;
 import com.simibubi.create.content.redstone.rail.ControllerRailBlock;
@@ -2100,7 +2098,7 @@ public class AllBlocks {
 			.properties(p -> p.mapColor(MapColor.TERRACOTTA_BROWN).forceSolidOn())
 			.transform(axeOrPickaxe())
 			.tag(AllBlockTags.BRITTLE.tag, AllBlockTags.SAFE_NBT.tag)
-			.onRegister(movementBehaviour(new RedstoneLinkMovementBehaviour()))
+			//.onRegister(movementBehaviour(new RedstoneLinkMovementBehaviour()))
 			.addLayer(() -> RenderType::cutoutMipped)
 			.item()
 			.transform(customItemModel())
@@ -2175,14 +2173,14 @@ public class AllBlocks {
 			.transform(customItemModel("diodes", "latch_off"))
 			.register();
 
-	public static final BlockEntry<LecternControllerBlock> LECTERN_CONTROLLER =
-		REGISTRATE.block("lectern_controller", LecternControllerBlock::new)
-			.initialProperties(() -> Blocks.LECTERN)
-			.transform(axeOnly())
-			.blockstate((c, p) -> p.horizontalBlock(c.get(), p.models()
-				.getExistingFile(p.mcLoc("block/lectern"))))
-			.loot((lt, block) -> lt.dropOther(block, Blocks.LECTERN))
-			.register();
+	//public static final BlockEntry<LecternControllerBlock> LECTERN_CONTROLLER =
+	//	REGISTRATE.block("lectern_controller", LecternControllerBlock::new)
+	//		.initialProperties(() -> Blocks.LECTERN)
+	//		.transform(axeOnly())
+	//		.blockstate((c, p) -> p.horizontalBlock(c.get(), p.models()
+	//			.getExistingFile(p.mcLoc("block/lectern"))))
+	//		.loot((lt, block) -> lt.dropOther(block, Blocks.LECTERN))
+	//		.register();
 
 	// Curiosities
 

@@ -1,200 +1,327 @@
 package com.simibubi.create.content.redstone.link;
 
-import com.simibubi.create.Create;
-import com.simibubi.create.content.redstone.link.interfaces.ICustomReceive;
-import com.simibubi.create.content.redstone.link.interfaces.IRedstoneLinkable;
-import net.createmod.catnip.data.Couple;
-import net.minecraft.world.phys.Vec3;
-import net.neoforged.fml.loading.FMLEnvironment;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
-import java.util.*;
+import com.simibubi.create.Create;
+import com.simibubi.create.api.registry.CreateBuiltInRegistries;
+import com.simibubi.create.content.redstone.link.interfaces.ICustomReceive;
+import com.simibubi.create.content.redstone.link.interfaces.ITickingLinkable;
+import com.simibubi.create.content.trains.graph.DimensionPalette;
+import net.createmod.catnip.data.Couple;
+import net.createmod.catnip.data.Pair;
+import net.createmod.catnip.nbt.NBTHelper;
+
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
+
+import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.NonNull;
 
 public class RedstoneLinkNetwork {
 
-	private final Map<Couple<RedstoneLinkNetworkHandler.Frequency>, Couple<Set<IRedstoneLinkable>>> channels = new HashMap<>();
+	// region Sets & Lists ===========================================================
+	private final Map<Couple<Frequency>, Couple<Set<RedstoneLinkable>>> channels;
+	private final Collection<ITickingLinkable> tickingLinkables = new HashSet<>(23 /* Allows 16 entries before resize */, 0.7f);
+	private final Queue<RedstoneLinkable> updates = new ArrayDeque<>(16);
+	private final Queue<RedstoneLinkable> recalcQueue = new ArrayDeque<>(16);
+	private final Queue<Pair<RedstoneLinkable, Integer>> queuedReceiverSignals = new ArrayDeque<>(16);
+	private final Map<RedstoneLinkable, Integer> queuedRemovals = new HashMap<>(23 /* Allows 16 entries before resize */, 0.7f);
+	//endregion
 
-	private final Queue<IRedstoneLinkable> receiverUpdates = new ArrayDeque<>();
+	// region Saving/Loading =========================================================
+	public CompoundTag write(final HolderLookup.Provider registries, final DimensionPalette dimensions) {
+		final CompoundTag nbt = new CompoundTag(1);
 
-	private final HashMap<IRedstoneLinkable, Integer> queuedRemovals = new HashMap<>();
+		nbt.put("Channels", NBTHelper.writeCompoundList(this.channels.entrySet(), entry -> {
+			final CompoundTag channelNBT = new CompoundTag(4);
 
-	private final Queue<IRedstoneLinkable> delayedUpdates = new ArrayDeque<>();
+			final Couple<Frequency> channel = entry.getKey();
+			final Couple<Set<RedstoneLinkable>> linkables = entry.getValue();
+
+			channel.forEachWithParams((frequency, name) -> channelNBT.put(name, frequency.write()), Couple.create("Frequency_1", "Frequency_2"));
+
+			linkables.forEachWithParams((redstoneLinkables, name) -> NBTHelper.writeCompoundList(redstoneLinkables, linkable -> {
+				if (!linkable.doSave()) return null;
+
+				final ResourceLocation resourceLocation = CreateBuiltInRegistries.REDSTONE_LINKABLE.getKey(linkable.getType());
+				if (resourceLocation == null) {
+					Create.LOGGER.error("{} is not a registered RedstoneLinkable, it will NOT be saved. Overwrite RedstoneLinkable#doSave() if this is wanted.", linkable.getClass().getName());
+					return null;
+				}
+
+				final CompoundTag linkableNBT = linkable.write(registries, dimensions);
+				NBTHelper.writeResourceLocation(linkableNBT, "ResourceLocation", resourceLocation);
+
+				return linkableNBT;
+			}), Couple.create("Receivers", "Transmitters"));
+
+			return channelNBT;
+		}));
+
+		return nbt;
+	}
+
+	public static RedstoneLinkNetwork read(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions, final Map<UUID, RedstoneLinkable> linkables) {
+		final ListTag channelsTag = nbt.getList("Channels", Tag.TAG_COMPOUND);
+		final Map<Couple<Frequency>, Couple<Set<RedstoneLinkable>>> channels = new HashMap<>((int) Math.ceil(channelsTag.size() / 0.7f), 0.7f);
+
+		NBTHelper.iterateCompoundList(channelsTag, channelNBT -> {
+			final Couple<Frequency> channel = Couple.createWithContext(first -> Frequency.read(channelNBT.getCompound(first ? "Frequency_1" : "Frequency_2")));
+
+			final Couple<Set<RedstoneLinkable>> sets = Couple.createWithContext(aBoolean -> {
+				final ListTag linkablesTag = channelNBT.getList(aBoolean ? "Receivers" : "Transmitters", Tag.TAG_COMPOUND);
+				final Set<RedstoneLinkable> set = new HashSet<>((int) Math.ceil(linkablesTag.size() / 0.7f), 0.7f);
+
+				NBTHelper.iterateCompoundList(linkablesTag, linkableNBT -> {
+					final RedstoneLinkableType linkType = CreateBuiltInRegistries.REDSTONE_LINKABLE.get(NBTHelper.readResourceLocation(channelNBT, "ResourceLocation"));
+					assert linkType != null;
+					final RedstoneLinkable link = linkType.factory().apply(linkableNBT, channel, aBoolean, registries, dimensions);
+					set.add(link);
+					linkables.put(link.uuid, link);
+				});
+				return set;
+			});
+
+			channels.put(channel, sets);
+		});
+
+		return new RedstoneLinkNetwork(channels);
+	}
+
+	private RedstoneLinkNetwork(final Map<Couple<Frequency>, Couple<Set<RedstoneLinkable>>> channels) {
+		this.channels = channels;
+	}
+
+	public RedstoneLinkNetwork() {
+		this.channels = new HashMap<>(32, 0.7f);
+	}
+
+	//endregion
 
 	public void tick() {
-		Iterator<Map.Entry<IRedstoneLinkable, Integer>> iter = queuedRemovals.entrySet().iterator();
+		//Tick + Handle queuedRemovals
+		final Iterator<Map.Entry<RedstoneLinkable, Integer>> iter = this.queuedRemovals.entrySet().iterator();
 		while (iter.hasNext()) {
-			Map.Entry<IRedstoneLinkable, Integer> entry = iter.next();
+			final Map.Entry<RedstoneLinkable, Integer> entry = iter.next();
 			if (entry.getValue() == 0) {
-				remove(entry.getKey());
+				this.removeLinkable(entry.getKey());
 				iter.remove();
 			} else {
 				entry.setValue(entry.getValue() - 1);
 			}
 		}
 
-		while (!delayedUpdates.isEmpty() || !receiverUpdates.isEmpty()) {
-			while (!delayedUpdates.isEmpty()) {
-				delayedUpdates.remove().delayedUpdate();
+		//Handle queuedReceiverSignals
+		while (!this.queuedReceiverSignals.isEmpty()) {
+			final Pair<RedstoneLinkable, Integer> entry = this.queuedReceiverSignals.remove();
+			entry.getFirst().setReceivedStrength(entry.getSecond());
+		}
+
+		//Handle updates
+		while (!this.updates.isEmpty()) {
+			this.updates.remove().delayedUpdate();
+		}
+
+		//Handle recalcQueue
+		while (!this.recalcQueue.isEmpty()) {
+			final RedstoneLinkable linkable = this.recalcQueue.remove();
+			final Set<RedstoneLinkable> inRange = new HashSet<>(23 /* Allows 16 entries before resize */, 0.7f);
+			this.forLinkableInRange(linkable, RedstoneLinkable::allowRecalcQueue, linkable1 -> {
+				linkable1.considerRecalcQueued();
+				inRange.add(linkable1);
+			});
+
+			if (linkable instanceof final ICustomReceive customReceiveLinkable) {
+				customReceiveLinkable.calculateSignal(inRange);
+				return;
 			}
 
-			while (!receiverUpdates.isEmpty()) {
-				IRedstoneLinkable link = receiverUpdates.remove();
-				Set<IRedstoneLinkable> candidates = getChannel(link.getChannelKey()).get(false);
-
-				if (link instanceof ICustomReceive customReceiveLinkable) {
-					Set<IRedstoneLinkable> inRange = Collections.newSetFromMap(new IdentityHashMap<>());
-					getInRange(link, inRange);
-					customReceiveLinkable.calculateSignal(inRange);
-					return;
-				}
-
-				int maxStrength = 0;
-				for (IRedstoneLinkable candidate : candidates) {
-					if (!canReceiveFrom(link, candidate)) continue;
-					int strength = candidate.getTransmittedStrength();
-					if (strength > maxStrength) {
-						maxStrength = strength;
-						if (strength == 15) {
-							break;
-						}
+			int maxStrength = 0;
+			for (final RedstoneLinkable candidate : inRange) {
+				final int strength = candidate.getTransmittedStrength();
+				if (strength > maxStrength) {
+					maxStrength = strength;
+					if (strength == 15) {
+						break;
 					}
 				}
-				link.setReceivedStrength(maxStrength);
+			}
+			linkable.considerRecalcDequeued();
+			this.queuedReceiverSignals.add(Pair.of(linkable, maxStrength));
+		}
+
+		//Tick ITickingLinkables
+		this.tickingLinkables.forEach(ITickingLinkable::tick);
+	}
+
+	public void addLinkable(final @NonNull RedstoneLinkable linkable) {
+		this.getChannel(linkable.channel).get(linkable.isReceiver()).add(linkable);
+		if (linkable instanceof final ITickingLinkable tickingLinkable) {
+			this.tickingLinkables.add(tickingLinkable);
+		}
+		Create.REDSTONE_LINK_NETWORK.linkables.put(linkable.uuid, linkable);
+		Create.REDSTONE_LINK_NETWORK.setDirty();
+		if (linkable.isReceiver() && linkable.allowRecalcQueue()) {
+			linkable.considerRecalcQueued();
+			this.recalcQueue.add(linkable);
+		} else if (linkable.getTransmittedStrength() > 0) {
+			this.forLinkableInRange(linkable, RedstoneLinkable::allowRecalcQueue, linkable1 -> {
+				linkable1.considerRecalcQueued();
+				this.recalcQueue.add(linkable1);
+			});
+		}
+	}
+
+	public void removeLinkable(final @NonNull RedstoneLinkable linkable) {
+		this.getChannel(linkable.channel).get(linkable.isReceiver()).remove(linkable);
+		Create.REDSTONE_LINK_NETWORK.linkables.remove(linkable.uuid);
+		Create.REDSTONE_LINK_NETWORK.setDirty();
+		if (linkable.isTransmitter() && linkable.getTransmittedStrength() > 0) {
+			this.forLinkableInRange(linkable, RedstoneLinkable::allowRecalcQueue, linkable1 -> {
+				linkable1.considerRecalcQueued();
+				this.recalcQueue.add(linkable1);
+			});
+		}
+	}
+
+	public void removeIn(final @NonNull RedstoneLinkable linkable, final int ticks) {
+		this.queuedRemovals.compute(linkable, (redstoneLinkable, integer) -> (integer == null) ? ticks : Math.max(integer, ticks));
+	}
+
+	public void queueUpdate(final @NonNull RedstoneLinkable linkable) {
+		this.updates.add(linkable);
+	}
+
+	public void forLinkableInRange(final @NonNull RedstoneLinkableSnapshot previous, final Predicate<RedstoneLinkable> check, final Consumer<RedstoneLinkable> action) {
+		for (final RedstoneLinkable linkable2 : this.getChannel(previous.channel()).get(!previous.receiver())) {
+			if (RedstoneLinkNetwork.canCommunicate(previous, linkable2) && check.test(linkable2)) {
+				action.accept(linkable2);
 			}
 		}
 	}
 
-	public void getInRange(IRedstoneLinkable link, Set<IRedstoneLinkable> destination) {
-		if (link.isListening()) {
-			for (IRedstoneLinkable link2 : getChannel(link.getChannelKey()).get(false)) {
-				if (canReceiveFrom(link, link2)) {
-					destination.add(link2);
+	public void forLinkableInRange(final @NonNull RedstoneLinkable linkable, final Predicate<RedstoneLinkable> check, final Consumer<RedstoneLinkable> action) {
+		for (final RedstoneLinkable linkable2 : this.getChannel(linkable.channel).get(linkable.isTransmitter())) {
+			if (RedstoneLinkNetwork.canCommunicate(linkable, linkable2) && check.test(linkable2)) {
+				action.accept(linkable2);
+			}
+		}
+	}
+
+	public void channelChanged(final @NonNull RedstoneLinkable linkable, final RedstoneLinkableSnapshot snapshot) {
+		this.getChannel(snapshot.channel()).get(linkable.isReceiver()).remove(linkable);
+		this.getChannel(linkable.channel).get(linkable.isReceiver()).add(linkable);
+		Create.REDSTONE_LINK_NETWORK.setDirty();
+
+		if (linkable.isTransmitter() && snapshot.signal() > 0) {
+			this.forLinkableInRange(snapshot, RedstoneLinkable::allowRecalcQueue, this.recalcQueue::add);
+			this.forLinkableInRange(linkable, RedstoneLinkable::allowRecalcQueue, this.recalcQueue::add);
+		} else if (linkable.isReceiver() && linkable.allowRecalcQueue()) {
+			linkable.considerRecalcQueued();
+			this.recalcQueue.add(linkable);
+		}
+	}
+
+	public void modeChanged(final @NonNull RedstoneLinkable linkable, final RedstoneLinkableSnapshot snapshot) {
+		this.getChannel(linkable.channel).get(snapshot.receiver()).remove(linkable);
+		this.getChannel(linkable.channel).get(linkable.isReceiver()).add(linkable);
+		Create.REDSTONE_LINK_NETWORK.setDirty();
+
+		if (!snapshot.receiver() && snapshot.signal() > 0) {
+			this.forLinkableInRange(snapshot, RedstoneLinkable::allowRecalcQueue, linkable1 -> {
+				linkable1.considerRecalcQueued();
+				this.recalcQueue.add(linkable1);
+			});
+		}
+
+		if (linkable.isReceiver() && linkable.allowRecalcQueue()) {
+			linkable.considerRecalcQueued();
+			this.recalcQueue.add(linkable);
+		} else if (!linkable.isReceiver()) {
+			linkable.queueUpdate();
+		}
+	}
+
+	public void signalChanged(final @NonNull RedstoneLinkable linkable, final RedstoneLinkableSnapshot snapshot) {
+		this.forLinkableInRange(linkable, linkable1 -> {
+			if (!linkable1.allowRecalcQueue()) return false;
+			if (linkable1 instanceof ICustomReceive) return true;
+			final int currentStrength = linkable1.getReceivedStrength();
+			return (currentStrength == snapshot.signal() || currentStrength < linkable.getTransmittedStrength());
+		}, linkable1 -> {
+			linkable1.considerRecalcQueued();
+			this.recalcQueue.add(linkable1);
+		});
+	}
+
+	public void linkMoved(final @NonNull RedstoneLinkable linkable, final @NonNull RedstoneLinkableSnapshot snapshot) {
+		if (linkable.isReceiver() && linkable.allowRecalcQueue()) {
+			linkable.considerRecalcQueued();
+			this.recalcQueue.add(linkable);
+		} else if (linkable.isTransmitter()) {
+			final Collection<RedstoneLinkable> oldReceivers = new HashSet<>(23 /* Allows 16 entries before resize */, 0.7f);
+			final Collection<RedstoneLinkable> newReceivers = new HashSet<>(23 /* Allows 16 entries before resize */, 0.7f);
+
+			this.forLinkableInRange(snapshot, RedstoneLinkable::allowRecalcQueue, oldReceivers::add);
+			this.forLinkableInRange(linkable, RedstoneLinkable::allowRecalcQueue, newReceivers::add);
+
+			for (final RedstoneLinkable link : oldReceivers) {
+				if (!newReceivers.contains(link)) {
+					link.considerRecalcQueued();
+					this.recalcQueue.add(link);
 				}
 			}
+
+			for (final RedstoneLinkable link : newReceivers) {
+				if (!oldReceivers.contains(link)) {
+					link.considerRecalcQueued();
+					this.recalcQueue.add(link);
+				}
+			}
+		}
+	}
+
+	/**
+	 * <p>Does <b style="color:red">NOT</b> check if the linkables are actually receiver + transmitter.</p>
+	 * <p>Instead assumes that linkable2 is the opposite of linkable1.</p>
+	 */
+	@Contract(pure = true)
+	public static boolean canCommunicate(final @NonNull RedstoneLinkable linkable1, final @NonNull RedstoneLinkable linkable2) {
+		if (linkable1.isReceiver()) {
+			return linkable1.getReceivingPosition().distanceSquared(linkable2.getTransmissionPosition()) <= Math.pow(Math.min(linkable1.getReceivingRange(), linkable1.getTransmissionRange()), 2);
 		} else {
-			for (IRedstoneLinkable link2 : getChannel(link.getChannelKey()).get(true)) {
-				if (canSendTo(link, link2)) {
-					destination.add(link2);
-				}
-			}
+			return linkable1.getTransmissionPosition().distanceSquared(linkable2.getReceivingPosition()) <= Math.pow(Math.min(linkable1.getTransmissionRange(), linkable1.getReceivingRange()), 2);
 		}
 	}
 
-	public void queueInRange(IRedstoneLinkable link, Queue<IRedstoneLinkable> destination) {
-		if (link.isListening()) {
-			for (IRedstoneLinkable link2 : getChannel(link.getChannelKey()).get(false)) {
-				if (link2.allowQueue() && canReceiveFrom(link, link2)) {
-					destination.add(link2);
-				}
-			}
+	/**
+	 * <p>Does <b style="color:red">NOT</b> check if the linkables are actually receiver + transmitter.</p>
+	 * <p>Instead assumes that linkable2 is the opposite of linkable1.</p>
+	 */
+	@Contract(pure = true)
+	public static boolean canCommunicate(final @NonNull RedstoneLinkableSnapshot linkable1, final @NonNull RedstoneLinkable linkable2) {
+		if (linkable1.receiver()) {
+			return linkable1.receivingPosition().distanceSquared(linkable2.getTransmissionPosition()) <= Math.pow(Math.min(linkable1.receivingRange(), linkable1.transmissionRange()), 2);
 		} else {
-			for (IRedstoneLinkable link2 : getChannel(link.getChannelKey()).get(true)) {
-				if (link2.allowQueue() && canSendTo(link, link2)) {
-					destination.add(link2);
-				}
-			}
+			return linkable1.transmissionPosition().distanceSquared(linkable2.getReceivingPosition()) <= Math.pow(Math.min(linkable1.transmissionRange(), linkable1.receivingRange()), 2);
 		}
 	}
 
-	public void getInRange(IRedstoneLinkable link, Vec3 posOverride, Set<IRedstoneLinkable> destination) {
-		if (link.isListening()) {
-			for (IRedstoneLinkable link2 : getChannel(link.getChannelKey()).get(false)) {
-				if (canReceiveFrom(posOverride, link.receivingRange(), link2)) {
-					destination.add(link2);
-				}
-			}
-		} else {
-			for (IRedstoneLinkable link2 : getChannel(link.getChannelKey()).get(true)) {
-				if (canSendTo(posOverride, link.transmissionRange(), link2)) {
-					destination.add(link2);
-				}
-			}
-		}
-	}
-
-	public static boolean canReceiveFrom(IRedstoneLinkable destination, IRedstoneLinkable source) {
-		return canSendTo(source, destination);
-	}
-
-	public static boolean canSendTo(IRedstoneLinkable source, IRedstoneLinkable destination) {
-		if (source == destination) return true;
-		return source.getLocation().closerThan(destination.getLocation(), Math.min(source.transmissionRange(), destination.receivingRange()));
-	}
-
-	public static boolean canReceiveFrom(Vec3 destination, int receiveRange, IRedstoneLinkable source) {
-		return source.getLocation().closerThan(destination, Math.min(receiveRange, source.transmissionRange()));
-	}
-
-	public static boolean canSendTo(Vec3 source, int transmissionRange, IRedstoneLinkable destination) {
-		return source.closerThan(destination.getLocation(), Math.min(transmissionRange, destination.receivingRange()));
-	}
-
-	public void queueDelayedUpdate(IRedstoneLinkable link) {
-		delayedUpdates.add(link);
-	}
-
-	public void addSilent(IRedstoneLinkable link) {
-		if (!FMLEnvironment.production && link.getNetwork() != this) {
-			throw new IllegalStateException("This method is meant to be called from the link. If you want to set a links network call link.setNetwork()");
-		}
-		getChannel(link.getChannelKey()).get(link.isListening()).add(link);
-	}
-
-	public void add(IRedstoneLinkable link) {
-		if (!FMLEnvironment.production && link.getNetwork() != this) {
-			throw new IllegalStateException("This method is meant to be called from the link. If you want to set a links network call link.setNetwork()");
-		}
-		getChannel(link.getChannelKey()).get(link.isListening()).add(link);
-		if (link.isListening() && link.allowQueue()) {
-			receiverUpdates.add(link);
-		} else if (link.getTransmittedStrength() != 0) {
-			queueInRange(link, receiverUpdates);
-		}
-	}
-
-	public void removeIn(IRedstoneLinkable link, int ticks) {
-		queuedRemovals.compute(link, (iRedstoneLinkable, integer) -> (integer == null) ? ticks : Math.max(integer, ticks));
-	}
-
-	public void remove(IRedstoneLinkable link) {
-		getChannel(link.getChannelKey()).get(link.isListening()).remove(link);
-		if (!link.isListening() && link.getTransmittedStrength() != 0) {
-			queueInRange(link, receiverUpdates);
-		}
-	}
-
-	public void signalChanged(IRedstoneLinkable link) {
-		queueInRange(link, receiverUpdates);
-	}
-
-	public void linkMoved(IRedstoneLinkable link, Vec3 oldPos) {
-		RedstoneLinkNetwork newNetwork = Create.REDSTONE_LINK_NETWORK_HANDLER.findNetwork(link.getLocation(), link.getLevel());
-		if (newNetwork != this) {
-			link.setNetwork(newNetwork);
-		} else if (!link.isListening()) {
-			Set<IRedstoneLinkable> oldReceivers = Collections.newSetFromMap(new IdentityHashMap<>());
-			Set<IRedstoneLinkable> newReceivers = Collections.newSetFromMap(new IdentityHashMap<>());
-
-			getInRange(link, oldPos, oldReceivers);
-			getInRange(link, newReceivers);
-
-			for (IRedstoneLinkable linkable : oldReceivers) {
-				if (!newReceivers.contains(linkable)) {
-					receiverUpdates.add(linkable);
-				}
-			}
-
-			for (IRedstoneLinkable linkable : newReceivers) {
-				if (!oldReceivers.contains(linkable)) {
-					receiverUpdates.add(linkable);
-				}
-			}
-		} else {
-			receiverUpdates.add(link);
-		}
-	}
-
-	public Couple<Set<IRedstoneLinkable>> getChannel(Couple<RedstoneLinkNetworkHandler.Frequency> key) {
-		if (!channels.containsKey(key)) channels.put(key, Couple.create(new HashSet<>(), new HashSet<>()));
-		return channels.get(key);
+	@Contract(pure = true)
+	public @NonNull Couple<Set<RedstoneLinkable>> getChannel(final @NonNull Couple<Frequency> key) {
+		return this.channels.computeIfAbsent(key, frequencies -> Couple.create(new HashSet<>(12, 0.7f), new HashSet<>(12, 0.7f)));
 	}
 }

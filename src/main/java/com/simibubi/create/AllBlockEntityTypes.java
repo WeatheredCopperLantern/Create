@@ -201,10 +201,7 @@ import com.simibubi.create.content.redstone.diodes.PulseRepeaterBlockEntity;
 import com.simibubi.create.content.redstone.diodes.PulseTimerBlockEntity;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlockEntity;
 import com.simibubi.create.content.redstone.displayLink.LinkBulbRenderer;
-import com.simibubi.create.content.redstone.link.ehh.LinkRenderer;
-import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkBlockEntity;
-import com.simibubi.create.content.redstone.link.ehh.controller.LecternControllerBlockEntity;
-import com.simibubi.create.content.redstone.link.ehh.controller.LecternControllerRenderer;
+import com.simibubi.create.content.redstone.link.RedstoneLinkBlockEntity;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeRenderer;
 import com.simibubi.create.content.redstone.smartObserver.SmartObserverBlockEntity;
@@ -818,7 +815,7 @@ public class AllBlockEntityTypes {
 	public static final BlockEntityEntry<RedstoneLinkBlockEntity> REDSTONE_LINK = REGISTRATE
 		.blockEntity("redstone_link", RedstoneLinkBlockEntity::new)
 		.validBlocks(AllBlocks.REDSTONE_LINK)
-		.renderer(() -> LinkRenderer::new)
+		//.renderer(() -> LinkRenderer::new)
 		.register();
 
 	public static final BlockEntityEntry<NixieTubeBlockEntity> NIXIE_TUBE = REGISTRATE
@@ -896,11 +893,11 @@ public class AllBlockEntityTypes {
 		.renderer(() -> BrassDiodeRenderer::new)
 		.register();
 
-	public static final BlockEntityEntry<LecternControllerBlockEntity> LECTERN_CONTROLLER = REGISTRATE
-		.blockEntity("lectern_controller", LecternControllerBlockEntity::new)
-		.validBlocks(AllBlocks.LECTERN_CONTROLLER)
-		.renderer(() -> LecternControllerRenderer::new)
-		.register();
+	//public static final BlockEntityEntry<LecternControllerBlockEntity> LECTERN_CONTROLLER = REGISTRATE
+	//	.blockEntity("lectern_controller", LecternControllerBlockEntity::new)
+	//	.validBlocks(AllBlocks.LECTERN_CONTROLLER)
+	//	.renderer(() -> LecternControllerRenderer::new)
+	//	.register();
 
 	// Curiosities
 	public static final BlockEntityEntry<BacktankBlockEntity> BACKTANK = REGISTRATE

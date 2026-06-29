@@ -5,7 +5,6 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
-import com.simibubi.create.content.redstone.link.ehh.RedstoneLinkNetworkHandler.Frequency;
 import com.simibubi.create.content.trains.entity.Train;
 import com.simibubi.create.foundation.gui.ModularGuiLineBuilder;
 import com.simibubi.create.foundation.utility.CreateLang;
@@ -26,10 +25,10 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 public class RedstoneLinkCondition extends ScheduleWaitCondition {
 
-	public Couple<Frequency> freq;
+	//public Couple<Frequency> freq;
 
 	public RedstoneLinkCondition() {
-		freq = Couple.create(() -> Frequency.EMPTY);
+		//freq = Couple.create(() -> Frequency.EMPTY);
 	}
 
 	@Override
@@ -39,7 +38,7 @@ public class RedstoneLinkCondition extends ScheduleWaitCondition {
 
 	@Override
 	public Pair<ItemStack, Component> getSummary() {
-		return Pair.of(AllBlocks.REDSTONE_LINK.asStack(),
+		return Pair.of(ItemStack.EMPTY, //AllBlocks.REDSTONE_LINK.asStack(),
 			lowActivation() ? CreateLang.translateDirect("schedule.condition.redstone_link_off")
 				: CreateLang.translateDirect("schedule.condition.redstone_link_on"));
 	}
@@ -55,14 +54,14 @@ public class RedstoneLinkCondition extends ScheduleWaitCondition {
 		return ImmutableList.of(
 			CreateLang.translateDirect("schedule.condition.redstone_link.frequency_" + (lowActivation() ? "unpowered" : "powered")),
 			Component.literal(" #1 ").withStyle(ChatFormatting.GRAY)
-				.append(freq.getFirst()
-					.getStack()
+				.append(//freq.getFirst()
+					ItemStack.EMPTY//.getStack()
 					.getHoverName()
 					.copy()
 					.withStyle(ChatFormatting.DARK_AQUA)),
 			Component.literal(" #2 ").withStyle(ChatFormatting.GRAY)
-				.append(freq.getSecond()
-					.getStack()
+				.append(//freq.getSecond()
+					ItemStack.EMPTY//.getStack()
 					.getHoverName()
 					.copy()
 					.withStyle(ChatFormatting.DARK_AQUA)));
@@ -71,23 +70,23 @@ public class RedstoneLinkCondition extends ScheduleWaitCondition {
 	@Override
 	public boolean tickCompletion(Level level, Train train, CompoundTag context) {
 		int lastChecked = context.contains("LastChecked") ? context.getInt("LastChecked") : -1;
-		int status = Create.REDSTONE_LINK_NETWORK_HANDLER.globalPowerVersion.get();
-		if (status == lastChecked)
-			return false;
-		context.putInt("LastChecked", status);
-		return Create.REDSTONE_LINK_NETWORK_HANDLER.hasAnyLoadedPower(freq) != lowActivation();
+		//int status = Create.REDSTONE_LINK_NETWORK_HANDLER.globalPowerVersion.get();
+		//if (status == lastChecked)
+		//	return false;
+		//context.putInt("LastChecked", status);
+		return false;//Create.REDSTONE_LINK_NETWORK_HANDLER.hasAnyLoadedPower(freq) != lowActivation();
 	}
 
 	@Override
 	public void setItem(int slot, ItemStack stack) {
-		freq.set(slot == 0, Frequency.of(stack));
+		//freq.set(slot == 0, Frequency.of(stack));
 		super.setItem(slot, stack);
 	}
 
 	@Override
 	public ItemStack getItem(int slot) {
-		return freq.get(slot == 0)
-			.getStack();
+		return ItemStack.EMPTY;// freq.get(slot == 0)
+		//	.getStack();
 	}
 
 	@Override
@@ -97,7 +96,7 @@ public class RedstoneLinkCondition extends ScheduleWaitCondition {
 
 	@Override
 	protected void writeAdditional(HolderLookup.Provider registries, CompoundTag tag) {
-		tag.put("Frequency", freq.serializeEach(f -> (CompoundTag) f.getStack().saveOptional(registries)));
+		//tag.put("Frequency", freq.serializeEach(f -> (CompoundTag) f.getStack().saveOptional(registries)));
 	}
 
 	public boolean lowActivation() {
@@ -106,8 +105,8 @@ public class RedstoneLinkCondition extends ScheduleWaitCondition {
 
 	@Override
 	protected void readAdditional(HolderLookup.Provider registries, CompoundTag tag) {
-		if (tag.contains("Frequency"))
-			freq = Couple.deserializeEach(tag.getList("Frequency", Tag.TAG_COMPOUND), c -> Frequency.of(ItemStack.parseOptional(registries, c)));
+		//if (tag.contains("Frequency"))
+		//	freq = Couple.deserializeEach(tag.getList("Frequency", Tag.TAG_COMPOUND), c -> Frequency.of(ItemStack.parseOptional(registries, c)));
 	}
 
 	@Override

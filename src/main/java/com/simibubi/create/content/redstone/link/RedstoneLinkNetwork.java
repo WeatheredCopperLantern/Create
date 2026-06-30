@@ -33,7 +33,7 @@ import org.jspecify.annotations.NonNull;
 public class RedstoneLinkNetwork {
 
 	// region Sets & Lists ===========================================================
-	private final Map<Couple<Frequency>, Couple<Set<RedstoneLinkable>>> channels;
+	private Map<Couple<Frequency>, Couple<Set<RedstoneLinkable>>> channels;
 	private final Collection<ITickingLinkable> tickingLinkables = new HashSet<>(23 /* Allows 16 entries before resize */, 0.7f);
 	private final Queue<RedstoneLinkable> updates = new ArrayDeque<>(16);
 	private final Queue<RedstoneLinkable> recalcQueue = new ArrayDeque<>(16);
@@ -53,7 +53,7 @@ public class RedstoneLinkNetwork {
 
 			channel.forEachWithParams((frequency, name) -> channelNBT.put(name, frequency.write()), Couple.create("Frequency_1", "Frequency_2"));
 
-			linkables.forEachWithParams((redstoneLinkables, name) -> NBTHelper.writeCompoundList(redstoneLinkables, linkable -> {
+			linkables.forEachWithParams((redstoneLinkables, name) -> channelNBT.put(name, NBTHelper.writeCompoundList(redstoneLinkables, linkable -> {
 				if (!linkable.doSave()) return null;
 
 				final ResourceLocation resourceLocation = CreateBuiltInRegistries.REDSTONE_LINKABLE.getKey(linkable.getType());
@@ -66,7 +66,7 @@ public class RedstoneLinkNetwork {
 				NBTHelper.writeResourceLocation(linkableNBT, "ResourceLocation", resourceLocation);
 
 				return linkableNBT;
-			}), Couple.create("Receivers", "Transmitters"));
+			})), Couple.create("Receivers", "Transmitters"));
 
 			return channelNBT;
 		}));
@@ -75,6 +75,7 @@ public class RedstoneLinkNetwork {
 	}
 
 	public static RedstoneLinkNetwork read(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions, final Map<UUID, RedstoneLinkable> linkables) {
+		final RedstoneLinkNetwork network = new RedstoneLinkNetwork();
 		final ListTag channelsTag = nbt.getList("Channels", Tag.TAG_COMPOUND);
 		final Map<Couple<Frequency>, Couple<Set<RedstoneLinkable>>> channels = new HashMap<>((int) Math.ceil(channelsTag.size() / 0.7f), 0.7f);
 
@@ -86,9 +87,9 @@ public class RedstoneLinkNetwork {
 				final Set<RedstoneLinkable> set = new HashSet<>((int) Math.ceil(linkablesTag.size() / 0.7f), 0.7f);
 
 				NBTHelper.iterateCompoundList(linkablesTag, linkableNBT -> {
-					final RedstoneLinkableType linkType = CreateBuiltInRegistries.REDSTONE_LINKABLE.get(NBTHelper.readResourceLocation(channelNBT, "ResourceLocation"));
+					final RedstoneLinkableType linkType = CreateBuiltInRegistries.REDSTONE_LINKABLE.get(NBTHelper.readResourceLocation(linkableNBT, "ResourceLocation"));
 					assert linkType != null;
-					final RedstoneLinkable link = linkType.factory().apply(linkableNBT, channel, aBoolean, registries, dimensions);
+					final RedstoneLinkable link = linkType.factory().apply(linkableNBT, channel, aBoolean, registries, dimensions, network);
 					set.add(link);
 					linkables.put(link.uuid, link);
 				});
@@ -98,11 +99,8 @@ public class RedstoneLinkNetwork {
 			channels.put(channel, sets);
 		});
 
-		return new RedstoneLinkNetwork(channels);
-	}
-
-	private RedstoneLinkNetwork(final Map<Couple<Frequency>, Couple<Set<RedstoneLinkable>>> channels) {
-		this.channels = channels;
+		network.channels = channels;
+		return network;
 	}
 
 	public RedstoneLinkNetwork() {
@@ -139,10 +137,7 @@ public class RedstoneLinkNetwork {
 		while (!this.recalcQueue.isEmpty()) {
 			final RedstoneLinkable linkable = this.recalcQueue.remove();
 			final Set<RedstoneLinkable> inRange = new HashSet<>(23 /* Allows 16 entries before resize */, 0.7f);
-			this.forLinkableInRange(linkable, RedstoneLinkable::allowRecalcQueue, linkable1 -> {
-				linkable1.considerRecalcQueued();
-				inRange.add(linkable1);
-			});
+			this.forLinkableInRange(linkable, redstoneLinkable -> true, inRange::add);
 
 			if (linkable instanceof final ICustomReceive customReceiveLinkable) {
 				customReceiveLinkable.calculateSignal(inRange);

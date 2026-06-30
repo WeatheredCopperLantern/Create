@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import net.createmod.catnip.nbt.NBTHelper;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -29,7 +30,7 @@ import org.jspecify.annotations.NonNull;
 
 public class Frequency {
 
-	public static final Frequency EMPTY = new Frequency(Items.AIR);
+	public static final Frequency EMPTY = new Frequency(Items.AIR, true);
 	// TODO: save sizes and apply during load to avoid/reduce resizing
 	private static final Map<Item, Frequency> basicFrequencies = new IdentityHashMap<>(32);
 	private static final Map<FrequencyHash, FrequencyRef> complexFrequencies = new HashMap<>(16);
@@ -41,14 +42,14 @@ public class Frequency {
 	public final DataComponentPatch componentPatch;
 	private final FrequencyHash hash;
 
-	private Frequency(final Item item, final DataComponentPatch componentPatch, final FrequencyHash hash) {
+	private Frequency(final Item item, final DataComponentPatch componentPatch, final FrequencyHash hash, final boolean doNotCallThisUnlessYouUnderstandExactlyHowTheFrequencyMapsWork) {
 		this.item = item;
 		this.isSimple = false;
 		this.componentPatch = componentPatch;
 		this.hash = hash;
 	}
 
-	private Frequency(final Item item) {
+	private Frequency(final Item item, final boolean doNotCallThisUnlessYouUnderstandExactlyHowTheFrequencyMapsWork) {
 		this.item = item;
 		this.isSimple = true;
 		this.componentPatch = DataComponentPatch.EMPTY;
@@ -59,16 +60,16 @@ public class Frequency {
 		if (stack.isEmpty()) return Frequency.EMPTY;
 
 		final Item item = stack.getItem();
-		if (stack.getComponents().isEmpty()) return Frequency.basicFrequencies.computeIfAbsent(item, u -> new Frequency(item));
+		if (stack.getComponents().isEmpty()) return Frequency.basicFrequencies.computeIfAbsent(item, u -> new Frequency(item, true));
 
 		final DataComponentPatch componentPatch = Frequency.extractAllowedPatches(stack.getComponentsPatch(), item).build();
 
-		if (componentPatch.isEmpty()) return Frequency.basicFrequencies.computeIfAbsent(item, u -> new Frequency(item));
+		if (componentPatch.isEmpty()) return Frequency.basicFrequencies.computeIfAbsent(item, u -> new Frequency(item, true));
 
 		final FrequencyHash frequencyHash = new FrequencyHash(item.hashCode(), MurmurHash3.hash128x64((item.toString() + componentPatch).getBytes(StandardCharsets.UTF_8)));
 		return Frequency.complexFrequencies.computeIfAbsent(frequencyHash, u -> {
 			Frequency.cleanUp();
-			return new FrequencyRef(new Frequency(item, componentPatch, frequencyHash));
+			return new FrequencyRef(new Frequency(item, componentPatch, frequencyHash, true));
 		}).get();
 	}
 
@@ -79,7 +80,7 @@ public class Frequency {
 		}
 	}
 
-	@SuppressWarnings("unused") // Item will be usefull for mixins
+	@SuppressWarnings("unused") // Item will be useful for mixins
 	public static DataComponentPatch.@NonNull Builder extractAllowedPatches(final DataComponentPatch patch, final Item item) {
 		final DataComponentPatch.Builder builder = DataComponentPatch.builder();
 
@@ -134,13 +135,11 @@ public class Frequency {
 	public static Frequency read(final CompoundTag nbt) {
 		final Item item = BuiltInRegistries.ITEM.get(NBTHelper.readResourceLocation(nbt, "Item"));
 		if (nbt.getBoolean("Simple")) {
-			return new Frequency(item);
+			return Frequency.of(new ItemStack(item));
 		}
 		final DataComponentPatch componentPatch = DataComponentPatch.CODEC.parse(NbtOps.INSTANCE, nbt.get("Patch")).getOrThrow();
-		final FrequencyHash hash = new FrequencyHash(item.hashCode(), nbt.getLongArray("Hash"));
-
-		return Frequency.complexFrequencies.computeIfAbsent(hash, u -> new FrequencyRef(new Frequency(item, componentPatch, hash))).get();
-	}
+		return Frequency.of(new ItemStack(Holder.direct(item), 1, componentPatch));
+}
 
 	public CompoundTag write() {
 		final CompoundTag nbt = new CompoundTag();
@@ -148,7 +147,6 @@ public class Frequency {
 		nbt.putBoolean("Simple", this.isSimple);
 		if (!this.isSimple) {
 			nbt.put("Patch", DataComponentPatch.CODEC.encodeStart(NbtOps.INSTANCE, this.componentPatch).getOrThrow());
-			nbt.putLongArray("Hash", this.hash.patchHash);
 		}
 		return nbt;
 	}

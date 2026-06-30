@@ -32,8 +32,12 @@ public class RedstoneLinkBlockEntity extends SmartBlockEntity {
 	@Override
 	public void initialize() {
 		this.initialized = true;
-		this.channel = Couple.create(Frequency.EMPTY, Frequency.EMPTY);
-		this.linkable = new RedstoneLinkLinkable(this.channel, this);
+		if(this.linkable == null){
+			this.channel = Couple.create(Frequency.EMPTY, Frequency.EMPTY);
+			this.linkable = new RedstoneLinkLinkable(this.channel, this);
+		}else {
+			this.readFromLinkable();
+		}
 	}
 
 	@Override
@@ -44,6 +48,10 @@ public class RedstoneLinkBlockEntity extends SmartBlockEntity {
 	@Override
 	public void destroy() {
 
+	}
+
+	public void receive(int strength){
+		level.setBlock(getBlockPos(), getBlockState().setValue(RedstoneLinkBlock.POWERED, strength > 0), Block.UPDATE_CLIENTS + Block.UPDATE_KNOWN_SHAPE);
 	}
 
 	@Override
@@ -75,12 +83,18 @@ public class RedstoneLinkBlockEntity extends SmartBlockEntity {
 		if (compound.contains("uuid")) {
 			final RedstoneLinkable tmp = Create.REDSTONE_LINK_NETWORK.getLinkable(compound.getUUID("uuid"));
 			if (tmp instanceof final RedstoneLinkLinkable linkable) {
-				this.linkable = linkable;
 				this.channel = linkable.channel;
-				this.initialized = true;
+				linkable.setBlockEntity(this);
+				this.linkable = linkable;
 			} else {
 				Create.LOGGER.error("RedstoneLinkLinkable for RedstoneLinkBlockEntity at {} not found.", this.worldPosition);
 			}
+		}
+	}
+
+	private void readFromLinkable(){
+		if(this.linkable.isReceiver()){
+			this.receive(this.linkable.getReceivedStrength());
 		}
 	}
 

@@ -89,9 +89,10 @@ public abstract class RedstoneLinkable {
 	public void writeAdditional(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions) {
 	}
 
-	protected RedstoneLinkable(final CompoundTag nbt, final Couple<Frequency> channel, final boolean receiver, final HolderLookup.Provider registries, final DimensionPalette dimensions) {
+	protected RedstoneLinkable(final CompoundTag nbt, final Couple<Frequency> channel, final boolean receiver, final HolderLookup.Provider registries, final DimensionPalette dimensions, final RedstoneLinkNetwork network) {
 		this.channel = channel;
 		this.receiver = receiver;
+		this.network = network;
 		this.signal = nbt.getInt("Signal");
 		this.uuid = nbt.getUUID("UUID");
 

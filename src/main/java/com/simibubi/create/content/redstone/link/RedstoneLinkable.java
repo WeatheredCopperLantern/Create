@@ -14,6 +14,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 /**
  * Base class for {@code Receiver/Transmitter behaviour} implementations. <br>
@@ -54,12 +55,11 @@ public abstract class RedstoneLinkable {
 
 	public final UUID uuid;
 	public final Couple<Frequency> channel;
-
-	private RedstoneLinkNetwork network;
-	private boolean receiver;
-	private int signal;
-	private boolean recalcQueued;
-	private boolean updateQueued;
+	public RedstoneLinkNetwork network;
+	public boolean receiver;
+	public int signal;
+	public boolean recalcQueued;
+	public boolean updateQueued;
 
 	//TODO: Build caching for linkables in communication range, so we can completely skip any checks for signal change/removal updates
 	//Transmission/Receiving ranges get queried a lot. Skipping the ConfigBase#get() method actualy has a meassurable impact on performance.
@@ -85,7 +85,6 @@ public abstract class RedstoneLinkable {
 		return nbt;
 	}
 
-	@SuppressWarnings("unused")
 	public void writeAdditional(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions) {
 	}
 
@@ -104,8 +103,7 @@ public abstract class RedstoneLinkable {
 		this.channel = channel;
 	}
 
-	@SuppressWarnings("unused")
-	private void readAdditional(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions) {
+	public void readAdditional(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions) {
 
 	}
 
@@ -172,6 +170,7 @@ public abstract class RedstoneLinkable {
 		}
 	}
 
+	//TODO: remove receiver check
 	public void setReceivedStrength(final int signal) {
 		if (this.receiver) this.signal = signal;
 	}
@@ -192,12 +191,12 @@ public abstract class RedstoneLinkable {
 	}
 
 	@Contract(pure = true)
-	public Vector3f getReceivingPosition() {
+	public Vector3fc getReceivingPosition() {
 		return this.getTransmissionPosition();
 	}
 
 	@Contract(pure = true)
-	public abstract Vector3f getTransmissionPosition();
+	public abstract Vector3fc getTransmissionPosition();
 
 	public void setNetwork(final RedstoneLinkNetwork network) {
 		if (this.network != null) {

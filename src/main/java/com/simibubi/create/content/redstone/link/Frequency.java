@@ -13,6 +13,7 @@ import java.util.Optional;
 import net.createmod.catnip.nbt.NBTHelper;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -60,11 +61,13 @@ public class Frequency {
 		if (stack.isEmpty()) return Frequency.EMPTY;
 
 		final Item item = stack.getItem();
-		if (stack.getComponents().isEmpty()) return Frequency.basicFrequencies.computeIfAbsent(item, u -> new Frequency(item, true));
+		if (stack.getComponents().isEmpty())
+			return Frequency.basicFrequencies.computeIfAbsent(item, u -> new Frequency(item, true));
 
 		final DataComponentPatch componentPatch = Frequency.extractAllowedPatches(stack.getComponentsPatch(), item).build();
 
-		if (componentPatch.isEmpty()) return Frequency.basicFrequencies.computeIfAbsent(item, u -> new Frequency(item, true));
+		if (componentPatch.isEmpty())
+			return Frequency.basicFrequencies.computeIfAbsent(item, u -> new Frequency(item, true));
 
 		final FrequencyHash frequencyHash = new FrequencyHash(item.hashCode(), MurmurHash3.hash128x64((item.toString() + componentPatch).getBytes(StandardCharsets.UTF_8)));
 		return Frequency.complexFrequencies.computeIfAbsent(frequencyHash, u -> {
@@ -132,14 +135,27 @@ public class Frequency {
 		}
 	}
 
-	public static Frequency read(final CompoundTag nbt) {
+	public static Frequency read(final CompoundTag nbt, final HolderLookup.Provider registries) {
+		if (nbt.contains("Item")) {
+			return readNew(nbt);
+		} else if (nbt.contains("id")) {
+			return readLegacy(nbt, registries);
+		}
+		return Frequency.EMPTY;
+	}
+
+	private static Frequency readNew(final CompoundTag nbt) {
 		final Item item = BuiltInRegistries.ITEM.get(NBTHelper.readResourceLocation(nbt, "Item"));
 		if (nbt.getBoolean("Simple")) {
 			return Frequency.of(new ItemStack(item));
 		}
 		final DataComponentPatch componentPatch = DataComponentPatch.CODEC.parse(NbtOps.INSTANCE, nbt.get("Patch")).getOrThrow();
 		return Frequency.of(new ItemStack(Holder.direct(item), 1, componentPatch));
-}
+	}
+
+	private static Frequency readLegacy(final CompoundTag nbt, final HolderLookup.Provider registries) {
+		return Frequency.of(ItemStack.parseOptional(registries, nbt));
+	}
 
 	public CompoundTag write() {
 		final CompoundTag nbt = new CompoundTag();
@@ -171,7 +187,7 @@ public class Frequency {
 		@Override
 		public boolean equals(final Object obj) {
 			return obj instanceof FrequencyHash(
-				final int itemHash, final long[] patchHash
+					final int itemHash, final long[] patchHash
 			) && this.itemHash == itemHash && this.patchHash[0] == patchHash[0] && this.patchHash[1] == patchHash[1];
 		}
 

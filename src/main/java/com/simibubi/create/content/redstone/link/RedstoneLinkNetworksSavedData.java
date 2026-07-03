@@ -14,6 +14,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 
@@ -51,11 +52,13 @@ public class RedstoneLinkNetworksSavedData extends SavedData {
 		final DimensionPalette dimensions = DimensionPalette.read(nbt);
 
 		NBTHelper.iterateCompoundList(nbt.getList("Networks", Tag.TAG_COMPOUND), tag -> {
-			final RedstoneLinkNetwork network = RedstoneLinkNetwork.read(tag.getCompound("Network"), registries, dimensions, linkables);
+			final  ResourceKey<Level> levelKey = dimensions.decode(tag.getInt("D"));
+			final ServerLevel level = server.getLevel(levelKey);
+			final RedstoneLinkNetwork network = RedstoneLinkNetwork.read(tag.getCompound("Network"), registries, dimensions, linkables, level);
 			networks.put(dimensions.decode(tag.getInt("D")), network);
 		});
 
-		levelKeys.forEach(levelKey -> networks.computeIfAbsent(levelKey, u -> new RedstoneLinkNetwork()));
+		levelKeys.forEach(levelKey -> networks.computeIfAbsent(levelKey, u -> new RedstoneLinkNetwork(server.getLevel(u))));
 
 		return new RedstoneLinkNetworksSavedData(networks, linkables);
 	}
@@ -76,7 +79,7 @@ public class RedstoneLinkNetworksSavedData extends SavedData {
 	private RedstoneLinkNetworksSavedData(final @NonNull MinecraftServer server) {
 		final Set<ResourceKey<Level>> levelKeys = server.levelKeys();
 		this.networks = new HashMap<>((int) Math.ceil(levelKeys.size() / 0.7), 0.7f);
-		levelKeys.forEach(levelKey -> this.networks.computeIfAbsent(levelKey, u -> new RedstoneLinkNetwork()));
+		levelKeys.forEach(levelKey -> this.networks.computeIfAbsent(levelKey, u -> new RedstoneLinkNetwork(server.getLevel(u))));
 
 		this.linkables = new HashMap<>((int) Math.ceil(64 / 0.7), 0.7f);
 		this.setDirty(true);

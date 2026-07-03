@@ -27,6 +27,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 
+import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NonNull;
 
@@ -40,6 +41,8 @@ public class RedstoneLinkNetwork {
 	private final Queue<Pair<RedstoneLinkable, Integer>> queuedReceiverSignals = new ArrayDeque<>(16);
 	private final Map<RedstoneLinkable, Integer> queuedRemovals = new HashMap<>(23 /* Allows 16 entries before resize */, 0.7f);
 	//endregion
+
+	public ServerLevel level;
 
 	// region Saving/Loading =========================================================
 	public CompoundTag write(final HolderLookup.Provider registries, final DimensionPalette dimensions) {
@@ -74,13 +77,13 @@ public class RedstoneLinkNetwork {
 		return nbt;
 	}
 
-	public static RedstoneLinkNetwork read(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions, final Map<UUID, RedstoneLinkable> linkables) {
+	public static RedstoneLinkNetwork read(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions, final Map<UUID, RedstoneLinkable> linkables, final ServerLevel level) {
 		final RedstoneLinkNetwork network = new RedstoneLinkNetwork();
 		final ListTag channelsTag = nbt.getList("Channels", Tag.TAG_COMPOUND);
 		final Map<Couple<Frequency>, Couple<Set<RedstoneLinkable>>> channels = new HashMap<>((int) Math.ceil(channelsTag.size() / 0.7f), 0.7f);
 
 		NBTHelper.iterateCompoundList(channelsTag, channelNBT -> {
-			final Couple<Frequency> channel = Couple.createWithContext(first -> Frequency.read(channelNBT.getCompound(first ? "Frequency_1" : "Frequency_2")));
+			final Couple<Frequency> channel = Couple.createWithContext(first -> Frequency.read(channelNBT.getCompound(first ? "Frequency_1" : "Frequency_2"), registries));
 
 			final Couple<Set<RedstoneLinkable>> sets = Couple.createWithContext(aBoolean -> {
 				final ListTag linkablesTag = channelNBT.getList(aBoolean ? "Receivers" : "Transmitters", Tag.TAG_COMPOUND);
@@ -100,11 +103,17 @@ public class RedstoneLinkNetwork {
 		});
 
 		network.channels = channels;
+		network.level = level;
 		return network;
 	}
 
-	public RedstoneLinkNetwork() {
+	public RedstoneLinkNetwork(ServerLevel level) {
 		this.channels = new HashMap<>(32, 0.7f);
+		this.level = level;
+	}
+
+	private RedstoneLinkNetwork(){
+
 	}
 
 	//endregion

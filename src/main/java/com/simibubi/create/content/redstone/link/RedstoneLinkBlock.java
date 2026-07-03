@@ -1,9 +1,11 @@
 package com.simibubi.create.content.redstone.link;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllShapes;
+import com.simibubi.create.Create;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
 
@@ -17,8 +19,10 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -42,30 +46,48 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 	public static final BooleanProperty RECEIVER = BooleanProperty.create("receiver");
 	public static final BooleanProperty ROTATED_ANTENNA = BooleanProperty.create("rotated_antenna");
 
-	public RedstoneLinkBlock(final Properties properties) {
-		super(properties);
-		this.registerDefaultState(this.defaultBlockState().setValue(RedstoneLinkBlock.POWERED, false).setValue(RedstoneLinkBlock.RECEIVER, false).setValue(RedstoneLinkBlock.ROTATED_ANTENNA, false));
+	private void withLinkableDo(BlockGetter world, BlockPos pos, Consumer<RedstoneLinkLinkable> action) {
+		getBlockEntityOptional(world, pos).ifPresent(be -> action.accept(be.linkable));
+	}
+
+	public void updateFromLinkable(Level world, BlockPos pos){
+		withLinkableDo(world, pos, linkable -> {
+			BlockState state = world.getBlockState(pos);
+			if(state.getValue(POWERED) != linkable.signal > 0 || state.getValue(RECEIVER) != linkable.isReceiver()){
+				state = state.setValue(POWERED, linkable.signal > 0);
+				state = state.setValue(RECEIVER, linkable.isReceiver());
+				world.setBlock(pos, state, Block.UPDATE_CLIENTS);
+			}
+		});
 	}
 
 	@Override
-	public void neighborChanged(@NonNull final BlockState state, final Level level, @NonNull final BlockPos pos, @NonNull final Block block, @NonNull final BlockPos fromPos, final boolean isMoving) {
-		if (level.isClientSide) return;
-		this.queueUpdate(level, pos);
-	}
-
-	private void queueUpdate(final BlockGetter level, final BlockPos pos) {
-		this.withLinkableDo(level, pos, RedstoneLinkable::queueUpdate);
-	}
-
-	@Override
-	public void onRemove(@NonNull final BlockState pState, @NonNull final Level pLevel, @NonNull final BlockPos pPos, @NonNull final BlockState pNewState, final boolean pMovedByPiston) {
-		IBE.onRemove(pState, pLevel, pPos, pNewState);
+	public InteractionResult onWrenched(BlockState state, UseOnContext context) {
+		if(context.getLevel().isClientSide) return InteractionResult.CONSUME;
+		withLinkableDo(context.getLevel(), context.getClickedPos(), linkable -> {
+			linkable.setMode(linkable.isTransmitter());
+		});
+		return InteractionResult.CONSUME;
 	}
 
 	@Override
-	public boolean isSignalSource(final @NonNull BlockState state) {
-		return state.getValue(RedstoneLinkBlock.RECEIVER) && state.getValue(RedstoneLinkBlock.POWERED);
+	protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+		Create.LOGGER.warn("heh");
 	}
+
+	//@Override
+	//protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+	//	if (oldState.getBlock() == this && (oldState.getValue(POWERED) != state.getValue(POWERED) || oldState.getValue(RECEIVER) != state.getValue(RECEIVER))) {
+	//		update(level, pos, state);
+	//	}
+	//}
+//
+	//private void update(LevelAccessor level, BlockPos pos, BlockState state) {
+	//	Direction attachedFace = state.getValue(FACING).getOpposite();
+	//	BlockPos attachedPos = pos.relative(attachedFace);
+	//	level.blockUpdated(pos, this);
+	//	level.blockUpdated(attachedPos, level.getBlockState(attachedPos).getBlock());
+	//}
 
 	@Override
 	public int getDirectSignal(final BlockState blockState, final @NonNull BlockGetter blockAccess, final @NonNull BlockPos pos, final @NonNull Direction side) {
@@ -77,40 +99,33 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 	public int getSignal(final BlockState state, final @NonNull BlockGetter blockAccess, final @NonNull BlockPos pos, final @NonNull Direction side) {
 		//noinspection PointlessBooleanExpression, improves readability
 		if (state.getValue(RedstoneLinkBlock.RECEIVER) == false) return 0;
-		//return this.getBlockEntityOptional(blockAccess, pos).map(RedstoneLinkBlockEntity::getReceivedSignal).orElse(0);
-		return 1;
+		return this.getBlockEntityOptional(blockAccess, pos).map(redstoneLinkBlockEntity -> redstoneLinkBlockEntity.linkable.signal).orElse(0);
 	}
 
 	@Override
-	protected void createBlockStateDefinition(final StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(RedstoneLinkBlock.POWERED, RedstoneLinkBlock.RECEIVER, RedstoneLinkBlock.ROTATED_ANTENNA);
-		super.createBlockStateDefinition(builder);
+	public boolean isSignalSource(final @NonNull BlockState state) {
+		return state.getValue(RedstoneLinkBlock.RECEIVER) && state.getValue(RedstoneLinkBlock.POWERED);
 	}
 
 	@Override
-	protected @NonNull InteractionResult useWithoutItem(@NonNull final BlockState state, @NonNull final Level level, @NonNull final BlockPos pos, final Player player, @NonNull final BlockHitResult hitResult) {
-		if (player.isShiftKeyDown()) {
-			this.toggleMode(state, level, pos);
-		} else {
-			//TODO: Open inv showing channel Items
+	public @NonNull VoxelShape getShape(final BlockState state, @NonNull final BlockGetter worldIn, @NonNull final BlockPos pos, @NonNull final CollisionContext context) {
+		return AllShapes.REDSTONE_LINK.get(state.getValue(DirectionalBlock.FACING));
+	}
+
+	@Override
+	public BlockState getStateForPlacement(final BlockPlaceContext context) {
+		BlockState state = this.defaultBlockState();
+		final Direction facing = context.getClickedFace();
+		state = state.setValue(DirectionalBlock.FACING, facing);
+		if (facing.getAxis().isVertical()) {
+			state = state.setValue(RedstoneLinkBlock.ROTATED_ANTENNA, true);
 		}
-		return InteractionResult.SUCCESS;
-	}
-
-	public void toggleMode(final BlockState state, final Level level, final BlockPos pos) {
-		if (level.isClientSide) return;
-		this.onBlockEntityUse(level, pos, be -> {
-			final boolean newMode = !state.getValue(RedstoneLinkBlock.RECEIVER);
-			be.linkable.setMode(newMode);
-			level.setBlock(pos, state.setValue(RedstoneLinkBlock.RECEIVER, newMode).setValue(RedstoneLinkBlock.POWERED, false), Block.UPDATE_CLIENTS + Block.UPDATE_KNOWN_SHAPE);
-			return InteractionResult.SUCCESS;
-		});
+		return state;
 	}
 
 	@Override
-	public InteractionResult onWrenched(final BlockState state, final UseOnContext context) {
-		this.toggleMode(state, context.getLevel(), context.getClickedPos());
-		return InteractionResult.SUCCESS;
+	protected boolean isPathfindable(final @NonNull BlockState state, final @NonNull PathComputationType pathComputationType) {
+		return false;
 	}
 
 	@Override
@@ -130,32 +145,19 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 	}
 
 	@Override
-	public BlockState getStateForPlacement(final BlockPlaceContext context) {
-		BlockState state = this.defaultBlockState();
-		final Direction facing = context.getClickedFace();
-		state = state.setValue(DirectionalBlock.FACING, facing);
-		if (facing.getAxis().isVertical()) {
-			state = state.setValue(RedstoneLinkBlock.ROTATED_ANTENNA, true);
-		}
-
-		//TODO: Handle this from the be
-		//final CustomData nbt = context.getItemInHand().get(DataComponents.BLOCK_ENTITY_DATA);
-
-		//if (nbt != null && !nbt.copyTag().getBoolean("Transmitter")) {
-		//	state = state.setValue(RedstoneLinkBlock.RECEIVER, true);
-		//}
-
-		return state;
+	protected void createBlockStateDefinition(final StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(RedstoneLinkBlock.POWERED, RedstoneLinkBlock.RECEIVER, RedstoneLinkBlock.ROTATED_ANTENNA);
+		super.createBlockStateDefinition(builder);
 	}
 
 	@Override
-	public @NonNull VoxelShape getShape(final BlockState state, @NonNull final BlockGetter worldIn, @NonNull final BlockPos pos, @NonNull final CollisionContext context) {
-		return AllShapes.REDSTONE_LINK.get(state.getValue(DirectionalBlock.FACING));
+	public void onRemove(@NonNull final BlockState pState, @NonNull final Level pLevel, @NonNull final BlockPos pPos, @NonNull final BlockState pNewState, final boolean pMovedByPiston) {
+		IBE.onRemove(pState, pLevel, pPos, pNewState);
 	}
 
 	@Override
-	protected boolean isPathfindable(final @NonNull BlockState state, final @NonNull PathComputationType pathComputationType) {
-		return false;
+	public <S extends BlockEntity> BlockEntityTicker<S> getTicker(Level p_153212_, BlockState p_153213_, BlockEntityType<S> p_153214_) {
+		return null;
 	}
 
 	@Override
@@ -168,28 +170,8 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 		return AllBlockEntityTypes.REDSTONE_LINK.get();
 	}
 
-	@Override
-	public <S extends BlockEntity> BlockEntityTicker<S> getTicker(final Level level, final BlockState blockState, final BlockEntityType<S> blockEntityType) {
-		return null;
-	}
-
-	@Override
-	protected void tick(final @NonNull BlockState state, final @NonNull ServerLevel level, final @NonNull BlockPos pos, final @NonNull RandomSource random) {
-		if (level.isClientSide) return;
-		this.withBlockEntityDo(level, pos, rlbe -> {
-			if (!rlbe.isInitialized() && rlbe.hasLevel()) {
-				rlbe.initialize();
-			}
-		});
-	}
-
-	@Override
-	protected void onPlace(final @NonNull BlockState state, final @NonNull Level level, final @NonNull BlockPos pos, final @NonNull BlockState oldState, final boolean movedByPiston) {
-		if (level.isClientSide) return;
-		level.scheduleTick(pos, this, 0, TickPriority.EXTREMELY_HIGH);
-	}
-
-	private void withLinkableDo(final BlockGetter world, final BlockPos pos, final Consumer<RedstoneLinkLinkable> action) {
-		this.getBlockEntityOptional(world, pos).ifPresent(rlbe -> action.accept(rlbe.linkable));
+	public RedstoneLinkBlock(Properties properties) {
+		super(properties);
+		this.registerDefaultState(this.defaultBlockState().setValue(RedstoneLinkBlock.POWERED, false).setValue(RedstoneLinkBlock.RECEIVER, false).setValue(RedstoneLinkBlock.ROTATED_ANTENNA, false));
 	}
 }

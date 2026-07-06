@@ -14,7 +14,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
-import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 /**
@@ -176,7 +175,6 @@ public abstract class RedstoneLinkable {
 		}
 	}
 
-
 	public void setReceivedStrength(final int signal) {
 		CreateBuildInfo.runIfDev(() -> {
 			if (!this.receiver) {
@@ -225,8 +223,8 @@ public abstract class RedstoneLinkable {
 		this.updateQueued = false;
 	}
 
-	public void setFrequency(boolean first, Frequency frequency) {
-		if (this.channel.get(first).equals(frequency) || !shouldSetFrequency(first, frequency)) return;
+	public void setFrequency(final boolean first, final Frequency frequency) {
+		if (this.channel.get(first).equals(frequency) || !this.shouldSetFrequency(first, frequency)) return;
 		final RedstoneLinkableSnapshot snapshot = RedstoneLinkableSnapshot.of(this);
 		this.channel.set(first, frequency);
 		if (this.network != null) {

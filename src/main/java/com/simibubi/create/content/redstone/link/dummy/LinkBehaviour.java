@@ -3,28 +3,25 @@ package com.simibubi.create.content.redstone.link.dummy;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
-import com.simibubi.create.Create;
-import com.simibubi.create.content.redstone.link.dummy.interfaces.IRedstoneLinkable;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
-import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
-
 import com.simibubi.create.content.equipment.clipboard.ClipboardCloneable;
-import com.simibubi.create.content.redstone.link.dummy.RedstoneLinkNetworkHandler.Frequency;
-import com.simibubi.create.content.redstone.link.dummy.interfaces.IRedstoneLinkable.Mode;
+import com.simibubi.create.content.redstone.link.dummy.interfaces.IRedstoneLinkable;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
-
 import net.createmod.catnip.data.Couple;
+
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 
 public class LinkBehaviour extends BlockEntityBehaviour implements ClipboardCloneable {
 
@@ -35,34 +32,36 @@ public class LinkBehaviour extends BlockEntityBehaviour implements ClipboardClon
 	ValueBoxTransform firstSlot;
 	ValueBoxTransform secondSlot;
 
-	public LinkBehaviour(SmartBlockEntity be, Pair<ValueBoxTransform, ValueBoxTransform> slots,
-		IntConsumer signalCallback, IntSupplier transmission, Mode mode) {
+	public LinkBehaviour(final SmartBlockEntity be, final Pair<ValueBoxTransform, ValueBoxTransform> slots, final IntConsumer signalCallback, final IntSupplier transmission, final IRedstoneLinkable.Mode mode) {
 		super(be);
-		firstSlot = slots.getLeft();
-		secondSlot = slots.getRight();
-		link = new LinkBehaviourRedstoneLinkable(Frequency.EMPTY, Frequency.EMPTY, mode, signalCallback, transmission, this);
+		this.firstSlot = slots.getLeft();
+		this.secondSlot = slots.getRight();
+		this.link = new LinkBehaviourRedstoneLinkable(RedstoneLinkNetworkHandler.Frequency.EMPTY, RedstoneLinkNetworkHandler.Frequency.EMPTY, mode, signalCallback, transmission, this);
 	}
 
 	@Override
 	public void initialize() {
 		super.initialize();
-		if (getWorld().isClientSide) return;
+		if (this.getWorld().isClientSide) return;
 		//link.setNetwork(Create.REDSTONE_LINK_NETWORK_HANDLER.findNetwork(blockEntity));
-		if (link.isListening()) ((RedstoneLinkBlockEntity) blockEntity).checkAntenna();
-		else link.queueUpdate();
+		if (this.link.isListening()) {
+			((RedstoneLinkBlockEntity) this.blockEntity).checkAntenna();
+		} else {
+			this.link.queueUpdate();
+		}
 	}
 
 	@Override
 	public void unload() {
 		super.unload();
-		if (getWorld().isClientSide) return;
-		link.clearNetwork(1);
+		if (this.getWorld().isClientSide) return;
+		this.link.clearNetwork(1);
 	}
 
-	public boolean testHit(Boolean first, Vec3 hit) {
-		BlockState state = blockEntity.getBlockState();
-		Vec3 localHit = hit.subtract(Vec3.atLowerCornerOf(blockEntity.getBlockPos()));
-		return (first ? firstSlot : secondSlot).testHit(getWorld(), getPos(), state, localHit);
+	public boolean testHit(final Boolean first, final Vec3 hit) {
+		final BlockState state = this.blockEntity.getBlockState();
+		final Vec3 localHit = hit.subtract(Vec3.atLowerCornerOf(this.blockEntity.getBlockPos()));
+		return (first ? this.firstSlot : this.secondSlot).testHit(this.getWorld(), this.getPos(), state, localHit);
 	}
 
 	@Override
@@ -71,20 +70,19 @@ public class LinkBehaviour extends BlockEntityBehaviour implements ClipboardClon
 	}
 
 	@Override
-	public boolean writeToClipboard(@NotNull HolderLookup.Provider registries, CompoundTag tag, Direction side) {
-		Couple<Frequency> channel = link.getChannelKey();
+	public boolean writeToClipboard(@NotNull final HolderLookup.Provider registries, final CompoundTag tag, final Direction side) {
+		final Couple<RedstoneLinkNetworkHandler.Frequency> channel = this.link.getChannelKey();
 		tag.put("First", channel.getFirst().getStack().saveOptional(registries));
 		tag.put("Last", channel.getSecond().getStack().saveOptional(registries));
 		return true;
 	}
 
 	@Override
-	public boolean readFromClipboard(@NotNull HolderLookup.Provider registries, CompoundTag tag, Player player,
-		Direction side, boolean simulate) {
+	public boolean readFromClipboard(@NotNull final HolderLookup.Provider registries, final CompoundTag tag, final Player player, final Direction side, final boolean simulate) {
 		if (!tag.contains("First") || !tag.contains("Last")) return false;
 		if (simulate) return true;
-		link.setFrequency(true, ItemStack.parseOptional(registries, tag.getCompound("First")));
-		link.setFrequency(false, ItemStack.parseOptional(registries, tag.getCompound("Last")));
+		this.link.setFrequency(true, ItemStack.parseOptional(registries, tag.getCompound("First")));
+		this.link.setFrequency(false, ItemStack.parseOptional(registries, tag.getCompound("Last")));
 		return true;
 	}
 
@@ -94,23 +92,23 @@ public class LinkBehaviour extends BlockEntityBehaviour implements ClipboardClon
 	}
 
 	@Override
-	public void write(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
+	public void write(final CompoundTag nbt, final HolderLookup.Provider registries, final boolean clientPacket) {
 		super.write(nbt, registries, clientPacket);
-		Couple<Frequency> channel = link.getChannelKey();
+		final Couple<RedstoneLinkNetworkHandler.Frequency> channel = this.link.getChannelKey();
 		nbt.put("FrequencyFirst", channel.getFirst().getStack().saveOptional(registries));
 		nbt.put("FrequencyLast", channel.getSecond().getStack().saveOptional(registries));
 	}
 
 	@Override
-	public void read(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
+	public void read(final CompoundTag nbt, final HolderLookup.Provider registries, final boolean clientPacket) {
 		super.read(nbt, registries, clientPacket);
-		link.setFrequency(true, ItemStack.parseOptional(registries, nbt.getCompound("FrequencyFirst")));
-		link.setFrequency(false, ItemStack.parseOptional(registries, nbt.getCompound("FrequencyLast")));
+		this.link.setFrequency(true, ItemStack.parseOptional(registries, nbt.getCompound("FrequencyFirst")));
+		this.link.setFrequency(false, ItemStack.parseOptional(registries, nbt.getCompound("FrequencyLast")));
 	}
 
 	@Override
 	public BehaviourType<?> getType() {
-		return TYPE;
+		return LinkBehaviour.TYPE;
 	}
 
 	private static class LinkBehaviourRedstoneLinkable extends AbstractRedstoneLinkable {
@@ -118,48 +116,47 @@ public class LinkBehaviour extends BlockEntityBehaviour implements ClipboardClon
 		private final LinkBehaviour behaviour;
 		private final Vec3 location;
 
-		public LinkBehaviourRedstoneLinkable(Frequency first, Frequency last, Mode mode, IntConsumer signalCallback,
-			IntSupplier transmission, LinkBehaviour behaviour) {
+		public LinkBehaviourRedstoneLinkable(final RedstoneLinkNetworkHandler.Frequency first, final RedstoneLinkNetworkHandler.Frequency last, final IRedstoneLinkable.Mode mode, final IntConsumer signalCallback, final IntSupplier transmission, final LinkBehaviour behaviour) {
 			super(first, last, mode, signalCallback, transmission);
 			this.behaviour = behaviour;
-			location = Vec3.atCenterOf(behaviour.getPos());
+			this.location = Vec3.atCenterOf(behaviour.getPos());
 		}
 
 		@Override
-		protected boolean shouldSetMode(Mode newMode) {
+		protected boolean shouldSetMode(final IRedstoneLinkable.Mode newMode) {
 			return true;
 		}
 
 		@Override
-		protected boolean shouldSetFrequency(boolean first, ItemStack stack) {
+		protected boolean shouldSetFrequency(final boolean first, final ItemStack stack) {
 			return true;
 		}
 
 		@Override
-		protected void onModeChanged(Mode newMode) {
+		protected void onModeChanged(final IRedstoneLinkable.Mode newMode) {
 		}
 
 		@Override
-		protected void onFrequencyChanged(boolean first, ItemStack stack) {
-			behaviour.blockEntity.sendData();
+		protected void onFrequencyChanged(final boolean first, final ItemStack stack) {
+			this.behaviour.blockEntity.sendData();
 		}
 
 		@Override
 		public void delayedUpdate() {
 			super.delayedUpdate();
-			if (behaviour.blockEntity instanceof RedstoneLinkBlockEntity be) {
+			if (this.behaviour.blockEntity instanceof final RedstoneLinkBlockEntity be) {
 				be.delayedUpdate();
 			}
 		}
 
 		@Override
 		public Vec3 getLocation() {
-			return location;
+			return this.location;
 		}
 
 		@Override
 		public Level getLevel() {
-			return behaviour.getWorld();
+			return this.behaviour.getWorld();
 		}
 	}
 }

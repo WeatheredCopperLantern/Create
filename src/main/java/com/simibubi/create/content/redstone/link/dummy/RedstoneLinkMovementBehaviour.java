@@ -1,14 +1,15 @@
 package com.simibubi.create.content.redstone.link.dummy;
 
-import com.simibubi.create.Create;
-import com.simibubi.create.content.contraptions.render.ContraptionMatrices;
-import com.simibubi.create.content.redstone.link.dummy.RedstoneLinkNetworkHandler.Frequency;
+import java.util.function.IntConsumer;
+
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
+import com.simibubi.create.content.contraptions.render.ContraptionMatrices;
 import com.simibubi.create.content.redstone.link.dummy.interfaces.IRedstoneLinkable;
 import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.math.VecHelper;
+
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -17,26 +18,24 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.function.IntConsumer;
-
 public class RedstoneLinkMovementBehaviour implements MovementBehaviour {
 
-	public IRedstoneLinkable getLink(MovementContext context) {
-		return ensureLink(context);
+	public IRedstoneLinkable getLink(final MovementContext context) {
+		return this.ensureLink(context);
 	}
 
-	private LinkMovementBehaviourRedstoneLinkable ensureLink(MovementContext context) {
-		Level world = context.world;
-		if (context.temporaryData instanceof LinkMovementBehaviourRedstoneLinkable link) {
+	private LinkMovementBehaviourRedstoneLinkable ensureLink(final MovementContext context) {
+		final Level world = context.world;
+		if (context.temporaryData instanceof final LinkMovementBehaviourRedstoneLinkable link) {
 			return link;
 		} else {
-			BlockPos pos;
+			final BlockPos pos;
 			if (context.contraption.entity != null) {
 				pos = BlockPos.containing(context.contraption.entity.toGlobalVector(VecHelper.getCenterOf(context.localPos), 1));
 			} else {
 				pos = context.localPos.offset(context.contraption.anchor);
 			}
-			LinkMovementBehaviourRedstoneLinkable link = new LinkMovementBehaviourRedstoneLinkable(context.blockEntityData, world, Vec3.atCenterOf(pos), value -> {
+			final LinkMovementBehaviourRedstoneLinkable link = new LinkMovementBehaviourRedstoneLinkable(context.blockEntityData, world, Vec3.atCenterOf(pos), value -> {
 			});
 			//link.setNetwork(Create.REDSTONE_LINK_NETWORK_HANDLER.findNetwork(Vec3.atCenterOf(pos), world));
 			link.shouldUpdate = true;
@@ -45,35 +44,35 @@ public class RedstoneLinkMovementBehaviour implements MovementBehaviour {
 		}
 	}
 
-	private void cleanup(MovementContext context) {
-		if (context.temporaryData instanceof LinkMovementBehaviourRedstoneLinkable link) {
+	private void cleanup(final MovementContext context) {
+		if (context.temporaryData instanceof final LinkMovementBehaviourRedstoneLinkable link) {
 			link.clearNetwork(1);
 		}
 		context.temporaryData = null;
 	}
 
 	@Override
-	public void startMoving(MovementContext context) {
+	public void startMoving(final MovementContext context) {
 		if (context.world.isClientSide) return;
-		ensureLink(context);
+		this.ensureLink(context);
 	}
 
 	@Override
-	public void stopMoving(MovementContext context) {
-		cleanup(context);
+	public void stopMoving(final MovementContext context) {
+		this.cleanup(context);
 	}
 
 	@Override
-	public void tick(MovementContext context) {
+	public void tick(final MovementContext context) {
 		if (context.world.isClientSide) return;
 		if (context.contraption.disassembled) {
-			cleanup(context);
+			this.cleanup(context);
 			return;
 		}
-		LinkMovementBehaviourRedstoneLinkable link = ensureLink(context);
+		final LinkMovementBehaviourRedstoneLinkable link = this.ensureLink(context);
 		if (link.shouldUpdate) {
 			link.shouldUpdate = false;
-			int signal = context.contraption.getBestNeighborSignal(context.localPos);
+			final int signal = context.contraption.getBestNeighborSignal(context.localPos);
 			link.setSignal(signal);
 			if (signal > 0 != context.state.getValue(RedstoneLinkBlock.POWERED)) {
 				context.contraption.entity.setBlock(context.localPos, new StructureTemplate.StructureBlockInfo(context.localPos, context.state.cycle(RedstoneLinkBlock.POWERED), context.blockEntityData));
@@ -87,23 +86,22 @@ public class RedstoneLinkMovementBehaviour implements MovementBehaviour {
 	}
 
 	@Override
-	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-		ContraptionMatrices matrices, MultiBufferSource buffer) {
+	public void renderInContraption(final MovementContext context, final VirtualRenderWorld renderWorld, final ContraptionMatrices matrices, final MultiBufferSource buffer) {
 		LinkRenderer.renderInContraption(context, renderWorld, matrices, buffer);
 	}
 
 	@Override
-	public void visitNewPosition(MovementContext context, BlockPos pos) {
-		Level world = context.world;
+	public void visitNewPosition(final MovementContext context, final BlockPos pos) {
+		final Level world = context.world;
 		if (world.isClientSide) {
 			if (context.temporaryData == null) {
-				context.temporaryData = Couple.create(Frequency.of(ItemStack.parseOptional(context.world.registryAccess(), context.blockEntityData.getCompound("FrequencyFirst"))), Frequency.of(ItemStack.parseOptional(context.world.registryAccess(), context.blockEntityData.getCompound("FrequencyLast"))));
+				context.temporaryData = Couple.create(RedstoneLinkNetworkHandler.Frequency.of(ItemStack.parseOptional(context.world.registryAccess(), context.blockEntityData.getCompound("FrequencyFirst"))), RedstoneLinkNetworkHandler.Frequency.of(ItemStack.parseOptional(context.world.registryAccess(), context.blockEntityData.getCompound("FrequencyLast"))));
 			}
 			return;
 		}
 		if (context.disabled) return;
 
-		LinkMovementBehaviourRedstoneLinkable link = ensureLink(context);
+		final LinkMovementBehaviourRedstoneLinkable link = this.ensureLink(context);
 
 		link.updatePos(Vec3.atCenterOf(pos));
 		if (link.getNetwork() == null) {
@@ -112,11 +110,11 @@ public class RedstoneLinkMovementBehaviour implements MovementBehaviour {
 	}
 
 	@Override
-	public void onDisabledByControls(MovementContext context) {
+	public void onDisabledByControls(final MovementContext context) {
 		MovementBehaviour.super.onDisabledByControls(context);
 		if (context.world.isClientSide) return;
 
-		LinkMovementBehaviourRedstoneLinkable link = ensureLink(context);
+		final LinkMovementBehaviourRedstoneLinkable link = this.ensureLink(context);
 		link.clearNetwork();
 	}
 
@@ -125,66 +123,65 @@ public class RedstoneLinkMovementBehaviour implements MovementBehaviour {
 		private Vec3 location;
 		private final Level level;
 		protected boolean shouldUpdate;
-		private int signal = 0;
+		private int signal;
 
-		public LinkMovementBehaviourRedstoneLinkable(CompoundTag beData, Level world, Vec3 pos,
-			IntConsumer signalCallback) {
-			super(Frequency.of(ItemStack.parseOptional(world.registryAccess(), beData.getCompound("FrequencyFirst"))), Frequency.of(ItemStack.parseOptional(world.registryAccess(), beData.getCompound("FrequencyLast"))), beData.getInt("Receive") == 0 ? Mode.TRANSMIT : Mode.RECEIVE, signalCallback, null);
+		public LinkMovementBehaviourRedstoneLinkable(final CompoundTag beData, final Level world, final Vec3 pos, final IntConsumer signalCallback) {
+			super(RedstoneLinkNetworkHandler.Frequency.of(ItemStack.parseOptional(world.registryAccess(), beData.getCompound("FrequencyFirst"))), RedstoneLinkNetworkHandler.Frequency.of(ItemStack.parseOptional(world.registryAccess(), beData.getCompound("FrequencyLast"))), beData.getInt("Receive") == 0 ? Mode.TRANSMIT : Mode.RECEIVE, signalCallback, null);
 			this.transmission = this::getSignal;
 			this.level = world;
 			this.location = pos;
 		}
 
-		public void updatePos(Vec3 pos) {
-			if (location == pos) return;
-			Vec3 old = location;
-			location = pos;
-			if (getNetwork() != null) getNetwork().linkMoved(this, old);
+		public void updatePos(final Vec3 pos) {
+			if (this.location == pos) return;
+			final Vec3 old = this.location;
+			this.location = pos;
+			if (this.getNetwork() != null) this.getNetwork().linkMoved(this, old);
 		}
 
 		public int getSignal() {
-			return signal;
+			return this.signal;
 		}
 
-		protected void setSignal(int signal) {
+		protected void setSignal(final int signal) {
 			if (this.signal == signal) return;
 			this.signal = signal;
-			notifySignalChange();
+			this.notifySignalChange();
 		}
 
 		@Override
-		protected boolean shouldSetMode(Mode newMode) {
+		protected boolean shouldSetMode(final Mode newMode) {
 			return false;
 		}
 
 		@Override
-		protected boolean shouldSetFrequency(boolean first, ItemStack stack) {
+		protected boolean shouldSetFrequency(final boolean first, final ItemStack stack) {
 			return false;
 		}
 
 		@Override
-		protected void onModeChanged(Mode newMode) {
+		protected void onModeChanged(final Mode newMode) {
 
 		}
 
 		@Override
-		protected void onFrequencyChanged(boolean first, ItemStack stack) {
+		protected void onFrequencyChanged(final boolean first, final ItemStack stack) {
 
 		}
 
 		@Override
 		public void queueUpdate() {
-			shouldUpdate = true;
+			this.shouldUpdate = true;
 		}
 
 		@Override
 		public Vec3 getLocation() {
-			return location;
+			return this.location;
 		}
 
 		@Override
 		public Level getLevel() {
-			return level;
+			return this.level;
 		}
 	}
 }

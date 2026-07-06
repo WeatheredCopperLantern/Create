@@ -39,39 +39,39 @@ public class RedstoneLinkNetwork {
 	private final HashMap<IRedstoneLinkable, Integer> queuedRemovals = new HashMap<>();
 
 	public void tick() {
-		Iterator<Map.Entry<IRedstoneLinkable, Integer>> iter = queuedRemovals.entrySet().iterator();
+		final Iterator<Map.Entry<IRedstoneLinkable, Integer>> iter = this.queuedRemovals.entrySet().iterator();
 		while (iter.hasNext()) {
-			Map.Entry<IRedstoneLinkable, Integer> entry = iter.next();
+			final Map.Entry<IRedstoneLinkable, Integer> entry = iter.next();
 			if (entry.getValue() == 0) {
-				remove(entry.getKey());
+				this.remove(entry.getKey());
 				iter.remove();
 			} else {
 				entry.setValue(entry.getValue() - 1);
 			}
 		}
 
-		while (!queuedReceiverSignals.isEmpty()) {
-			Pair<IRedstoneLinkable, Integer> entry = queuedReceiverSignals.remove();
+		while (!this.queuedReceiverSignals.isEmpty()) {
+			final Pair<IRedstoneLinkable, Integer> entry = this.queuedReceiverSignals.remove();
 			entry.getFirst().setReceivedStrength(entry.getSecond());
 		}
 
-		while (!delayedUpdates.isEmpty()) {
-			delayedUpdates.remove().delayedUpdate();
+		while (!this.delayedUpdates.isEmpty()) {
+			this.delayedUpdates.remove().delayedUpdate();
 		}
 
-		while (!receiverInNeedOfRecalc.isEmpty()) {
-			IRedstoneLinkable link = receiverInNeedOfRecalc.remove();
-			Set<IRedstoneLinkable> inRange = Collections.newSetFromMap(new IdentityHashMap<>());
-			getInRange(link, inRange);
+		while (!this.receiverInNeedOfRecalc.isEmpty()) {
+			final IRedstoneLinkable link = this.receiverInNeedOfRecalc.remove();
+			final Set<IRedstoneLinkable> inRange = Collections.newSetFromMap(new IdentityHashMap<>());
+			this.getInRange(link, inRange);
 
-			if (link instanceof ICustomReceive customReceiveLinkable) {
+			if (link instanceof final ICustomReceive customReceiveLinkable) {
 				customReceiveLinkable.calculateSignal(inRange);
 				return;
 			}
 
 			int maxStrength = 0;
-			for (IRedstoneLinkable candidate : inRange) {
-				int strength = candidate.getTransmittedStrength();
+			for (final IRedstoneLinkable candidate : inRange) {
+				final int strength = candidate.getTransmittedStrength();
 				if (strength > maxStrength) {
 					maxStrength = strength;
 					if (strength == 15) {
@@ -80,37 +80,37 @@ public class RedstoneLinkNetwork {
 				}
 			}
 			link.considerDequeued();
-			queuedReceiverSignals.add(Couple.of(link, maxStrength));
+			this.queuedReceiverSignals.add(Pair.of(link, maxStrength));
 		}
 	}
 
-	public void getInRange(IRedstoneLinkable link, Set<IRedstoneLinkable> destination) {
+	public void getInRange(final IRedstoneLinkable link, final Set<IRedstoneLinkable> destination) {
 		if (link.isListening()) {
-			for (IRedstoneLinkable link2 : getChannelMembers(link.getChannelKey()).get(false)) {
-				if (canReceiveFrom(link, link2)) {
+			for (final IRedstoneLinkable link2 : this.getChannelMembers(link.getChannelKey()).get(false)) {
+				if (RedstoneLinkNetwork.canReceiveFrom(link, link2)) {
 					destination.add(link2);
 				}
 			}
 		} else {
-			for (IRedstoneLinkable link2 : getChannelMembers(link.getChannelKey()).get(true)) {
-				if (canSendTo(link, link2)) {
+			for (final IRedstoneLinkable link2 : this.getChannelMembers(link.getChannelKey()).get(true)) {
+				if (RedstoneLinkNetwork.canSendTo(link, link2)) {
 					destination.add(link2);
 				}
 			}
 		}
 	}
 
-	public void queueInRange(IRedstoneLinkable link, Queue<IRedstoneLinkable> destination) {
+	public void queueInRange(final IRedstoneLinkable link, final Queue<IRedstoneLinkable> destination) {
 		if (link.isListening()) {
-			for (IRedstoneLinkable link2 : getChannelMembers(link.getChannelKey()).get(false)) {
-				if (link2.allowRecalcQueue() && canReceiveFrom(link, link2)) {
+			for (final IRedstoneLinkable link2 : this.getChannelMembers(link.getChannelKey()).get(false)) {
+				if (link2.allowRecalcQueue() && RedstoneLinkNetwork.canReceiveFrom(link, link2)) {
 					link2.considerQueued();
 					destination.add(link2);
 				}
 			}
 		} else {
-			for (IRedstoneLinkable link2 : getChannelMembers(link.getChannelKey()).get(true)) {
-				if (link2.allowRecalcQueue() && canSendTo(link, link2)) {
+			for (final IRedstoneLinkable link2 : this.getChannelMembers(link.getChannelKey()).get(true)) {
+				if (link2.allowRecalcQueue() && RedstoneLinkNetwork.canSendTo(link, link2)) {
 					link2.considerQueued();
 					destination.add(link2);
 				}
@@ -118,36 +118,36 @@ public class RedstoneLinkNetwork {
 		}
 	}
 
-	public void getInRange(IRedstoneLinkable link, Vec3 posOverride, Set<IRedstoneLinkable> destination) {
+	public void getInRange(final IRedstoneLinkable link, final Vec3 posOverride, final Set<IRedstoneLinkable> destination) {
 		if (link.isListening()) {
-			for (IRedstoneLinkable link2 : getChannelMembers(link.getChannelKey()).get(false)) {
-				if (canReceiveFrom(posOverride, link.receivingRange(), link2)) {
+			for (final IRedstoneLinkable link2 : this.getChannelMembers(link.getChannelKey()).get(false)) {
+				if (RedstoneLinkNetwork.canReceiveFrom(posOverride, link.receivingRange(), link2)) {
 					destination.add(link2);
 				}
 			}
 		} else {
-			for (IRedstoneLinkable link2 : getChannelMembers(link.getChannelKey()).get(true)) {
-				if (canSendTo(posOverride, link.transmissionRange(), link2)) {
+			for (final IRedstoneLinkable link2 : this.getChannelMembers(link.getChannelKey()).get(true)) {
+				if (RedstoneLinkNetwork.canSendTo(posOverride, link.transmissionRange(), link2)) {
 					destination.add(link2);
 				}
 			}
 		}
 	}
 
-	public static boolean canReceiveFrom(IRedstoneLinkable destination, IRedstoneLinkable source) {
-		return canSendTo(source, destination);
+	public static boolean canReceiveFrom(final IRedstoneLinkable destination, final IRedstoneLinkable source) {
+		return RedstoneLinkNetwork.canSendTo(source, destination);
 	}
 
-	public static boolean canSendTo(IRedstoneLinkable source, IRedstoneLinkable destination) {
+	public static boolean canSendTo(final IRedstoneLinkable source, final IRedstoneLinkable destination) {
 		if (source == destination) return true;
 		return source.getLocation().closerThan(destination.getLocation(), Math.min(source.transmissionRange(), destination.receivingRange()));
 	}
 
-	public static boolean canReceiveFrom(Vec3 destination, int receiveRange, IRedstoneLinkable source) {
+	public static boolean canReceiveFrom(final Vec3 destination, final int receiveRange, final IRedstoneLinkable source) {
 		return source.getLocation().closerThan(destination, Math.min(receiveRange, source.transmissionRange()));
 	}
 
-	public static boolean canSendTo(Vec3 source, int transmissionRange, IRedstoneLinkable destination) {
+	public static boolean canSendTo(final Vec3 source, final int transmissionRange, final IRedstoneLinkable destination) {
 		return source.closerThan(destination.getLocation(), Math.min(transmissionRange, destination.receivingRange()));
 	}
 
@@ -157,81 +157,81 @@ public class RedstoneLinkNetwork {
 	 * @see IRedstoneLinkable#delayedUpdate()
 	 * @see IRedstoneLinkable#queueUpdate()
 	 */
-	public void queueDelayedUpdate(IRedstoneLinkable link) {
-		delayedUpdates.add(link);
+	public void queueDelayedUpdate(final IRedstoneLinkable link) {
+		this.delayedUpdates.add(link);
 	}
 
 	/**
 	 * Adds a {@link IRedstoneLinkable} without updating the Network.
 	 * Currently used
 	 */
-	public void addSilent(IRedstoneLinkable link) {
+	public void addSilent(final IRedstoneLinkable link) {
 		if (!FMLEnvironment.production && link.getNetwork() != this) {
 			throw new IllegalStateException("This method is meant to be called from the link. If you want to set a links network call link.setNetwork()");
 		}
-		getChannelMembers(link.getChannelKey()).get(link.isListening()).add(link);
+		this.getChannelMembers(link.getChannelKey()).get(link.isListening()).add(link);
 	}
 
-	public void add(IRedstoneLinkable link) {
+	public void add(final IRedstoneLinkable link) {
 		if (!FMLEnvironment.production && link.getNetwork() != this) {
 			throw new IllegalStateException("This method is meant to be called from the link. If you want to set a links network call link.setNetwork()");
 		}
-		getChannelMembers(link.getChannelKey()).get(link.isListening()).add(link);
+		this.getChannelMembers(link.getChannelKey()).get(link.isListening()).add(link);
 		if (link.isListening() && link.allowRecalcQueue()) {
 			link.considerQueued();
-			receiverInNeedOfRecalc.add(link);
+			this.receiverInNeedOfRecalc.add(link);
 		} else if (link.getTransmittedStrength() != 0) {
-			queueInRange(link, receiverInNeedOfRecalc);
+			this.queueInRange(link, this.receiverInNeedOfRecalc);
 		}
 	}
 
-	public void removeIn(IRedstoneLinkable link, int ticks) {
-		queuedRemovals.compute(link, (iRedstoneLinkable, integer) -> (integer == null) ? ticks : Math.max(integer, ticks));
+	public void removeIn(final IRedstoneLinkable link, final int ticks) {
+		this.queuedRemovals.compute(link, (iRedstoneLinkable, integer) -> (integer == null) ? ticks : Math.max(integer, ticks));
 	}
 
-	public void remove(IRedstoneLinkable link) {
-		getChannelMembers(link.getChannelKey()).get(link.isListening()).remove(link);
+	public void remove(final IRedstoneLinkable link) {
+		this.getChannelMembers(link.getChannelKey()).get(link.isListening()).remove(link);
 		if (!link.isListening() && link.getTransmittedStrength() != 0) {
-			queueInRange(link, receiverInNeedOfRecalc);
+			this.queueInRange(link, this.receiverInNeedOfRecalc);
 		}
 	}
 
-	public void signalChanged(IRedstoneLinkable link) {
-		queueInRange(link, receiverInNeedOfRecalc);
+	public void signalChanged(final IRedstoneLinkable link) {
+		this.queueInRange(link, this.receiverInNeedOfRecalc);
 	}
 
-	public void linkMoved(IRedstoneLinkable link, Vec3 oldPos) {
-		RedstoneLinkNetwork newNetwork = null;//Create.REDSTONE_LINK_NETWORK_HANDLER.findNetwork(link.getLocation(), link.getLevel());
+	public void linkMoved(final IRedstoneLinkable link, final Vec3 oldPos) {
+		final RedstoneLinkNetwork newNetwork = null;//Create.REDSTONE_LINK_NETWORK_HANDLER.findNetwork(link.getLocation(), link.getLevel());
 		if (newNetwork != this) {
 			link.setNetwork(newNetwork);
 		} else if (!link.isListening()) {
-			Set<IRedstoneLinkable> oldReceivers = Collections.newSetFromMap(new IdentityHashMap<>());
-			Set<IRedstoneLinkable> newReceivers = Collections.newSetFromMap(new IdentityHashMap<>());
+			final Set<IRedstoneLinkable> oldReceivers = Collections.newSetFromMap(new IdentityHashMap<>());
+			final Set<IRedstoneLinkable> newReceivers = Collections.newSetFromMap(new IdentityHashMap<>());
 
-			getInRange(link, oldPos, oldReceivers);
-			getInRange(link, newReceivers);
+			this.getInRange(link, oldPos, oldReceivers);
+			this.getInRange(link, newReceivers);
 
-			for (IRedstoneLinkable linkable : oldReceivers) {
+			for (final IRedstoneLinkable linkable : oldReceivers) {
 				if (linkable.allowRecalcQueue() && !newReceivers.contains(linkable)) {
 					linkable.considerQueued();
-					receiverInNeedOfRecalc.add(linkable);
+					this.receiverInNeedOfRecalc.add(linkable);
 				}
 			}
 
-			for (IRedstoneLinkable linkable : newReceivers) {
+			for (final IRedstoneLinkable linkable : newReceivers) {
 				if (linkable.allowRecalcQueue() && !oldReceivers.contains(linkable)) {
 					linkable.considerQueued();
-					receiverInNeedOfRecalc.add(linkable);
+					this.receiverInNeedOfRecalc.add(linkable);
 				}
 			}
 		} else if (link.allowRecalcQueue()) {
 			link.considerQueued();
-			receiverInNeedOfRecalc.add(link);
+			this.receiverInNeedOfRecalc.add(link);
 		}
 	}
 
-	public Couple<Set<IRedstoneLinkable>> getChannelMembers(Couple<RedstoneLinkNetworkHandler.Frequency> key) {
-		if (!channels.containsKey(key)) channels.put(key, Couple.create(new HashSet<>(), new HashSet<>()));
-		return channels.get(key);
+	public Couple<Set<IRedstoneLinkable>> getChannelMembers(final Couple<RedstoneLinkNetworkHandler.Frequency> key) {
+		if (!this.channels.containsKey(key)) this.channels.put(key, Couple.create(new HashSet<>(), new HashSet<>()));
+		return this.channels.get(key);
 	}
 }

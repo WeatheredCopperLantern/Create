@@ -2,7 +2,6 @@ package com.simibubi.create.content.redstone.link;
 
 import net.createmod.catnip.data.Couple;
 
-import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.jspecify.annotations.NonNull;
 

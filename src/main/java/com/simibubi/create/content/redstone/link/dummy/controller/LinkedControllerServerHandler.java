@@ -6,14 +6,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import com.simibubi.create.content.redstone.link.dummy.EntityRedstoneLinkable;
-import com.simibubi.create.content.redstone.link.dummy.RedstoneLinkNetworkHandler.Frequency;
+import com.simibubi.create.content.redstone.link.dummy.RedstoneLinkNetworkHandler;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.data.WorldAttached;
+
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LevelAccessor;
@@ -23,11 +23,11 @@ public class LinkedControllerServerHandler {
 	private static final WorldAttached<Map<UUID, Collection<LinkedControllerSignal>>> receivedInputs = new WorldAttached<>($ -> new HashMap<>());
 	static final int TIMEOUT = 30;
 
-	public static void tick(LevelAccessor world) {
-		Map<UUID, Collection<LinkedControllerSignal>> map = receivedInputs.get(world);
-		for (Iterator<Entry<UUID, Collection<LinkedControllerSignal>>> iterator = map.entrySet().iterator(); iterator.hasNext(); ) {
-			Entry<UUID, Collection<LinkedControllerSignal>> entry = iterator.next();
-			Collection<LinkedControllerSignal> list = entry.getValue();
+	public static void tick(final LevelAccessor world) {
+		final Map<UUID, Collection<LinkedControllerSignal>> map = LinkedControllerServerHandler.receivedInputs.get(world);
+		for (final Iterator<Map.Entry<UUID, Collection<LinkedControllerSignal>>> iterator = map.entrySet().iterator(); iterator.hasNext(); ) {
+			final Map.Entry<UUID, Collection<LinkedControllerSignal>> entry = iterator.next();
+			final Collection<LinkedControllerSignal> list = entry.getValue();
 
 			list.removeIf(signal -> {
 				if (signal.tickLifetime() <= 0) {
@@ -41,14 +41,13 @@ public class LinkedControllerServerHandler {
 		}
 	}
 
-	public static void receivePressed(Entity origin, LevelAccessor world, UUID uniqueID, List<Couple<Frequency>> collect,
-									  boolean pressed) {
-		Map<UUID, Collection<LinkedControllerSignal>> map = receivedInputs.get(world);
-		Collection<LinkedControllerSignal> list = map.computeIfAbsent(uniqueID, $ -> new ArrayList<>());
+	public static void receivePressed(final Entity origin, final LevelAccessor world, final UUID uniqueID, final List<Couple<RedstoneLinkNetworkHandler.Frequency>> collect, final boolean pressed) {
+		final Map<UUID, Collection<LinkedControllerSignal>> map = LinkedControllerServerHandler.receivedInputs.get(world);
+		final Collection<LinkedControllerSignal> list = map.computeIfAbsent(uniqueID, $ -> new ArrayList<>());
 
 		WithNext:
-		for (Couple<Frequency> channel : collect) {
-			for (LinkedControllerSignal signal : list) {
+		for (final Couple<RedstoneLinkNetworkHandler.Frequency> channel : collect) {
+			for (final LinkedControllerSignal signal : list) {
 				if (!signal.getChannelKey().equals(channel)) continue;
 				if (!pressed) {
 					signal.clearNetwork();
@@ -58,7 +57,7 @@ public class LinkedControllerServerHandler {
 				}
 				continue WithNext;
 			}
-			LinkedControllerSignal entry = new LinkedControllerSignal(channel, origin);
+			final LinkedControllerSignal entry = new LinkedControllerSignal(channel, origin);
 			list.add(entry);
 			if (!entry.getNetwork().getChannelMembers(entry.getChannelKey()).get(true).isEmpty()) {
 				AllAdvancements.LINKED_CONTROLLER.awardTo(world.getPlayerByUUID(uniqueID));
@@ -70,41 +69,40 @@ public class LinkedControllerServerHandler {
 
 		private int lifetime;
 
-		private LinkedControllerSignal(Couple<Frequency> channel, Entity entity) {
+		private LinkedControllerSignal(final Couple<RedstoneLinkNetworkHandler.Frequency> channel, final Entity entity) {
 			super(channel, Mode.TRANSMIT, value -> {
 			}, () -> 15, entity);
-			lifetime = TIMEOUT;
+			this.lifetime = LinkedControllerServerHandler.TIMEOUT;
 		}
 
-
 		private int tickLifetime() {
-			tick();
-			return --lifetime;
+			this.tick();
+			--this.lifetime;
+			return this.lifetime;
 		}
 
 		private void resetLifetime() {
-			lifetime = TIMEOUT;
+			this.lifetime = LinkedControllerServerHandler.TIMEOUT;
 		}
 
 		@Override
-		protected boolean shouldSetMode(Mode newMode) {
+		protected boolean shouldSetMode(final Mode newMode) {
 			return false;
 		}
 
 		@Override
-		protected boolean shouldSetFrequency(boolean first, ItemStack stack) {
+		protected boolean shouldSetFrequency(final boolean first, final ItemStack stack) {
 			return false;
 		}
 
 		@Override
-		protected void onModeChanged(Mode newMode) {
+		protected void onModeChanged(final Mode newMode) {
 
 		}
 
 		@Override
-		protected void onFrequencyChanged(boolean first, ItemStack stack) {
+		protected void onFrequencyChanged(final boolean first, final ItemStack stack) {
 
 		}
 	}
-
 }

@@ -52,7 +52,7 @@ public class RedstoneLinkNetworksSavedData extends SavedData {
 		final DimensionPalette dimensions = DimensionPalette.read(nbt);
 
 		NBTHelper.iterateCompoundList(nbt.getList("Networks", Tag.TAG_COMPOUND), tag -> {
-			final  ResourceKey<Level> levelKey = dimensions.decode(tag.getInt("D"));
+			final ResourceKey<Level> levelKey = dimensions.decode(tag.getInt("D"));
 			final ServerLevel level = server.getLevel(levelKey);
 			final RedstoneLinkNetwork network = RedstoneLinkNetwork.read(tag.getCompound("Network"), registries, dimensions, linkables, level);
 			networks.put(dimensions.decode(tag.getInt("D")), network);
@@ -81,7 +81,7 @@ public class RedstoneLinkNetworksSavedData extends SavedData {
 		this.networks = new HashMap<>((int) Math.ceil(levelKeys.size() / 0.7), 0.7f);
 		levelKeys.forEach(levelKey -> this.networks.computeIfAbsent(levelKey, u -> new RedstoneLinkNetwork(server.getLevel(u))));
 
-		this.linkables = new HashMap<>((int) Math.ceil(64 / 0.7), 0.7f);
+		this.linkables = new HashMap<>((int) 92.0, 0.7f);
 		this.setDirty(true);
 	}
 }

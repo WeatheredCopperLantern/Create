@@ -1,8 +1,5 @@
 package com.simibubi.create.content.redstone.link.dummy.controller;
 
-import org.jetbrains.annotations.Nullable;
-
-import com.simibubi.create.AllItems;
 import net.createmod.catnip.net.base.ServerboundPacketPayload;
 
 import net.minecraft.core.BlockPos;
@@ -10,27 +7,28 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import org.jetbrains.annotations.Nullable;
 
 public abstract class LinkedControllerPacketBase implements ServerboundPacketPayload {
+
 	@Nullable
 	private final BlockPos lecternPos;
 
-	public LinkedControllerPacketBase(@Nullable BlockPos lecternPos) {
+	protected LinkedControllerPacketBase(@Nullable final BlockPos lecternPos) {
 		this.lecternPos = lecternPos;
 	}
 
 	@Nullable
 	public BlockPos getLecternPos() {
-		return lecternPos;
+		return this.lecternPos;
 	}
 
 	@Override
-	public void handle(ServerPlayer player) {
+	public void handle(final ServerPlayer player) {
 		if (this.lecternPos != null) {
-			BlockEntity be = player.level().getBlockEntity(lecternPos);
-			if (!(be instanceof LecternControllerBlockEntity))
-				return;
-			handleLectern(player, (LecternControllerBlockEntity) be);
+			final BlockEntity be = player.level().getBlockEntity(this.lecternPos);
+			if (!(be instanceof LecternControllerBlockEntity)) return;
+			this.handleLectern(player, (LecternControllerBlockEntity) be);
 		} else {
 			//ItemStack controller = player.getMainHandItem();
 			//if (!AllItems.LINKED_CONTROLLER.isIn(controller)) {
@@ -43,5 +41,6 @@ public abstract class LinkedControllerPacketBase implements ServerboundPacketPay
 	}
 
 	protected abstract void handleItem(ServerPlayer player, ItemStack heldItem);
+
 	protected abstract void handleLectern(ServerPlayer player, LecternControllerBlockEntity lectern);
 }

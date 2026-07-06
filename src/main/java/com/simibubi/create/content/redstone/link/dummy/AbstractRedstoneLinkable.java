@@ -1,39 +1,38 @@
 package com.simibubi.create.content.redstone.link.dummy;
 
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
+
 import com.simibubi.create.content.redstone.link.dummy.interfaces.IRedstoneLinkable;
 import com.simibubi.create.foundation.mixin.accessor.CValueAccessor;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import net.createmod.catnip.data.Couple;
-import com.simibubi.create.content.redstone.link.dummy.RedstoneLinkNetworkHandler.Frequency;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.ModConfigSpec;
 
-import java.util.function.IntConsumer;
-import java.util.function.IntSupplier;
+import net.minecraft.world.item.ItemStack;
+
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public abstract class AbstractRedstoneLinkable implements IRedstoneLinkable {
 
 	private static final ModConfigSpec.ConfigValue<Integer> logistics_linkRange = (ModConfigSpec.ConfigValue<Integer>) ((CValueAccessor) AllConfigs.server().logistics.linkRange).create$getRawValue();
 
-	private Frequency frequencyFirst;
-	private Frequency frequencyLast;
+	private RedstoneLinkNetworkHandler.Frequency frequencyFirst;
+	private RedstoneLinkNetworkHandler.Frequency frequencyLast;
 	private Mode mode;
 	protected IntSupplier transmission;
 	protected IntConsumer signalCallback;
 	private RedstoneLinkNetwork network;
 
-	private boolean queuedUpdate = false;
-	private boolean queuedRecalc = false;
+	private boolean queuedUpdate;
+	private boolean queuedRecalc;
 
-	public AbstractRedstoneLinkable(Couple<Frequency> channel, Mode mode, IntConsumer signalCallback,
-		IntSupplier transmission) {
+	protected AbstractRedstoneLinkable(final Couple<RedstoneLinkNetworkHandler.Frequency> channel, final Mode mode, final IntConsumer signalCallback, final IntSupplier transmission) {
 		this(channel.getFirst(), channel.getSecond(), mode, signalCallback, transmission);
 	}
 
-	public AbstractRedstoneLinkable(Frequency first, Frequency last, Mode mode, IntConsumer signalCallback,
-		IntSupplier transmission) {
-		frequencyFirst = first;
-		frequencyLast = last;
+	protected AbstractRedstoneLinkable(final RedstoneLinkNetworkHandler.Frequency first, final RedstoneLinkNetworkHandler.Frequency last, final Mode mode, final IntConsumer signalCallback, final IntSupplier transmission) {
+		this.frequencyFirst = first;
+		this.frequencyLast = last;
 		this.signalCallback = signalCallback;
 		this.transmission = transmission;
 		this.mode = mode;
@@ -41,102 +40,102 @@ public abstract class AbstractRedstoneLinkable implements IRedstoneLinkable {
 
 	@Override
 	public void queueUpdate() {
-		if (!queuedUpdate && getNetwork() != null) {
-			queuedUpdate = true;
-			getNetwork().queueDelayedUpdate(this);
+		if (!this.queuedUpdate && this.network != null) {
+			this.queuedUpdate = true;
+			this.network.queueDelayedUpdate(this);
 		}
 	}
 
 	@Override
 	public void considerQueued() {
-		queuedRecalc = true;
+		this.queuedRecalc = true;
 	}
 
 	@Override
 	public void considerDequeued() {
-		queuedRecalc = false;
+		this.queuedRecalc = false;
 	}
 
 	@Override
 	public boolean allowRecalcQueue() {
-		return !queuedRecalc;
+		return !this.queuedRecalc;
 	}
 
 	@Override
 	public boolean allowUpdateQueue() {
-		return !queuedUpdate;
+		return !this.queuedUpdate;
 	}
 
 	@Override
 	public void delayedUpdate() {
-		queuedUpdate = false;
+		this.queuedUpdate = false;
 	}
 
 	@Override
 	public int receivingRange() {
-		return logistics_linkRange.get();
+		return AbstractRedstoneLinkable.logistics_linkRange.get();
 	}
 
 	@Override
 	public int transmissionRange() {
-		return logistics_linkRange.get();
+		return AbstractRedstoneLinkable.logistics_linkRange.get();
 	}
 
 	public final void notifySignalChange() {
-		if (network == null) return;
-		network.signalChanged(this);
+		if (this.network == null) return;
+		this.network.signalChanged(this);
 	}
 
 	@Override
 	public final int getTransmittedStrength() {
-		return transmission.getAsInt();
+		return this.transmission.getAsInt();
 	}
 
 	@Override
-	public final void setReceivedStrength(int power) {
-		signalCallback.accept(power);
+	public final void setReceivedStrength(final int power) {
+		this.signalCallback.accept(power);
 	}
 
 	@Override
 	public final boolean isListening() {
-		return mode == Mode.RECEIVE;
+		return this.mode == Mode.RECEIVE;
 	}
 
 	@Override
-	public final Couple<Frequency> getChannelKey() {
-		return Couple.create(frequencyFirst, frequencyLast);
+	public final Couple<RedstoneLinkNetworkHandler.Frequency> getChannelKey() {
+		return Couple.create(this.frequencyFirst, this.frequencyLast);
 	}
 
 	@Override
-	public final void setNetwork(RedstoneLinkNetwork newNetwork) {
-		if (newNetwork == network) return;
-		if (network == null && isListening()) {
-			network = newNetwork;
-			network.addSilent(this);
+	public final void setNetwork(final RedstoneLinkNetwork newNetwork) {
+		if (newNetwork == this.network) return;
+		if (this.network == null && this.isListening()) {
+			this.network = newNetwork;
+			this.network.addSilent(this);
 		} else {
-			if (network != null) network.remove(this);
-			network = newNetwork;
-			network.add(this);
+			if (this.network != null) this.network.remove(this);
+			this.network = newNetwork;
+			this.network.add(this);
 		}
 	}
 
 	@Override
-	public final void clearNetwork(int inTicks) {
-		if (network != null) {
-			network.removeIn(this, inTicks);
+	public final void clearNetwork(final int inTicks) {
+		if (this.network != null) {
+			this.network.removeIn(this, inTicks);
 		}
-		network = null;
+		this.network = null;
 	}
 
 	@Override
 	public final void clearNetwork() {
-		if (network != null) network.remove(this);
-		network = null;
+		if (this.network != null) this.network.remove(this);
+		this.network = null;
 	}
 
 	@Override
 	public final RedstoneLinkNetwork getNetwork() {
-		return network;
+		return this.network;
 	}
 
 	/**
@@ -144,16 +143,16 @@ public abstract class AbstractRedstoneLinkable implements IRedstoneLinkable {
 	 * {@link AbstractRedstoneLinkable#onModeChanged(Mode)} to change behavior.
 	 */
 	@Override
-	public final void setMode(Mode newMode) {
-		if (mode == newMode || !shouldSetMode(newMode)) return;
-		if (network == null) {
-			mode = newMode;
+	public final void setMode(final Mode newMode) {
+		if (this.mode == newMode || !this.shouldSetMode(newMode)) return;
+		if (this.network == null) {
+			this.mode = newMode;
 		} else {
-			network.remove(this);
-			mode = newMode;
-			network.add(this);
+			this.network.remove(this);
+			this.mode = newMode;
+			this.network.add(this);
 		}
-		onModeChanged(newMode);
+		this.onModeChanged(newMode);
 	}
 
 	/**
@@ -161,19 +160,22 @@ public abstract class AbstractRedstoneLinkable implements IRedstoneLinkable {
 	 * {@link AbstractRedstoneLinkable#onFrequencyChanged(boolean, ItemStack)} to change behavior.
 	 */
 	@Override
-	public final void setFrequency(boolean first, ItemStack stack) {
+	public final void setFrequency(final boolean first, ItemStack stack) {
 		stack = stack.copy();
 		stack.setCount(1);
-		ItemStack toCompare = first ? frequencyFirst.getStack() : frequencyLast.getStack();
-		if (ItemStack.isSameItemSameComponents(stack, toCompare) || !shouldSetFrequency(first, stack)) return;
+		final ItemStack toCompare = first ? this.frequencyFirst.getStack() : this.frequencyLast.getStack();
+		if (ItemStack.isSameItemSameComponents(stack, toCompare) || !this.shouldSetFrequency(first, stack)) return;
 
-		if (network != null) network.remove(this);
+		if (this.network != null) this.network.remove(this);
 
-		if (first) frequencyFirst = Frequency.of(stack);
-		else frequencyLast = Frequency.of(stack);
+		if (first) {
+			this.frequencyFirst = RedstoneLinkNetworkHandler.Frequency.of(stack);
+		} else {
+			this.frequencyLast = RedstoneLinkNetworkHandler.Frequency.of(stack);
+		}
 
-		if (network != null) network.add(this);
-		onFrequencyChanged(first, stack);
+		if (this.network != null) this.network.add(this);
+		this.onFrequencyChanged(first, stack);
 	}
 
 	//These are meant to allow logic for setting Frequency/Mode without needing to reimplement the boilerplate performance/null checks

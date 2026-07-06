@@ -22,43 +22,43 @@ public class RedstoneLinkNetworkHandler {
 
 	public final AtomicInteger globalPowerVersion = new AtomicInteger();
 
-	public void addNetworkFor(Object object, RedstoneLinkNetwork network) {
-		networks.put(object, network);
+	public void addNetworkFor(final Object object, final RedstoneLinkNetwork network) {
+		this.networks.put(object, network);
 	}
 
-	public RedstoneLinkNetwork createNetworkFor(Object object) {
-		RedstoneLinkNetwork network = new RedstoneLinkNetwork();
-		networks.put(object, network);
+	public RedstoneLinkNetwork createNetworkFor(final Object object) {
+		final RedstoneLinkNetwork network = new RedstoneLinkNetwork();
+		this.networks.put(object, network);
 		return network;
 	}
 
-	public void deleteNetworkOf(Object object) {
-		networks.remove(object);
+	public void deleteNetworkOf(final Object object) {
+		this.networks.remove(object);
 	}
 
-	public RedstoneLinkNetwork findNetwork(Vec3 pos, Level level) {
-		return networks.get(level);
+	public RedstoneLinkNetwork findNetwork(final Vec3 pos, final Level level) {
+		return this.networks.get(level);
 	}
 
-	public RedstoneLinkNetwork findNetwork(BlockEntity blockEntity) {
-		return findNetwork(Vec3.atCenterOf(blockEntity.getBlockPos()), blockEntity.getLevel());
+	public RedstoneLinkNetwork findNetwork(final BlockEntity blockEntity) {
+		return this.findNetwork(Vec3.atCenterOf(blockEntity.getBlockPos()), blockEntity.getLevel());
 	}
 
-	public RedstoneLinkNetwork findNetwork(Entity entity) {
-		return findNetwork(Vec3.atCenterOf(entity.blockPosition()), entity.level());
+	public RedstoneLinkNetwork findNetwork(final Entity entity) {
+		return this.findNetwork(Vec3.atCenterOf(entity.blockPosition()), entity.level());
 	}
 
 	public void tick() {
-		networks.values().forEach(RedstoneLinkNetwork::tick);
+		this.networks.values().forEach(RedstoneLinkNetwork::tick);
 	}
 
-	public boolean hasAnyLoadedPower(Couple<Frequency> frequency) {
-		for (RedstoneLinkNetwork network : networks.values()) {
-			Couple<Set<IRedstoneLinkable>> links = network.getChannelMembers(frequency);
+	public boolean hasAnyLoadedPower(final Couple<Frequency> frequency) {
+		for (final RedstoneLinkNetwork network : this.networks.values()) {
+			final Couple<Set<IRedstoneLinkable>> links = network.getChannelMembers(frequency);
 			if (links.get(false).isEmpty()) {
 				return false;
 			}
-			for (IRedstoneLinkable link : links.get(false)) {
+			for (final IRedstoneLinkable link : links.get(false)) {
 				if (link.getTransmittedStrength() > 0) return true;
 			}
 		}
@@ -66,40 +66,38 @@ public class RedstoneLinkNetworkHandler {
 	}
 
 	public static class Frequency {
+
 		public static final Frequency EMPTY = new Frequency(ItemStack.EMPTY);
 		private static final Map<Item, Frequency> simpleFrequencies = new IdentityHashMap<>();
-		private ItemStack stack;
-		private Item item;
-		private int color;
+		private final ItemStack stack;
+		private final Item item;
+		private final int color;
 
-		public static Frequency of(ItemStack stack) {
-			if (stack.isEmpty())
-				return EMPTY;
-			if (stack.getComponents().isEmpty())
-				return simpleFrequencies.computeIfAbsent(stack.getItem(), $ -> new Frequency(stack));
+		public static Frequency of(final ItemStack stack) {
+			if (stack.isEmpty()) return Frequency.EMPTY;
+			if (stack.getComponents().isEmpty()) return Frequency.simpleFrequencies.computeIfAbsent(stack.getItem(), $ -> new Frequency(stack));
 			return new Frequency(stack);
 		}
 
-		private Frequency(ItemStack stack) {
+		private Frequency(final ItemStack stack) {
 			this.stack = stack;
-			item = stack.getItem();
-			color = stack.has(DataComponents.DYED_COLOR) ? stack.get(DataComponents.DYED_COLOR).rgb() : -1;
+			this.item = stack.getItem();
+			this.color = stack.has(DataComponents.DYED_COLOR) ? stack.get(DataComponents.DYED_COLOR).rgb() : -1;
 		}
 
 		public ItemStack getStack() {
-			return stack;
+			return this.stack;
 		}
 
 		@Override
 		public int hashCode() {
-			return (item.hashCode() * 31) ^ color;
+			return (this.item.hashCode() * 31) ^ this.color;
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			return obj instanceof Frequency frequency && frequency.item == item && frequency.color == color;
+		public boolean equals(final Object obj) {
+			if (this == obj) return true;
+			return obj instanceof final Frequency frequency && frequency.item == this.item && frequency.color == this.color;
 		}
 	}
 }

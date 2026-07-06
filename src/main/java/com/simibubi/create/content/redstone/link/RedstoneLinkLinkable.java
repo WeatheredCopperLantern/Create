@@ -1,25 +1,22 @@
 package com.simibubi.create.content.redstone.link;
 
+import java.util.function.Consumer;
+
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllRedstoneLinkables;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
 import net.createmod.catnip.data.Couple;
 
-import net.createmod.catnip.nbt.NBTHelper;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.*;
-
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Contract;
+
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-
-import java.lang.ref.WeakReference;
-import java.util.function.Consumer;
 
 public class RedstoneLinkLinkable extends RedstoneLinkable {
 
@@ -27,14 +24,14 @@ public class RedstoneLinkLinkable extends RedstoneLinkable {
 	private Vector3fc cachedPosition;
 
 	@Override
-	public void readAdditional(CompoundTag nbt, HolderLookup.Provider registries, DimensionPalette dimensions) {
-		ListTag tag = nbt.getList("position", Tag.TAG_COMPOUND);
+	public void readAdditional(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions) {
+		final ListTag tag = nbt.getList("position", Tag.TAG_COMPOUND);
 		this.cachedPosition = new Vector3f(tag.getFloat(0), tag.getFloat(1), tag.getFloat(2));
 	}
 
 	@Override
-	public void writeAdditional(CompoundTag nbt, HolderLookup.Provider registries, DimensionPalette dimensions) {
-		ListTag tag = new ListTag();
+	public void writeAdditional(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions) {
+		final ListTag tag = new ListTag();
 		tag.add(FloatTag.valueOf(this.cachedPosition.x()));
 		tag.add(FloatTag.valueOf(this.cachedPosition.y()));
 		tag.add(FloatTag.valueOf(this.cachedPosition.z()));
@@ -44,20 +41,20 @@ public class RedstoneLinkLinkable extends RedstoneLinkable {
 	@Override
 	public void delayedUpdate() {
 		super.delayedUpdate();
-		withBeDo(be -> {
-			BlockState state = be.getBlockState();
+		this.withBeDo(be -> {
+			final BlockState state = be.getBlockState();
 			((RedstoneLinkBlock) state.getBlock()).updateFromWorld(be.getLevel(), be.getBlockPos(), state);
 		});
 	}
 
 	@Override
-	protected boolean shouldSetFrequency(boolean first, Frequency frequency) {
+	protected boolean shouldSetFrequency(final boolean first, final Frequency frequency) {
 		return true;
 	}
 
 	@Override
-	protected void onFrequencyChanged(boolean first) {
-		withBeDo(redstoneLinkBlockEntity ->  {
+	protected void onFrequencyChanged(final boolean first) {
+		this.withBeDo(redstoneLinkBlockEntity -> {
 			redstoneLinkBlockEntity.channel = this.channel;
 			redstoneLinkBlockEntity.sendData();
 		});
@@ -74,34 +71,34 @@ public class RedstoneLinkLinkable extends RedstoneLinkable {
 	}
 
 	@Override
-	protected void onModeChanged(RedstoneLinkableSnapshot snapshot) {
-		withBeDo(redstoneLinkBlockEntity -> {
+	protected void onModeChanged(final RedstoneLinkableSnapshot snapshot) {
+		this.withBeDo(redstoneLinkBlockEntity -> {
 			AllBlocks.REDSTONE_LINK.get().updateFromLinkable(redstoneLinkBlockEntity.getLevel(), redstoneLinkBlockEntity.getBlockPos());
 		});
 	}
 
 	@Override
 	protected void onSignalChanged() {
-		withBeDo(redstoneLinkBlockEntity -> {
+		this.withBeDo(redstoneLinkBlockEntity -> {
 			AllBlocks.REDSTONE_LINK.get().updateFromLinkable(redstoneLinkBlockEntity.getLevel(), redstoneLinkBlockEntity.getBlockPos());
 		});
 	}
 
 	@Override
-	public void setReceivedStrength(int signal) {
+	public void setReceivedStrength(final int signal) {
 		super.setReceivedStrength(signal);
 	}
 
-	private void withBeDo(Consumer<RedstoneLinkBlockEntity> action) {
+	private void withBeDo(final Consumer<RedstoneLinkBlockEntity> action) {
 		if (this.blockEntity != null) action.accept(this.blockEntity);
 	}
 
 	@Override
-	protected boolean shouldSetMode(boolean receiver) {
+	protected boolean shouldSetMode(final boolean receiver) {
 		return true;
 	}
 
-	public RedstoneLinkLinkable(CompoundTag nbt, Couple<Frequency> channel, boolean receiver, HolderLookup.Provider registries, DimensionPalette dimensions, RedstoneLinkNetwork network) {
+	public RedstoneLinkLinkable(final CompoundTag nbt, final Couple<Frequency> channel, final boolean receiver, final HolderLookup.Provider registries, final DimensionPalette dimensions, final RedstoneLinkNetwork network) {
 		super(nbt, channel, receiver, registries, dimensions, network);
 	}
 
@@ -112,7 +109,7 @@ public class RedstoneLinkLinkable extends RedstoneLinkable {
 		this.setNetwork(Create.REDSTONE_LINK_NETWORK.getNetwork(be.getLevel()));
 	}
 
-	public void setBlockEntity(RedstoneLinkBlockEntity redstoneLinkBlockEntity) {
+	public void setBlockEntity(final RedstoneLinkBlockEntity redstoneLinkBlockEntity) {
 		this.blockEntity = redstoneLinkBlockEntity;
 		this.cachedPosition = redstoneLinkBlockEntity.getBlockPos().getCenter().toVector3f();
 	}

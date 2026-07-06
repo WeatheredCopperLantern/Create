@@ -1,7 +1,6 @@
 package com.simibubi.create.content.redstone.link.dummy.controller;
 
 import com.simibubi.create.AllDataComponents;
-import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.foundation.gui.menu.HeldItemGhostItemMenu;
 import com.simibubi.create.foundation.item.ItemHelper;
 
@@ -15,48 +14,48 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class LinkedControllerMenu extends HeldItemGhostItemMenu {
 
-	public LinkedControllerMenu(MenuType<?> type, int id, Inventory inv, RegistryFriendlyByteBuf extraData) {
+	public LinkedControllerMenu(final MenuType<?> type, final int id, final Inventory inv, final RegistryFriendlyByteBuf extraData) {
 		super(type, id, inv, extraData);
 	}
 
-	public LinkedControllerMenu(MenuType<?> type, int id, Inventory inv, ItemStack filterItem) {
+	public LinkedControllerMenu(final MenuType<?> type, final int id, final Inventory inv, final ItemStack filterItem) {
 		super(type, id, inv, filterItem);
 	}
 
-	public static LinkedControllerMenu create(int id, Inventory inv, ItemStack filterItem) {
+	public static LinkedControllerMenu create(final int id, final Inventory inv, final ItemStack filterItem) {
 		return null;//new LinkedControllerMenu(AllMenuTypes.LINKED_CONTROLLER.get(), id, inv, filterItem);
 	}
 
 	@Override
 	protected ItemStackHandler createGhostInventory() {
-		return LinkedControllerItem.getFrequencyItems(contentHolder);
+		return LinkedControllerItem.getFrequencyItems(this.contentHolder);
 	}
 
 	@Override
 	protected void addSlots() {
-		addPlayerSlots(8, 131);
+		this.addPlayerSlots(8, 131);
 
 		int x = 12;
-		int y = 34;
+		final int y = 34;
 		int slot = 0;
 
 		for (int column = 0; column < 6; column++) {
-			for (int row = 0; row < 2; ++row)
-				addSlot(new SlotItemHandler(ghostInventory, slot++, x, y + row * 18));
+			for (int row = 0; row < 2; ++row) {
+				this.addSlot(new SlotItemHandler(this.ghostInventory, slot, x, y + row * 18));
+				slot++;
+			}
 			x += 24;
-			if (column == 3)
-				x += 11;
+			if (column == 3) x += 11;
 		}
 	}
 
 	@Override
-	protected void saveData(ItemStack contentHolder) {
-		contentHolder.set(AllDataComponents.LINKED_CONTROLLER_ITEMS, ItemHelper.containerContentsFromHandler(ghostInventory));
+	protected void saveData(final ItemStack contentHolder) {
+		contentHolder.set(AllDataComponents.LINKED_CONTROLLER_ITEMS, ItemHelper.containerContentsFromHandler(this.ghostInventory));
 	}
 
 	@Override
 	protected boolean allowRepeats() {
 		return true;
 	}
-
 }

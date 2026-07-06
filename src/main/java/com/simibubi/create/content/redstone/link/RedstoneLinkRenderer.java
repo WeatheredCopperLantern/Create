@@ -1,12 +1,10 @@
 package com.simibubi.create.content.redstone.link;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.create.AllBlockEntityTypes;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.simibubi.create.CreateClient;
-import com.simibubi.create.content.redstone.link.dummy.LinkBehaviour;
-import com.simibubi.create.content.redstone.link.dummy.RedstoneLinkFrequencySlot;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
-import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBox;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxRenderer;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
@@ -15,87 +13,100 @@ import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import net.createmod.catnip.data.Couple;
 import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.data.Pair;
 import net.createmod.catnip.math.VecHelper;
 import net.createmod.catnip.outliner.Outliner;
+
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import com.mojang.blaze3d.vertex.PoseStack;
+import org.joml.Vector3f;
 
 public class RedstoneLinkRenderer extends SafeBlockEntityRenderer<RedstoneLinkBlockEntity> {
 
+	private static final Couple<Component> freqTexts = Couple.create(CreateLang.translateDirect("logistics.firstFrequency"), CreateLang.translateDirect("logistics.secondFrequency"));
+	private static final AABB aabb = new AABB(Vec3.ZERO, Vec3.ZERO).inflate(0.25f);
+
 	@Override
-	protected void renderSafe(RedstoneLinkBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource bufferSource, int light, int overlay) {
-		renderItemsOnBlockEntity(be, ms, bufferSource, light, overlay);
+	protected void renderSafe(final RedstoneLinkBlockEntity be, final float partialTicks, final PoseStack ms, final MultiBufferSource bufferSource, final int light, final int overlay) {
+		final Minecraft mc = Minecraft.getInstance();
+		final Entity cameraEntity = mc.cameraEntity;
 
-		Minecraft mc = Minecraft.getInstance();
+		if (cameraEntity == null) return;
 
-		HitResult target = mc.hitResult;
-		if ((mc.cameraEntity instanceof LocalPlayer player && player.isSpectator()) || !(target instanceof BlockHitResult result) || result.getBlockPos().equals(be.getBlockPos()))
+		RedstoneLinkRenderer.renderItemsOnBlockEntity(be, ms, bufferSource, light, overlay, cameraEntity);
+
+		final HitResult target = mc.hitResult;
+		final BlockPos pos = be.getBlockPos();
+
+		if (cameraEntity.isSpectator() || !(target instanceof final BlockHitResult result) || !pos.equals(result.getBlockPos())) {
 			return;
+		}
 
-		Component freq1 = CreateLang.translateDirect("logistics.firstFrequency");
-		Component freq2 = CreateLang.translateDirect("logistics.secondFrequency");
+		RedstoneLinkRenderer.renderFrequencySelectionOnBlockEntity(be, pos, result);
+	}
 
-		BlockPos pos = be.getBlockPos();
+	public static void renderFrequencySelectionOnBlockEntity(final RedstoneLinkBlockEntity be, final BlockPos pos, final BlockHitResult target) {
+		for (final boolean first : Iterate.trueAndFalse) {
+			final boolean hit = RedstoneLinkBlock.testHit(be.getLevel(), be.getBlockState(), pos, first, target.getLocation());
+			final ValueBoxTransform transform = first ? RedstoneLinkBlock.SLOTS.getLeft() : RedstoneLinkBlock.SLOTS.getRight();
 
-		for (boolean first : Iterate.trueAndFalse) {
-			AABB bb = new AABB(Vec3.ZERO, Vec3.ZERO).inflate(.25f);
-			Component label = first ? freq1 : freq2;
-			boolean hit = RedstoneLinkBlock.testHit(be.getLevel(), be.getBlockState(), pos, first, target.getLocation());
-			ValueBoxTransform transform = first ? RedstoneLinkBlock.SLOTS.getLeft() : RedstoneLinkBlock.SLOTS.getRight();
-
-			ValueBox box = new ValueBox(label, bb, pos).passive(!hit);
-			boolean empty = be.linkable.channel.get(first).stack.isEmpty();
+			final ValueBox box = new ValueBox(Component.empty(), RedstoneLinkRenderer.aabb, pos).passive(!hit);
+			final boolean empty = be.channel.get(first).stack.isEmpty();
 
 			if (!empty) box.wideOutline();
 
-			Outliner.getInstance().showOutline(com.mojang.datafixers.util.Pair.of(first, pos), box.transform(transform)).highlightFace(result.getDirection());
+			Outliner.getInstance().showOutline(Pair.of(first, pos), box.transform(transform)).highlightFace(target.getDirection());
 
-			if (!hit) continue;
-
-			List<MutableComponent> tip = new ArrayList<>();
-			tip.add(label.copy());
-			tip.add(CreateLang.translateDirect(empty ? "logistics.filter.click_to_set" : "logistics.filter.click_to_replace"));
-			CreateClient.VALUE_SETTINGS_HANDLER.showHoverTip(tip);
-		}
-	}
-
-	public static void renderItemsOnBlockEntity(SmartBlockEntity be, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
-		if (be != null && !be.isRemoved() && be instanceof RedstoneLinkBlockEntity rlbe) {
-			Entity cameraEntity = Minecraft.getInstance().cameraEntity;
-			float max = AllConfigs.client().filterItemRenderDistance.getF();
-			if (cameraEntity != null && cameraEntity.position().distanceToSqr(VecHelper.getCenterOf(be.getBlockPos())) > (max * max))
+			if (hit) {
+				final List<MutableComponent> tip = new ArrayList<>(2);
+				tip.add(RedstoneLinkRenderer.freqTexts.get(first).copy());
+				tip.add(CreateLang.translateDirect(empty ? "logistics.filter.click_to_set" : "logistics.filter.click_to_replace"));
+				CreateClient.VALUE_SETTINGS_HANDLER.showHoverTip(tip);
 				return;
-
-			renderItems(rlbe.channel, ms, be.getBlockPos(), BlockPos.ZERO, be.getLevel(), be.getBlockState(), buffer, light, overlay);
+			}
 		}
 	}
 
-	private static void renderItems(Couple<Frequency> frequencies, PoseStack ms, BlockPos pos, BlockPos renderOffset, Level level, BlockState state, MultiBufferSource buffer, int light, int overlay) {
-		for (boolean first : Iterate.trueAndFalse) {
-			ValueBoxTransform transform = first ? RedstoneLinkBlock.SLOTS.getLeft() : RedstoneLinkBlock.SLOTS.getRight();
-			ItemStack stack = frequencies.get(first).stack;
+	public static void renderItemsOnBlockEntity(final SmartBlockEntity be, final PoseStack ms, final MultiBufferSource buffer, final int light, final int overlay, final Entity cameraEntity) {
+		if (be != null && !be.isRemoved() && be instanceof final RedstoneLinkBlockEntity rlbe) {
+			final float max = AllConfigs.client().filterItemRenderDistance.getF();
+			if (cameraEntity != null && cameraEntity.position().distanceToSqr(VecHelper.getCenterOf(be.getBlockPos())) > (max * max)) return;
+
+			RedstoneLinkRenderer.renderItems(rlbe.channel, ms, be.getBlockPos(), BlockPos.ZERO, be.getLevel(), be.getBlockState(), buffer, light, overlay);
+		}
+	}
+
+	private static void renderItems(final Couple<Frequency> frequencies, final PoseStack ms, final BlockPos pos, final BlockPos renderOffset, final Level level, final BlockState state, final MultiBufferSource buffer, final int light, final int overlay) {
+		for (final boolean first : Iterate.trueAndFalse) {
+			final ValueBoxTransform transform = first ? RedstoneLinkBlock.SLOTS.getLeft() : RedstoneLinkBlock.SLOTS.getRight();
+			final ItemStack stack = frequencies.get(first).stack;
 
 			ms.pushPose();
 			ms.translate(renderOffset.getX(), renderOffset.getY(), renderOffset.getZ());
+
+			if (Minecraft.getInstance().getItemRenderer().getModel(stack, null, null, 0).isGui3d()) {
+				final Vec3i tmp = state.getValue(DirectionalBlock.FACING).getNormal();
+				final Vector3f normal = new Vector3f(tmp.getX(), tmp.getY(), tmp.getZ());
+				normal.mul(1 / 64.0f);
+				ms.translate(normal.x, normal.y, normal.z);
+			}
+
 			transform.transform(level, pos, state, ms);
 
 			ValueBoxRenderer.renderItemIntoValueBox(stack, ms, buffer, light, overlay);
@@ -103,6 +114,6 @@ public class RedstoneLinkRenderer extends SafeBlockEntityRenderer<RedstoneLinkBl
 		}
 	}
 
-	public RedstoneLinkRenderer(BlockEntityRendererProvider.Context context) {
+	public RedstoneLinkRenderer(final BlockEntityRendererProvider.Context context) {
 	}
 }

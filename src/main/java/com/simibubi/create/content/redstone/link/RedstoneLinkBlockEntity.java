@@ -2,48 +2,51 @@ package com.simibubi.create.content.redstone.link;
 
 import java.util.List;
 
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
-import com.simibubi.create.CreateBuildInfo;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
-import com.simibubi.create.content.equipment.clipboard.ClipboardCloneable;
-import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
-
-import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.data.Couple;
 
-import net.createmod.catnip.lang.LangBuilder;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-public class RedstoneLinkBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
+public class RedstoneLinkBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, MenuProvider {
 
 	public RedstoneLinkLinkable linkable;
 	public Couple<Frequency> channel = Couple.create(Frequency.EMPTY, Frequency.EMPTY);
 
+	public ItemStackHandler getFrequencyItems() {
+		final ItemStackHandler newInv = new ItemStackHandler(2);
+		newInv.setStackInSlot(0, this.channel.get(true).stack);
+		newInv.setStackInSlot(1, this.channel.get(false).stack);
+		return newInv;
+	}
+
 	@Override
 	public void remove() {
-		if(this.level.isClientSide) return;
+		if (this.level.isClientSide) return;
 		this.linkable.onDestroy();
 	}
 
 	@Override
 	public void onChunkUnloaded() {
 		super.onChunkUnloaded();
-		if(this.level.isClientSide) return;
+		if (this.level.isClientSide) return;
 		this.linkable.blockEntityUnloaded();
 	}
 
@@ -51,24 +54,24 @@ public class RedstoneLinkBlockEntity extends SmartBlockEntity implements IHaveGo
 	public void write(final CompoundTag compound, final HolderLookup.Provider registries, final boolean clientPacket) {
 		if (!this.initialized) return;
 		super.write(compound, registries, false);
-		if(clientPacket){
-			compound.put("FrequencyFirst", channel.getFirst().write());
-			compound.put("FrequencyLast", channel.getSecond().write());
-		}else {
+		if (clientPacket) {
+			compound.put("FrequencyFirst", this.channel.getFirst().write());
+			compound.put("FrequencyLast", this.channel.getSecond().write());
+		} else {
 			compound.putUUID("uuid", this.linkable.uuid);
 		}
 	}
 
 	@Override
-	public void setLevel(Level level) {
+	public void setLevel(final Level level) {
 		super.setLevel(level);
-		if (!initialized && !level.isClientSide) this.initialize();
+		if (!this.initialized && !level.isClientSide) this.initialize();
 	}
 
 	@Override
 	protected void read(final CompoundTag compound, final HolderLookup.Provider registries, final boolean clientPacket) {
 		super.read(compound, registries, false);
-		if (clientPacket){
+		if (clientPacket) {
 			this.channel = Couple.create(Frequency.read(compound.getCompound("FrequencyFirst"), registries), Frequency.read(compound.getCompound("FrequencyLast"), registries));
 			return;
 		}
@@ -76,7 +79,7 @@ public class RedstoneLinkBlockEntity extends SmartBlockEntity implements IHaveGo
 			final RedstoneLinkable tmp = Create.REDSTONE_LINK_NETWORK.getLinkable(compound.getUUID("uuid"));
 			if (tmp instanceof final RedstoneLinkLinkable linkable) {
 				this.linkable = linkable;
-				readFromLinkable();
+				this.readFromLinkable();
 				this.initialized = true;
 			} else {
 				Create.LOGGER.error("RedstoneLinkLinkable for RedstoneLinkBlockEntity at {} not found.", this.worldPosition);
@@ -108,16 +111,26 @@ public class RedstoneLinkBlockEntity extends SmartBlockEntity implements IHaveGo
 
 	private void readFromLinkable() {
 		this.level = this.linkable.network.level; //Don't use #setLevel, this#initialized is still false here
-		this.channel = linkable.channel;
+		this.channel = this.linkable.channel;
 		this.linkable.setBlockEntity(this);
 	}
 
 	@Override
-	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+	public void addBehaviours(final List<BlockEntityBehaviour> behaviours) {
 
 	}
 
-	public RedstoneLinkBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+	public RedstoneLinkBlockEntity(final BlockEntityType<?> type, final BlockPos pos, final BlockState state) {
 		super(type, pos, state);
+	}
+
+	@Override
+	public @NonNull Component getDisplayName() {
+		return AllBlocks.REDSTONE_LINK.get().getName();
+	}
+
+	@Override
+	public @Nullable AbstractContainerMenu createMenu(final int i, final @NonNull Inventory inventory, final @NonNull Player player) {
+		return RedstoneLinkMenu.create(i, inventory, this);
 	}
 }

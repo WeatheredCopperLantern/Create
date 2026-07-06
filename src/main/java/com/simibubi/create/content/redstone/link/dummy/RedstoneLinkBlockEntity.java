@@ -3,7 +3,7 @@ package com.simibubi.create.content.redstone.link.dummy;
 import java.util.List;
 
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelSupportBehaviour;
-import com.simibubi.create.content.redstone.link.dummy.interfaces.IRedstoneLinkable.Mode;
+import com.simibubi.create.content.redstone.link.dummy.interfaces.IRedstoneLinkable;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
@@ -13,6 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -27,130 +28,130 @@ public class RedstoneLinkBlockEntity extends SmartBlockEntity {
 
 	public FactoryPanelSupportBehaviour panelSupport;
 
-	public RedstoneLinkBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+	public RedstoneLinkBlockEntity(final BlockEntityType<?> type, final BlockPos pos, final BlockState state) {
 		super(type, pos, state);
 	}
 
 	@Override
-	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
-		transmitter = !getBlockState().getValue(RedstoneLinkBlock.RECEIVER);
-		Pair<ValueBoxTransform, ValueBoxTransform> slots = ValueBoxTransform.Dual.makeSlots(RedstoneLinkFrequencySlot::new);
-		behaviours.add(behaviour = new LinkBehaviour(this, slots, this::setSignal, this::getSignal, transmitter ? Mode.TRANSMIT : Mode.RECEIVE));
-		behaviours.add(panelSupport = new FactoryPanelSupportBehaviour(this, () -> !transmitter, () -> getSignal() > 0, () -> {
+	public void addBehaviours(final List<BlockEntityBehaviour> behaviours) {
+		this.transmitter = !this.getBlockState().getValue(RedstoneLinkBlock.RECEIVER);
+		final Pair<ValueBoxTransform, ValueBoxTransform> slots = ValueBoxTransform.Dual.makeSlots(RedstoneLinkFrequencySlot::new);
+		behaviours.add(this.behaviour = new LinkBehaviour(this, slots, this::setSignal, this::getSignal, this.transmitter ? IRedstoneLinkable.Mode.TRANSMIT : IRedstoneLinkable.Mode.RECEIVE));
+		behaviours.add(this.panelSupport = new FactoryPanelSupportBehaviour(this, () -> !this.transmitter, () -> this.getSignal() > 0, () -> {
 		}/*AllBlocks.REDSTONE_LINK.get().queueUpdate(level, worldPosition)*/));
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
-		if (!initialized && hasLevel()) {
-			initialize();
-			initialized = true;
+		if (!this.initialized && this.hasLevel()) {
+			this.initialize();
+			this.initialized = true;
 		}
-		panelSupport.tick();
+		this.panelSupport.tick();
 	}
 
 	public int getSignal() {
-		return transmitter ? signal : 0;
+		return this.transmitter ? this.signal : 0;
 	}
 
-	public void setSignal(int power) {
-		if (!transmitter && power != signal /*&& AllBlocks.REDSTONE_LINK.has(level.getBlockState(worldPosition))*/) {
-			signal = power;
-			if (level.isClientSide) return;
+	public void setSignal(final int power) {
+		if (!this.transmitter && power != this.signal /*&& AllBlocks.REDSTONE_LINK.has(level.getBlockState(worldPosition))*/) {
+			this.signal = power;
+			if (this.level.isClientSide) return;
 
-			BlockState blockState = getBlockState();
+			final BlockState blockState = this.getBlockState();
 			if ((power > 0) != blockState.getValue(POWERED)) {
-				level.setBlock(worldPosition, blockState.cycle(POWERED), Block.UPDATE_CLIENTS + Block.UPDATE_KNOWN_SHAPE);
+				this.level.setBlock(this.worldPosition, blockState.cycle(POWERED), Block.UPDATE_CLIENTS + Block.UPDATE_KNOWN_SHAPE);
 			}
-			updateSelfAndAttached();
+			this.updateSelfAndAttached();
 		}
 	}
 
 	public void checkAntenna() {
-		BlockState state = getBlockState();
-		if (state.getValue(RedstoneLinkBlock.ROTATED_ANTENNA) == (level.getBlockState(getBlockPos().above()).isAir() && state.getValue(RedstoneLinkBlock.FACING).getAxis() != Direction.Axis.Y)) {
-			level.setBlock(getBlockPos(), state.cycle(RedstoneLinkBlock.ROTATED_ANTENNA), Block.UPDATE_CLIENTS + Block.UPDATE_KNOWN_SHAPE);
+		final BlockState state = this.getBlockState();
+		if (state.getValue(RedstoneLinkBlock.ROTATED_ANTENNA) == (this.level.getBlockState(this.getBlockPos().above()).isAir() && state.getValue(DirectionalBlock.FACING).getAxis() != Direction.Axis.Y)) {
+			this.level.setBlock(this.getBlockPos(), state.cycle(RedstoneLinkBlock.ROTATED_ANTENNA), Block.UPDATE_CLIENTS + Block.UPDATE_KNOWN_SHAPE);
 		}
 	}
 
 	public void delayedUpdate() {
-		BlockState state = getBlockState();
-		if (!RedstoneLinkBlock.canSurviveStatic(state, level, getBlockPos())) {
-			level.destroyBlock(getBlockPos(), true);
+		final BlockState state = this.getBlockState();
+		if (!RedstoneLinkBlock.canSurviveStatic(state, this.level, this.getBlockPos())) {
+			this.level.destroyBlock(this.getBlockPos(), true);
 			return;
 		}
 
-		checkAntenna();
+		this.checkAntenna();
 
-		if (behaviour.link.isListening()) return;
-		Boolean tri = panelSupport.shouldBePoweredTristate();
-		int powerFromPanels = (tri == null) ? -1 : (tri) ? 15 : 0;
+		if (this.behaviour.link.isListening()) return;
+		final Boolean tri = this.panelSupport.shouldBePoweredTristate();
+		final int powerFromPanels = (tri == null) ? -1 : (tri) ? 15 : 0;
 
 		// Suppress update if an input panel exists but is not loaded
 		if (powerFromPanels == -1) return;
 
-		int power = level.getBestNeighborSignal(getBlockPos());
+		int power = this.level.getBestNeighborSignal(this.getBlockPos());
 		power = Math.max(power, powerFromPanels);
 
-		boolean previouslyPowered = state.getValue(POWERED);
+		final boolean previouslyPowered = state.getValue(POWERED);
 		if (previouslyPowered != power > 0) {
-			level.setBlock(getBlockPos(), getBlockState().cycle(POWERED), Block.UPDATE_CLIENTS + Block.UPDATE_KNOWN_SHAPE);
+			this.level.setBlock(this.getBlockPos(), this.getBlockState().cycle(POWERED), Block.UPDATE_CLIENTS + Block.UPDATE_KNOWN_SHAPE);
 		}
 
-		transmit(power);
+		this.transmit(power);
 	}
 
-	public void setMode(boolean receiver) {
-		if (receiver != transmitter) return;
-		behaviour.link.setMode(receiver ? Mode.RECEIVE : Mode.TRANSMIT);
-		transmitter = !receiver;
-		signal = 0;
-		if (transmitter) {
-			updateSelfAndAttached();
-			transmit(level.getBestNeighborSignal(getBlockPos()));
+	public void setMode(final boolean receiver) {
+		if (receiver != this.transmitter) return;
+		this.behaviour.link.setMode(receiver ? IRedstoneLinkable.Mode.RECEIVE : IRedstoneLinkable.Mode.TRANSMIT);
+		this.transmitter = !receiver;
+		this.signal = 0;
+		if (this.transmitter) {
+			this.updateSelfAndAttached();
+			this.transmit(this.level.getBestNeighborSignal(this.getBlockPos()));
 		}
 	}
 
-	public void transmit(int strength) {
-		if (!transmitter || signal == strength) return;
-		signal = strength;
-		behaviour.link.notifySignalChange();
+	public void transmit(final int strength) {
+		if (!this.transmitter || this.signal == strength) return;
+		this.signal = strength;
+		this.behaviour.link.notifySignalChange();
 	}
 
 	public void updateSelfAndAttached() {
-		BlockState blockState = getBlockState();
-		Direction attachedFace = blockState.getValue(RedstoneLinkBlock.FACING).getOpposite();
-		BlockPos attachedPos = worldPosition.relative(attachedFace);
-		level.blockUpdated(worldPosition, blockState.getBlock());
-		level.blockUpdated(attachedPos, level.getBlockState(attachedPos).getBlock());
-		panelSupport.notifyPanels();
+		final BlockState blockState = this.getBlockState();
+		final Direction attachedFace = blockState.getValue(DirectionalBlock.FACING).getOpposite();
+		final BlockPos attachedPos = this.worldPosition.relative(attachedFace);
+		this.level.blockUpdated(this.worldPosition, blockState.getBlock());
+		this.level.blockUpdated(attachedPos, this.level.getBlockState(attachedPos).getBlock());
+		this.panelSupport.notifyPanels();
 	}
 
 	@Override
 	public void remove() {
 		super.remove();
-		updateSelfAndAttached();
+		this.updateSelfAndAttached();
 	}
 
 	public int getReceivedSignal() {
-		return transmitter ? 0 : signal;
+		return this.transmitter ? 0 : this.signal;
 	}
 
 	@Override
-	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		compound.putBoolean("Transmitter", transmitter);
-		compound.putInt("Signal", signal);
+	public void write(final CompoundTag compound, final HolderLookup.Provider registries, final boolean clientPacket) {
+		compound.putBoolean("Transmitter", this.transmitter);
+		compound.putInt("Signal", this.signal);
 		super.write(compound, registries, clientPacket);
 	}
 
 	@Override
-	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
+	protected void read(final CompoundTag compound, final HolderLookup.Provider registries, final boolean clientPacket) {
 		super.read(compound, registries, clientPacket);
-		transmitter = compound.getBoolean("Transmitter");
+		this.transmitter = compound.getBoolean("Transmitter");
 
-		if (!transmitter || (level == null || level.isClientSide)) {
-			signal = compound.getInt("Signal");
+		if (!this.transmitter || (this.level == null || this.level.isClientSide)) {
+			this.signal = compound.getInt("Signal");
 		}
 	}
 }

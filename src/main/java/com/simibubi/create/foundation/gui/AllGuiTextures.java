@@ -77,6 +77,7 @@ public enum AllGuiTextures implements ScreenElement, TextureSheetSegment {
 	SEQUENCER_AWAIT("sequencer", 0, 162, 162, 22),
 
 	LINKED_CONTROLLER("curiosities_2", 179, 109),
+	REDSTONE_LINK("redstone_link", 116, 81),
 	BLUEPRINT("curiosities_2", 0, 109, 179, 109),
 
 	CLIPBOARD("clipboard", 0, 0, 256, 256),

@@ -1,64 +1,66 @@
 package com.simibubi.create.content.redstone.link.dummy.interfaces;
 
-import com.simibubi.create.content.redstone.link.dummy.RedstoneLinkNetwork;
-import com.simibubi.create.content.redstone.link.dummy.RedstoneLinkNetworkHandler.Frequency;
-
 import com.simibubi.create.content.redstone.link.dummy.AbstractRedstoneLinkable;
+import com.simibubi.create.content.redstone.link.dummy.RedstoneLinkNetwork;
+import com.simibubi.create.content.redstone.link.dummy.RedstoneLinkNetworkHandler;
 import net.createmod.catnip.data.Couple;
+
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.ApiStatus.Internal;
+
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Extend {@link AbstractRedstoneLinkable} or its subclasses whenever possible.
  * Direct implementation of this interface is not considered stable and is likely to break in future versions.
  */
-@Internal
+@ApiStatus.Internal
 public interface IRedstoneLinkable {
 
-	public enum Mode {
+	enum Mode {
 		TRANSMIT, RECEIVE
 	}
 
-	public void clearNetwork(int inTicks);
+	void clearNetwork(int inTicks);
 
-	public void clearNetwork();
+	void clearNetwork();
 
-	public int getTransmittedStrength();
+	int getTransmittedStrength();
 
-	public void setReceivedStrength(int power);
+	void setReceivedStrength(int power);
 
-	public boolean isListening();
+	boolean isListening();
 
-	public void considerQueued();
+	void considerQueued();
 
-	public void considerDequeued();
+	void considerDequeued();
 
-	public boolean allowUpdateQueue();
-	public boolean allowRecalcQueue();
+	boolean allowUpdateQueue();
 
-	public void queueUpdate();
+	boolean allowRecalcQueue();
 
-	public void delayedUpdate();
+	void queueUpdate();
 
-	public Couple<Frequency> getChannelKey();
+	void delayedUpdate();
 
-	public Vec3 getLocation();
+	Couple<RedstoneLinkNetworkHandler.Frequency> getChannelKey();
 
-	public Level getLevel();
+	Vec3 getLocation();
 
-	public void setNetwork(RedstoneLinkNetwork newNetwork);
+	Level getLevel();
 
-	public RedstoneLinkNetwork getNetwork();
+	void setNetwork(RedstoneLinkNetwork newNetwork);
 
-	public void setMode(Mode newMode);
+	RedstoneLinkNetwork getNetwork();
 
-	public void setFrequency(boolean first, ItemStack stack);
+	void setMode(Mode newMode);
 
-	public void notifySignalChange();
+	void setFrequency(boolean first, ItemStack stack);
 
-	public int transmissionRange();
+	void notifySignalChange();
 
-	public int receivingRange();
+	int transmissionRange();
+
+	int receivingRange();
 }

@@ -22,11 +22,13 @@ import net.createmod.catnip.data.Pair;
 import net.createmod.catnip.nbt.NBTHelper;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.UUIDUtil;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-
 import net.minecraft.server.level.ServerLevel;
+
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NonNull;
 
@@ -75,28 +77,27 @@ public class RedstoneLinkNetwork {
 			return channelNBT;
 		}));
 
-		ListTag tag = new ListTag();
-		for (RedstoneLinkable linkable : this.updates) {
+		final ListTag tag = new ListTag();
+		for (final RedstoneLinkable linkable : this.updates) {
 			tag.add(NbtUtils.createUUID(linkable.uuid));
 		}
 		nbt.put("Updates", tag);
 
 		tag.clear();
-		for (RedstoneLinkable linkable : this.recalcQueue) {
+		for (final RedstoneLinkable linkable : this.recalcQueue) {
 			tag.add(NbtUtils.createUUID(linkable.uuid));
 		}
 		nbt.put("Recalc", tag);
 
-
 		nbt.put("QueuedSignals", NBTHelper.writeCompoundList(this.queuedReceiverSignals, redstoneLinkableIntegerPair -> {
-			CompoundTag compoundTag = new CompoundTag(2);
+			final CompoundTag compoundTag = new CompoundTag(2);
 			compoundTag.putUUID("uuid", redstoneLinkableIntegerPair.getFirst().uuid);
 			compoundTag.putInt("strength", redstoneLinkableIntegerPair.getSecond());
 			return compoundTag;
 		}));
 
 		nbt.put("QueuedRemovals", NBTHelper.writeCompoundList(this.queuedRemovals.entrySet(), redstoneLinkableIntegerEntry -> {
-			CompoundTag compoundTag = new CompoundTag(2);
+			final CompoundTag compoundTag = new CompoundTag(2);
 			compoundTag.putUUID("uuid", redstoneLinkableIntegerEntry.getKey().uuid);
 			compoundTag.putInt("time", redstoneLinkableIntegerEntry.getValue());
 			return compoundTag;
@@ -137,12 +138,12 @@ public class RedstoneLinkNetwork {
 		tag.forEach(tag1 -> network.recalcQueue.add(linkables.get(NbtUtils.loadUUID(tag1))));
 
 		NBTHelper.iterateCompoundList(nbt.getList("QueuedSignals", Tag.TAG_COMPOUND), compoundTag -> {
-			int strength = compoundTag.getInt("strength");
+			final int strength = compoundTag.getInt("strength");
 			network.queuedReceiverSignals.add(Pair.of(linkables.get(compoundTag.getUUID("uuid")), strength));
 		});
 
 		NBTHelper.iterateCompoundList(nbt.getList("QueuedRemovals", Tag.TAG_COMPOUND), compoundTag -> {
-			int time = compoundTag.getInt("time");
+			final int time = compoundTag.getInt("time");
 			network.queuedRemovals.put(linkables.get(compoundTag.getUUID("uuid")), time);
 		});
 
@@ -151,7 +152,7 @@ public class RedstoneLinkNetwork {
 		return network;
 	}
 
-	public RedstoneLinkNetwork(ServerLevel level) {
+	public RedstoneLinkNetwork(final ServerLevel level) {
 		this.channels = new HashMap<>(32, 0.7f);
 		this.level = level;
 	}

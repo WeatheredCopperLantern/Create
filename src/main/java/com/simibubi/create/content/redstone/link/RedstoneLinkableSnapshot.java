@@ -16,7 +16,7 @@ public record RedstoneLinkableSnapshot(Vector3fc receivingPosition, Vector3fc tr
 		final int transmissionRange = linkable.getTransmissionRange();
 		final int signal = linkable.getRawSignal();
 		final boolean receiver = linkable.isReceiver();
-		final Couple<Frequency> channel = linkable.channel;
+		final Couple<Frequency> channel = linkable.channel.copy();
 
 		return new RedstoneLinkableSnapshot(receivingPosition, transmissionPosition, receivingRange, transmissionRange, signal, receiver, channel);
 	}

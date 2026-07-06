@@ -2,6 +2,7 @@ package com.simibubi.create.content.redstone.link;
 
 import java.util.UUID;
 
+import com.simibubi.create.CreateBuildInfo;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
 import com.simibubi.create.foundation.mixin.accessor.CValueAccessor;
 import com.simibubi.create.infrastructure.config.AllConfigs;
@@ -108,7 +109,7 @@ public abstract class RedstoneLinkable {
 	}
 
 	public void onDestroy() {
-
+		this.network.removeIn(this, 1);
 	}
 
 	@Contract(pure = true)
@@ -163,16 +164,29 @@ public abstract class RedstoneLinkable {
 	}
 
 	public void setTransmittedStrength(final int signal) {
-		if (!this.receiver && this.signal != signal) {
+		CreateBuildInfo.runIfDev(() -> {
+			if (this.receiver) {
+				throw new UnsupportedOperationException();
+			}
+		});
+		if (this.signal != signal) {
 			final RedstoneLinkableSnapshot snapshot = RedstoneLinkableSnapshot.of(this);
 			this.signal = signal;
 			this.network.signalChanged(this, snapshot);
 		}
 	}
 
-	//TODO: remove receiver check
+
 	public void setReceivedStrength(final int signal) {
-		if (this.receiver) this.signal = signal;
+		CreateBuildInfo.runIfDev(() -> {
+			if (!this.receiver) {
+				throw new UnsupportedOperationException();
+			}
+		});
+		if (signal != this.signal) {
+			this.signal = signal;
+			this.onSignalChanged();
+		}
 	}
 
 	@Contract(pure = true)
@@ -211,6 +225,20 @@ public abstract class RedstoneLinkable {
 		this.updateQueued = false;
 	}
 
+	public void setFrequency(boolean first, Frequency frequency) {
+		if (this.channel.get(first).equals(frequency) || !shouldSetFrequency(first, frequency)) return;
+		final RedstoneLinkableSnapshot snapshot = RedstoneLinkableSnapshot.of(this);
+		this.channel.set(first, frequency);
+		if (this.network != null) {
+			this.network.channelChanged(this, snapshot);
+		}
+		this.onFrequencyChanged(first);
+	}
+
+	protected abstract boolean shouldSetFrequency(boolean first, Frequency frequency);
+
+	protected abstract void onFrequencyChanged(boolean first);
+
 	public void setMode(final boolean receiver) {
 		if (this.receiver == receiver || !this.shouldSetMode(receiver)) return;
 		final RedstoneLinkableSnapshot snapshot = RedstoneLinkableSnapshot.of(this);
@@ -223,6 +251,8 @@ public abstract class RedstoneLinkable {
 	}
 
 	protected abstract void onModeChanged(final RedstoneLinkableSnapshot snapshot);
+
+	protected abstract void onSignalChanged();
 
 	protected int getRawSignal() {
 		return this.signal;

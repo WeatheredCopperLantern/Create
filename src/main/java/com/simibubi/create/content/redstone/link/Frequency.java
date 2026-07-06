@@ -38,9 +38,10 @@ public class Frequency {
 
 	private static final ReferenceQueue<Frequency> queue = new ReferenceQueue<>();
 
-	public final Item item;
-	public final boolean isSimple;
-	public final DataComponentPatch componentPatch;
+	public final ItemStack stack;
+	private final Item item;
+	private final boolean isSimple;
+	private final DataComponentPatch componentPatch;
 	private final FrequencyHash hash;
 
 	private Frequency(final Item item, final DataComponentPatch componentPatch, final FrequencyHash hash, final boolean doNotCallThisUnlessYouUnderstandExactlyHowTheFrequencyMapsWork) {
@@ -48,6 +49,7 @@ public class Frequency {
 		this.isSimple = false;
 		this.componentPatch = componentPatch;
 		this.hash = hash;
+		this.stack = new ItemStack(Holder.direct(this.item), 1, this.componentPatch);
 	}
 
 	private Frequency(final Item item, final boolean doNotCallThisUnlessYouUnderstandExactlyHowTheFrequencyMapsWork) {
@@ -55,6 +57,7 @@ public class Frequency {
 		this.isSimple = true;
 		this.componentPatch = DataComponentPatch.EMPTY;
 		this.hash = new FrequencyHash(0, new long[2]);
+		this.stack = new ItemStack(this.item);
 	}
 
 	public static Frequency of(final @NonNull ItemStack stack) {

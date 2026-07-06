@@ -32,25 +32,46 @@ import org.jspecify.annotations.NonNull;
 public class RedstoneLinkBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
 	public RedstoneLinkLinkable linkable;
-	private Couple<Frequency> channel;
+	public Couple<Frequency> channel = Couple.create(Frequency.EMPTY, Frequency.EMPTY);
+
+	@Override
+	public void remove() {
+		if(this.level.isClientSide) return;
+		this.linkable.onDestroy();
+	}
+
+	@Override
+	public void onChunkUnloaded() {
+		super.onChunkUnloaded();
+		if(this.level.isClientSide) return;
+		this.linkable.blockEntityUnloaded();
+	}
 
 	@Override
 	public void write(final CompoundTag compound, final HolderLookup.Provider registries, final boolean clientPacket) {
-		if (!this.initialized || clientPacket) return;
+		if (!this.initialized) return;
 		super.write(compound, registries, false);
-		compound.putUUID("uuid", this.linkable.uuid);
+		if(clientPacket){
+			compound.put("FrequencyFirst", channel.getFirst().write());
+			compound.put("FrequencyLast", channel.getSecond().write());
+		}else {
+			compound.putUUID("uuid", this.linkable.uuid);
+		}
 	}
 
 	@Override
 	public void setLevel(Level level) {
 		super.setLevel(level);
-		if(!initialized && !level.isClientSide) this.initialize();
+		if (!initialized && !level.isClientSide) this.initialize();
 	}
 
 	@Override
 	protected void read(final CompoundTag compound, final HolderLookup.Provider registries, final boolean clientPacket) {
-		if (clientPacket) return;
 		super.read(compound, registries, false);
+		if (clientPacket){
+			this.channel = Couple.create(Frequency.read(compound.getCompound("FrequencyFirst"), registries), Frequency.read(compound.getCompound("FrequencyLast"), registries));
+			return;
+		}
 		if (compound.contains("uuid")) {
 			final RedstoneLinkable tmp = Create.REDSTONE_LINK_NETWORK.getLinkable(compound.getUUID("uuid"));
 			if (tmp instanceof final RedstoneLinkLinkable linkable) {
@@ -63,17 +84,17 @@ public class RedstoneLinkBlockEntity extends SmartBlockEntity implements IHaveGo
 		} else if (compound.contains("FrequencyFirst")) {
 			this.channel = Couple.create(Frequency.read(compound.getCompound("FrequencyFirst"), registries), Frequency.read(compound.getCompound("FrequencyLast"), registries));
 			this.linkable = new RedstoneLinkLinkable(this.channel, this);
-			if(compound.getByte("Transmitter") == 0){
+			if (compound.getByte("Transmitter") == 0) {
 				this.linkable.setMode(false);
 				this.linkable.setReceivedStrength(compound.getInt("Receive"));
-			}else {
+			} else {
 				this.linkable.setTransmittedStrength(compound.getInt("Transmit"));
 			}
 			this.initialized = true;
-		}else {
+		} else {
 			Create.LOGGER.error("RedstoneLinkBlockEntity at {} did not have recognizable SaveData", this.worldPosition);
 		}
-		if(!this.initialized){
+		if (!this.initialized) {
 			Create.LOGGER.warn("Falling back to creating new RedstoneLinkLinkable");
 		}
 	}

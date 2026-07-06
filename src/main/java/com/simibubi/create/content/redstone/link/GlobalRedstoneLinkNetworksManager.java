@@ -1,6 +1,7 @@
 package com.simibubi.create.content.redstone.link;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import net.minecraft.resources.ResourceKey;
@@ -22,10 +23,14 @@ public class GlobalRedstoneLinkNetworksManager {
 
 	public void levelLoaded(final @NonNull LevelAccessor level) {
 		final MinecraftServer server = level.getServer();
-		if (server == null || server.overworld() != level) return;
-		this.savedData = RedstoneLinkNetworksSavedData.load(server);
-		this.networks = this.savedData.networks;
-		this.linkables = this.savedData.linkables;
+		if (server == null) return;
+		if (level == server.overworld()) {
+			this.savedData = RedstoneLinkNetworksSavedData.load(server);
+			this.networks = this.savedData.networks;
+			this.linkables = this.savedData.linkables;
+		} else {
+			server.levelKeys().forEach(levelKey -> networks.computeIfAbsent(levelKey, u -> new RedstoneLinkNetwork(server.getLevel(u))));
+		}
 	}
 
 	public void setDirty() {

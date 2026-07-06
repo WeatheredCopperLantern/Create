@@ -13,6 +13,7 @@ import net.minecraft.nbt.*;
 
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Contract;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -41,6 +42,28 @@ public class RedstoneLinkLinkable extends RedstoneLinkable {
 	}
 
 	@Override
+	public void delayedUpdate() {
+		super.delayedUpdate();
+		withBeDo(be -> {
+			BlockState state = be.getBlockState();
+			((RedstoneLinkBlock) state.getBlock()).updateFromWorld(be.getLevel(), be.getBlockPos(), state);
+		});
+	}
+
+	@Override
+	protected boolean shouldSetFrequency(boolean first, Frequency frequency) {
+		return true;
+	}
+
+	@Override
+	protected void onFrequencyChanged(boolean first) {
+		withBeDo(redstoneLinkBlockEntity ->  {
+			redstoneLinkBlockEntity.channel = this.channel;
+			redstoneLinkBlockEntity.sendData();
+		});
+	}
+
+	@Override
 	public RedstoneLinkableType getType() {
 		return AllRedstoneLinkables.REDSTONE_LINK.value();
 	}
@@ -55,6 +78,18 @@ public class RedstoneLinkLinkable extends RedstoneLinkable {
 		withBeDo(redstoneLinkBlockEntity -> {
 			AllBlocks.REDSTONE_LINK.get().updateFromLinkable(redstoneLinkBlockEntity.getLevel(), redstoneLinkBlockEntity.getBlockPos());
 		});
+	}
+
+	@Override
+	protected void onSignalChanged() {
+		withBeDo(redstoneLinkBlockEntity -> {
+			AllBlocks.REDSTONE_LINK.get().updateFromLinkable(redstoneLinkBlockEntity.getLevel(), redstoneLinkBlockEntity.getBlockPos());
+		});
+	}
+
+	@Override
+	public void setReceivedStrength(int signal) {
+		super.setReceivedStrength(signal);
 	}
 
 	private void withBeDo(Consumer<RedstoneLinkBlockEntity> action) {
@@ -80,5 +115,9 @@ public class RedstoneLinkLinkable extends RedstoneLinkable {
 	public void setBlockEntity(RedstoneLinkBlockEntity redstoneLinkBlockEntity) {
 		this.blockEntity = redstoneLinkBlockEntity;
 		this.cachedPosition = redstoneLinkBlockEntity.getBlockPos().getCenter().toVector3f();
+	}
+
+	public void blockEntityUnloaded() {
+		this.blockEntity = null;
 	}
 }

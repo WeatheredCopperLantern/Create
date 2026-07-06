@@ -22,9 +22,8 @@ import net.createmod.catnip.data.Pair;
 import net.createmod.catnip.nbt.NBTHelper;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 
 import net.minecraft.server.level.ServerLevel;
@@ -54,6 +53,8 @@ public class RedstoneLinkNetwork {
 			final Couple<Frequency> channel = entry.getKey();
 			final Couple<Set<RedstoneLinkable>> linkables = entry.getValue();
 
+			if (linkables.both(Set::isEmpty)) return null;
+
 			channel.forEachWithParams((frequency, name) -> channelNBT.put(name, frequency.write()), Couple.create("Frequency_1", "Frequency_2"));
 
 			linkables.forEachWithParams((redstoneLinkables, name) -> channelNBT.put(name, NBTHelper.writeCompoundList(redstoneLinkables, linkable -> {
@@ -74,6 +75,33 @@ public class RedstoneLinkNetwork {
 			return channelNBT;
 		}));
 
+		ListTag tag = new ListTag();
+		for (RedstoneLinkable linkable : this.updates) {
+			tag.add(NbtUtils.createUUID(linkable.uuid));
+		}
+		nbt.put("Updates", tag);
+
+		tag.clear();
+		for (RedstoneLinkable linkable : this.recalcQueue) {
+			tag.add(NbtUtils.createUUID(linkable.uuid));
+		}
+		nbt.put("Recalc", tag);
+
+
+		nbt.put("QueuedSignals", NBTHelper.writeCompoundList(this.queuedReceiverSignals, redstoneLinkableIntegerPair -> {
+			CompoundTag compoundTag = new CompoundTag(2);
+			compoundTag.putUUID("uuid", redstoneLinkableIntegerPair.getFirst().uuid);
+			compoundTag.putInt("strength", redstoneLinkableIntegerPair.getSecond());
+			return compoundTag;
+		}));
+
+		nbt.put("QueuedRemovals", NBTHelper.writeCompoundList(this.queuedRemovals.entrySet(), redstoneLinkableIntegerEntry -> {
+			CompoundTag compoundTag = new CompoundTag(2);
+			compoundTag.putUUID("uuid", redstoneLinkableIntegerEntry.getKey().uuid);
+			compoundTag.putInt("time", redstoneLinkableIntegerEntry.getValue());
+			return compoundTag;
+		}));
+
 		return nbt;
 	}
 
@@ -92,7 +120,7 @@ public class RedstoneLinkNetwork {
 				NBTHelper.iterateCompoundList(linkablesTag, linkableNBT -> {
 					final RedstoneLinkableType linkType = CreateBuiltInRegistries.REDSTONE_LINKABLE.get(NBTHelper.readResourceLocation(linkableNBT, "ResourceLocation"));
 					assert linkType != null;
-					final RedstoneLinkable link = linkType.factory().apply(linkableNBT, channel, aBoolean, registries, dimensions, network);
+					final RedstoneLinkable link = linkType.factory().apply(linkableNBT, channel.copy(), aBoolean, registries, dimensions, network);
 					set.add(link);
 					linkables.put(link.uuid, link);
 				});
@@ -100,6 +128,22 @@ public class RedstoneLinkNetwork {
 			});
 
 			channels.put(channel, sets);
+		});
+
+		ListTag tag = nbt.getList("Updates", Tag.TAG_INT_ARRAY);
+		tag.forEach(tag1 -> network.updates.add(linkables.get(NbtUtils.loadUUID(tag1))));
+
+		tag = nbt.getList("Recalc", Tag.TAG_INT_ARRAY);
+		tag.forEach(tag1 -> network.recalcQueue.add(linkables.get(NbtUtils.loadUUID(tag1))));
+
+		NBTHelper.iterateCompoundList(nbt.getList("QueuedSignals", Tag.TAG_COMPOUND), compoundTag -> {
+			int strength = compoundTag.getInt("strength");
+			network.queuedReceiverSignals.add(Pair.of(linkables.get(compoundTag.getUUID("uuid")), strength));
+		});
+
+		NBTHelper.iterateCompoundList(nbt.getList("QueuedRemovals", Tag.TAG_COMPOUND), compoundTag -> {
+			int time = compoundTag.getInt("time");
+			network.queuedRemovals.put(linkables.get(compoundTag.getUUID("uuid")), time);
 		});
 
 		network.channels = channels;
@@ -112,7 +156,7 @@ public class RedstoneLinkNetwork {
 		this.level = level;
 	}
 
-	private RedstoneLinkNetwork(){
+	private RedstoneLinkNetwork() {
 
 	}
 
@@ -134,7 +178,10 @@ public class RedstoneLinkNetwork {
 		//Handle queuedReceiverSignals
 		while (!this.queuedReceiverSignals.isEmpty()) {
 			final Pair<RedstoneLinkable, Integer> entry = this.queuedReceiverSignals.remove();
-			entry.getFirst().setReceivedStrength(entry.getSecond());
+			final RedstoneLinkable linkable = entry.getFirst();
+			if (linkable.isReceiver()) {
+				linkable.setReceivedStrength(entry.getSecond());
+			}
 		}
 
 		//Handle updates
@@ -260,6 +307,7 @@ public class RedstoneLinkNetwork {
 	}
 
 	public void signalChanged(final @NonNull RedstoneLinkable linkable, final RedstoneLinkableSnapshot snapshot) {
+		Create.REDSTONE_LINK_NETWORK.setDirty();
 		this.forLinkableInRange(linkable, linkable1 -> {
 			if (!linkable1.allowRecalcQueue()) return false;
 			if (linkable1 instanceof ICustomReceive) return true;
@@ -272,6 +320,7 @@ public class RedstoneLinkNetwork {
 	}
 
 	public void linkMoved(final @NonNull RedstoneLinkable linkable, final @NonNull RedstoneLinkableSnapshot snapshot) {
+		Create.REDSTONE_LINK_NETWORK.setDirty();
 		if (linkable.isReceiver() && linkable.allowRecalcQueue()) {
 			linkable.considerRecalcQueued();
 			this.recalcQueue.add(linkable);

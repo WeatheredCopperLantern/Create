@@ -51,6 +51,7 @@ import com.simibubi.create.content.logistics.tunnel.BrassTunnelBlockEntity;
 import com.simibubi.create.content.logistics.vault.ItemVaultBlockEntity;
 import com.simibubi.create.content.processing.basin.BasinBlockEntity;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlockEntity;
+import com.simibubi.create.content.redstone.link.RedstoneEntityLinkable;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
 import com.simibubi.create.content.trains.entity.CarriageEntityHandler;
 import com.simibubi.create.content.trains.observer.TrackObserverBlockEntity;
@@ -102,7 +103,7 @@ public class CommonEvents {
 
 	@SubscribeEvent
 	public static void onServerTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
-		Create.REDSTONE_LINK_NETWORK.tick();
+		Create.REDSTONE_LINK_NETWORK.tick(event);
 		Create.SCHEMATIC_RECEIVER.tick();
 		Create.LAGGER.tick();
 		ServerSpeedProvider.serverTick();
@@ -160,6 +161,7 @@ public class CommonEvents {
 		Entity entity = event.getEntity();
 		Level world = event.getLevel();
 		ContraptionHandler.addSpawnedContraptionsToCollisionList(entity, world);
+		RedstoneEntityLinkable.handleSpawn(event);
 	}
 
 	@SubscribeEvent

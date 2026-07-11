@@ -8,6 +8,5 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
 public record RedstoneLinkableType(
-	HexaFunction<CompoundTag, Couple<Frequency>, Boolean, HolderLookup.Provider, DimensionPalette, RedstoneLinkNetwork, ? extends RedstoneLinkable> factory) {
-
+		HexaFunction<CompoundTag, Couple<Frequency>, Boolean, HolderLookup.Provider, DimensionPalette, RedstoneLinkNetwork, ? extends RedstoneLinkable> factory) {
 }

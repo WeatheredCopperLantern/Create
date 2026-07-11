@@ -349,7 +349,7 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 			FactoryPanelSupportBehaviour linkAt = linkAt(getWorld(), connection);
 			if (linkAt == null || linkAt.isOutput())
 				return;
-			linkAt.notifyLink();
+			linkAt.notifyChange();
 		}
 	}
 

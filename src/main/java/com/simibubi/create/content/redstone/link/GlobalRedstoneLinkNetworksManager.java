@@ -3,6 +3,7 @@ package com.simibubi.create.content.redstone.link;
 import java.util.Map;
 import java.util.UUID;
 
+import com.simibubi.create.Create;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -36,7 +38,10 @@ public class GlobalRedstoneLinkNetworksManager {
 		this.savedData.setDirty(true);
 	}
 
-	public void tick() {
+	public void tick(ServerTickEvent.Post event) {
+		//TODO: doesn't work perfectly, sprints tick once to often && steps tick once to few
+		// Probably needs switch to ServerTickEvent.Pre to fix
+		if(event.getServer().tickRateManager().isFrozen() && !event.getServer().tickRateManager().isSteppingForward()) return;
 		this.networks.values().forEach(RedstoneLinkNetwork::tick);
 	}
 

@@ -75,8 +75,6 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 		final InteractionHand hand = event.getHand();
 
 		final ItemStack heldItem = player.getItemInHand(hand);
-		//if (AllItems.LINKED_CONTROLLER.isIn(heldItem))
-		//	return;
 		if (AllItems.WRENCH.isIn(heldItem)) return;
 
 		final BlockHitResult ray = RaycastHelper.rayTraceRange(world, player, player.blockInteractionRange());
@@ -147,27 +145,33 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 
 	@Override
 	public InteractionResult onWrenched(final BlockState state, final UseOnContext context) {
-		if (context.getLevel().isClientSide) return InteractionResult.CONSUME;
-		this.withLinkableDo(context.getLevel(), context.getClickedPos(), linkable -> {
-			linkable.setMode(linkable.isTransmitter());
-		});
+		if (!context.getLevel().isClientSide)
+			this.withLinkableDo(context.getLevel(), context.getClickedPos(), linkable -> linkable.setMode(linkable.isTransmitter()));
 		return InteractionResult.CONSUME;
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(final ItemStack stack, final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hitResult) {
-		if (AllItems.WRENCH.isIn(stack)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+	protected @NonNull ItemInteractionResult useItemOn(final @NonNull ItemStack stack, final @NonNull BlockState state, final @NonNull Level level, final @NonNull BlockPos pos, final @NonNull Player player, final @NonNull InteractionHand hand, final @NonNull BlockHitResult hitResult) {
+		if (AllItems.WRENCH.isIn(stack) || player instanceof FakePlayer || player.isShiftKeyDown())
+			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 
-		if (player instanceof FakePlayer) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-		if (level.isClientSide) return ItemInteractionResult.SUCCESS;
-
-		this.withBlockEntityDo(level, pos, toolbox -> player.openMenu(toolbox, toolbox::sendToMenu));
+		if (!level.isClientSide) {
+			this.withBlockEntityDo(level, pos, toolbox -> player.openMenu(toolbox, toolbox::sendToMenu));
+		}
 
 		return ItemInteractionResult.SUCCESS;
 	}
 
 	@Override
-	protected void neighborChanged(final BlockState state, final Level level, final BlockPos pos, final Block neighborBlock, final BlockPos neighborPos, final boolean movedByPiston) {
+	protected @NonNull InteractionResult useWithoutItem(@NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull Player player, @NonNull BlockHitResult hitResult) {
+		if (!player.isShiftKeyDown())  return InteractionResult.PASS;
+
+		if (!level.isClientSide) withLinkableDo(level, pos, linkable -> linkable.setMode(linkable.isTransmitter()));
+		return InteractionResult.CONSUME;
+	}
+
+	@Override
+	protected void neighborChanged(final @NonNull BlockState state, final @NonNull Level level, final @NonNull BlockPos pos, final @NonNull Block neighborBlock, final @NonNull BlockPos neighborPos, final boolean movedByPiston) {
 		this.withLinkableDo(level, pos, RedstoneLinkable::queueUpdate);
 	}
 
@@ -178,7 +182,8 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 
 	@Override
 	public int getDirectSignal(final BlockState blockState, final @NonNull BlockGetter blockAccess, final @NonNull BlockPos pos, final @NonNull Direction side) {
-		if (side == blockState.getValue(DirectionalBlock.FACING)) return this.getSignal(blockState, blockAccess, pos, side);
+		if (side == blockState.getValue(DirectionalBlock.FACING))
+			return this.getSignal(blockState, blockAccess, pos, side);
 		return 0;
 	}
 
@@ -234,7 +239,7 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 	}
 
 	@Override
-	protected void onPlace(final BlockState state, final Level level, final BlockPos pos, final BlockState oldState, final boolean movedByPiston) {
+	protected void onPlace(final @NonNull BlockState state, final @NonNull Level level, final @NonNull BlockPos pos, final BlockState oldState, final boolean movedByPiston) {
 		if (oldState.getBlock() != this) {
 			this.updateFromWorld(level, pos, state);
 		}

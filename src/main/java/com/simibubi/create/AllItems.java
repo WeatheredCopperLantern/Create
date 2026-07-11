@@ -46,6 +46,7 @@ import com.simibubi.create.content.materials.ExperienceNuggetItem;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockItem;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyItem;
 import com.simibubi.create.content.redstone.link.RedstoneLinkItem;
+import com.simibubi.create.content.redstone.link.controller.LinkedControllerItem;
 import com.simibubi.create.content.schematics.SchematicAndQuillItem;
 import com.simibubi.create.content.schematics.SchematicItem;
 import com.simibubi.create.content.trains.schedule.ScheduleItem;
@@ -194,11 +195,11 @@ public class AllItems {
 
 	// Curiosities
 
-	//public static final ItemEntry<LinkedControllerItem> LINKED_CONTROLLER =
-	//	REGISTRATE.item("linked_controller", LinkedControllerItem::new)
-	//		.properties(p -> p.stacksTo(1))
-	//		.model(AssetLookup.itemModelWithPartials())
-	//		.register();
+	public static final ItemEntry<LinkedControllerItem> LINKED_CONTROLLER =
+		REGISTRATE.item("linked_controller", LinkedControllerItem::new)
+			.properties(p -> p.stacksTo(1))
+			.model(AssetLookup.itemModelWithPartials())
+			.register();
 
 	public static final ItemEntry<PotatoCannonItem> POTATO_CANNON = REGISTRATE.item("potato_cannon", PotatoCannonItem::new).properties(p -> p.durability(100)).model(AssetLookup.itemModelWithPartials()).tag(Tags.Items.ENCHANTABLES, ItemTags.DURABILITY_ENCHANTABLE, ItemTags.BOW_ENCHANTABLE).register();
 

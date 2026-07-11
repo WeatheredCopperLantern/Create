@@ -5,6 +5,8 @@ import java.util.List;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
+import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelSupportBehaviour;
+import com.simibubi.create.content.redstone.link.interfaces.ILinkableBlockEntity;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.createmod.catnip.data.Couple;
@@ -25,10 +27,12 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class RedstoneLinkBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, MenuProvider {
+public class RedstoneLinkBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, MenuProvider, ILinkableBlockEntity {
 
 	public RedstoneLinkLinkable linkable;
 	public Couple<Frequency> channel = Couple.create(Frequency.EMPTY, Frequency.EMPTY);
+
+	public FactoryPanelSupportBehaviour panelSupport;
 
 	public ItemStackHandler getFrequencyItems() {
 		final ItemStackHandler newInv = new ItemStackHandler(2);
@@ -117,7 +121,8 @@ public class RedstoneLinkBlockEntity extends SmartBlockEntity implements IHaveGo
 
 	@Override
 	public void addBehaviours(final List<BlockEntityBehaviour> behaviours) {
-
+		//TODO: refactor Factory Panels to run serverside only and sync data for visuals to client
+		behaviours.add(this.panelSupport = new FactoryPanelSupportBehaviour(this, () -> (linkable == null) ?  this.getBlockState().getValue(RedstoneLinkBlock.RECEIVER) : linkable.isReceiver(), () -> (linkable == null) ?  this.getBlockState().getValue(RedstoneLinkBlock.POWERED) : linkable.getTransmittedStrength() > 0, () -> {}));
 	}
 
 	public RedstoneLinkBlockEntity(final BlockEntityType<?> type, final BlockPos pos, final BlockState state) {
@@ -132,5 +137,10 @@ public class RedstoneLinkBlockEntity extends SmartBlockEntity implements IHaveGo
 	@Override
 	public @Nullable AbstractContainerMenu createMenu(final int i, final @NonNull Inventory inventory, final @NonNull Player player) {
 		return RedstoneLinkMenu.create(i, inventory, this);
+	}
+
+	@Override
+	public RedstoneLinkable getLinkable() {
+		return this.linkable;
 	}
 }

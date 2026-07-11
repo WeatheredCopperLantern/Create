@@ -36,11 +36,16 @@ public class RedstoneLinkNetwork {
 
 	// region Sets & Lists ===========================================================
 	private Map<Couple<Frequency>, Couple<Set<RedstoneLinkable>>> channels;
-	private final Collection<ITickingLinkable> tickingLinkables = new HashSet<>(23 /* Allows 16 entries before resize */, 0.7f);
+
 	private final Queue<RedstoneLinkable> updates = new ArrayDeque<>(16);
 	private final Queue<RedstoneLinkable> recalcQueue = new ArrayDeque<>(16);
 	private final Queue<Pair<RedstoneLinkable, Integer>> queuedReceiverSignals = new ArrayDeque<>(16);
 	private final Map<RedstoneLinkable, Integer> queuedRemovals = new HashMap<>(23 /* Allows 16 entries before resize */, 0.7f);
+
+	private final Collection<ITickingLinkable> tickingLinkables = new HashSet<>(23 /* Allows 16 entries before resize */, 0.7f);
+	private final Queue<ITickingLinkable> tickingAdds = new ArrayDeque<>(4);
+	private final Queue<ITickingLinkable> tickingRemovals = new ArrayDeque<>(4);
+
 	//endregion
 
 	public ServerLevel level;
@@ -124,6 +129,9 @@ public class RedstoneLinkNetwork {
 					final RedstoneLinkable link = linkType.factory().apply(linkableNBT, channel.copy(), aBoolean, registries, dimensions, network);
 					set.add(link);
 					linkables.put(link.uuid, link);
+					if(link instanceof  ITickingLinkable tickingLinkable){
+						network.tickingLinkables.add(tickingLinkable);
+					}
 				});
 				return set;
 			});
@@ -216,13 +224,20 @@ public class RedstoneLinkNetwork {
 		}
 
 		//Tick ITickingLinkables
+		while (!this.tickingAdds.isEmpty()) {
+			this.tickingLinkables.add(this.tickingAdds.remove());
+		}
 		this.tickingLinkables.forEach(ITickingLinkable::tick);
+
+		while (!this.tickingRemovals.isEmpty()) {
+			this.tickingLinkables.remove(this.tickingRemovals.remove());
+		}
 	}
 
 	public void addLinkable(final @NonNull RedstoneLinkable linkable) {
 		this.getChannel(linkable.channel).get(linkable.isReceiver()).add(linkable);
 		if (linkable instanceof final ITickingLinkable tickingLinkable) {
-			this.tickingLinkables.add(tickingLinkable);
+			tickingAdds.add(tickingLinkable);
 		}
 		Create.REDSTONE_LINK_NETWORK.linkables.put(linkable.uuid, linkable);
 		Create.REDSTONE_LINK_NETWORK.setDirty();
@@ -240,6 +255,9 @@ public class RedstoneLinkNetwork {
 	public void removeLinkable(final @NonNull RedstoneLinkable linkable) {
 		this.getChannel(linkable.channel).get(linkable.isReceiver()).remove(linkable);
 		Create.REDSTONE_LINK_NETWORK.linkables.remove(linkable.uuid);
+		if (linkable instanceof ITickingLinkable tickingLinkable) {
+			tickingRemovals.add(tickingLinkable);
+		}
 		Create.REDSTONE_LINK_NETWORK.setDirty();
 		if (linkable.isTransmitter() && linkable.getTransmittedStrength() > 0) {
 			this.forLinkableInRange(linkable, RedstoneLinkable::allowRecalcQueue, linkable1 -> {

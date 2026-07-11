@@ -62,9 +62,13 @@ public abstract class RedstoneLinkable {
 	public boolean updateQueued;
 
 	//TODO: Build caching for linkables in communication range, so we can completely skip any checks for signal change/removal updates
-	//Transmission/Receiving ranges get queried a lot. Skipping the ConfigBase#get() method actualy has a meassurable impact on performance.
-	@SuppressWarnings({"CastToIncompatibleInterface", "unchecked", "LawOfDemeter"})
-	private static final ModConfigSpec.ConfigValue<Integer> logistics_linkRange = (ModConfigSpec.ConfigValue<Integer>) ((CValueAccessor) AllConfigs.server().logistics.linkRange).create$getRawValue();
+	//Transmission/Receiving ranges get queried a lot. Skipping the ConfigBase#get() method actually has a measurable impact on performance.
+	private static final ModConfigSpec.ConfigValue<Integer> logistics_linkRange;
+
+	static {
+		//noinspection unchecked
+		logistics_linkRange = (ModConfigSpec.ConfigValue<Integer>) ((CValueAccessor) AllConfigs.server().logistics.linkRange).create$getRawValue();
+	}
 
 	@Contract(pure = true)
 	public boolean doSave() {
@@ -74,7 +78,7 @@ public abstract class RedstoneLinkable {
 	@ApiStatus.NonExtendable
 	public CompoundTag write(final HolderLookup.Provider registries, final DimensionPalette dimensions) {
 		final CompoundTag nbt = new CompoundTag();
-		// Frequencies and Mode are already in the parent nbt
+		// Frequencies and Mode are already in the network nbt
 		nbt.putInt("Signal", this.signal);
 		nbt.putUUID("UUID", this.uuid);
 

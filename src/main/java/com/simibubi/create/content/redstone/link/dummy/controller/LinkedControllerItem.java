@@ -2,6 +2,7 @@ package com.simibubi.create.content.redstone.link.dummy.controller;
 
 import java.util.function.Consumer;
 
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.content.redstone.link.dummy.RedstoneLinkNetworkHandler;
 import com.simibubi.create.foundation.item.ItemHelper;
@@ -24,6 +25,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 import net.neoforged.api.distmarker.Dist;
@@ -54,24 +57,24 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 				//	return InteractionResult.SUCCESS;
 				//}
 			} else {
-				//if (AllBlocks.REDSTONE_LINK.has(hitState)) {
-				//	if (world.isClientSide)
-				//		CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> this.toggleBindMode(ctx.getClickedPos()));
-				//	player.getCooldowns()
-				//		.addCooldown(this, 2);
-				//	return InteractionResult.SUCCESS;
-				//}
-				//
-				//if (hitState.is(Blocks.LECTERN) && !hitState.getValue(LecternBlock.HAS_BOOK)) {
-				//	if (!world.isClientSide) {
-				//		ItemStack lecternStack = player.isCreative() ? stack.copy() : stack.split(1);
-				//		AllBlocks.LECTERN_CONTROLLER.get().replaceLectern(hitState, world, pos, lecternStack);
-				//	}
-				//	return InteractionResult.SUCCESS;
-				//}
-				//
-				//if (AllBlocks.LECTERN_CONTROLLER.has(hitState))
-				//	return InteractionResult.PASS;
+				if (AllBlocks.REDSTONE_LINK.has(hitState)) {
+					if (world.isClientSide)
+						CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> this.toggleBindMode(ctx.getClickedPos()));
+					player.getCooldowns()
+						.addCooldown(this, 2);
+					return InteractionResult.SUCCESS;
+				}
+
+				if (hitState.is(Blocks.LECTERN) && !hitState.getValue(LecternBlock.HAS_BOOK)) {
+					if (!world.isClientSide) {
+						ItemStack lecternStack = player.isCreative() ? stack.copy() : stack.split(1);
+						AllBlocks.LECTERN_CONTROLLER.get().replaceLectern(hitState, world, pos, lecternStack);
+					}
+					return InteractionResult.SUCCESS;
+				}
+
+				if (AllBlocks.LECTERN_CONTROLLER.has(hitState))
+					return InteractionResult.PASS;
 			}
 		}
 

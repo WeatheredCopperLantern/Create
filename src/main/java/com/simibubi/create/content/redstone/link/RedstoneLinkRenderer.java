@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.simibubi.create.CreateClient;
-import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBox;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxRenderer;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
+import com.simibubi.create.foundation.events.ClientEvents;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import net.createmod.catnip.data.Couple;
@@ -39,8 +39,13 @@ import org.joml.Vector3f;
 
 public class RedstoneLinkRenderer extends SafeBlockEntityRenderer<RedstoneLinkBlockEntity> {
 
-	private static final Couple<Component> freqTexts = Couple.create(CreateLang.translateDirect("logistics.firstFrequency"), CreateLang.translateDirect("logistics.secondFrequency"));
-	private static final AABB aabb = new AABB(Vec3.ZERO, Vec3.ZERO).inflate(0.25f);
+	private static final Couple<Component> freqTexts;
+	private static final AABB aabb;
+
+	static {
+		freqTexts = Couple.create(CreateLang.translateDirect("logistics.firstFrequency"), CreateLang.translateDirect("logistics.secondFrequency"));
+		aabb = new AABB(Vec3.ZERO, Vec3.ZERO).inflate(0.25f);
+	}
 
 	@Override
 	protected void renderSafe(final RedstoneLinkBlockEntity be, final float partialTicks, final PoseStack ms, final MultiBufferSource bufferSource, final int light, final int overlay) {
@@ -49,7 +54,12 @@ public class RedstoneLinkRenderer extends SafeBlockEntityRenderer<RedstoneLinkBl
 
 		if (cameraEntity == null) return;
 
-		RedstoneLinkRenderer.renderItemsOnBlockEntity(be, ms, bufferSource, light, overlay, cameraEntity);
+		//Increase distance on lower fov/usage of zoom mod
+		final double max = AllConfigs.client().filterItemRenderDistance.getF() * Math.max(1, Math.tan(Math.toRadians(70.0 * 0.5)) / Math.tan(Math.toRadians(ClientEvents.FOV() * 0.5)));
+
+		if (cameraEntity.position().distanceToSqr(VecHelper.getCenterOf(be.getBlockPos())) <= max * max) {
+			RedstoneLinkRenderer.renderItems(be.channel, ms, be.getBlockPos(), BlockPos.ZERO, be.getLevel(), be.getBlockState(), bufferSource, light, overlay);
+		}
 
 		final HitResult target = mc.hitResult;
 		final BlockPos pos = be.getBlockPos();
@@ -80,15 +90,6 @@ public class RedstoneLinkRenderer extends SafeBlockEntityRenderer<RedstoneLinkBl
 				CreateClient.VALUE_SETTINGS_HANDLER.showHoverTip(tip);
 				return;
 			}
-		}
-	}
-
-	public static void renderItemsOnBlockEntity(final SmartBlockEntity be, final PoseStack ms, final MultiBufferSource buffer, final int light, final int overlay, final Entity cameraEntity) {
-		if (be != null && !be.isRemoved() && be instanceof final RedstoneLinkBlockEntity rlbe) {
-			final float max = AllConfigs.client().filterItemRenderDistance.getF();
-			if (cameraEntity != null && cameraEntity.position().distanceToSqr(VecHelper.getCenterOf(be.getBlockPos())) > (max * max)) return;
-
-			RedstoneLinkRenderer.renderItems(rlbe.channel, ms, be.getBlockPos(), BlockPos.ZERO, be.getLevel(), be.getBlockState(), buffer, light, overlay);
 		}
 	}
 

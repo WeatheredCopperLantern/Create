@@ -20,8 +20,11 @@ import org.jspecify.annotations.NonNull;
 
 public class RedstoneLinkScreen extends AbstractSimiContainerScreen<RedstoneLinkMenu> {
 
-	protected static final AllGuiTextures BG = AllGuiTextures.REDSTONE_LINK;
-	protected static final AllGuiTextures PLAYER = AllGuiTextures.PLAYER_INVENTORY;
+	protected static final AllGuiTextures BG;
+
+	static {
+		BG = AllGuiTextures.REDSTONE_LINK;
+	}
 
 	public RedstoneLinkScreen(final RedstoneLinkMenu container, final Inventory inv, final Component title) {
 		super(container, inv, title);
@@ -30,7 +33,7 @@ public class RedstoneLinkScreen extends AbstractSimiContainerScreen<RedstoneLink
 
 	@Override
 	protected void init() {
-		this.setWindowSize(30 + RedstoneLinkScreen.BG.getWidth(), RedstoneLinkScreen.BG.getHeight() + RedstoneLinkScreen.PLAYER.getHeight());
+		this.setWindowSize(30 + RedstoneLinkScreen.BG.getWidth(), RedstoneLinkScreen.BG.getHeight() + AllGuiTextures.PLAYER_INVENTORY.getHeight());
 		this.setWindowOffset(-11, 0);
 		super.init();
 
@@ -51,6 +54,10 @@ public class RedstoneLinkScreen extends AbstractSimiContainerScreen<RedstoneLink
 
 	@Override
 	protected void renderBg(final @NonNull GuiGraphics guiGraphics, final float v, final int i, final int i1) {
+		final int invX = this.getLeftOfCentered(AllGuiTextures.PLAYER_INVENTORY.getWidth());
+		final int invY = this.topPos + RedstoneLinkScreen.BG.getHeight() + 4;
+		this.renderPlayerInventory(guiGraphics, invX, invY);
+
 		final int x = this.leftPos + this.imageWidth - RedstoneLinkScreen.BG.getWidth();
 		final int y = this.topPos;
 
@@ -58,7 +65,7 @@ public class RedstoneLinkScreen extends AbstractSimiContainerScreen<RedstoneLink
 		guiGraphics.drawString(this.font, this.title, x + 5, y + 4, 0x592424, false);
 
 		final PoseStack ms = guiGraphics.pose();
-		TransformStack.of(ms).pushPose().translate(this.leftPos, y + this.imageHeight - RedstoneLinkScreen.PLAYER.getHeight(), 100).scale(50).rotateXDegrees(-22).rotateYDegrees(-202);
+		TransformStack.of(ms).pushPose().translate(this.leftPos + this.imageWidth + 40, y + this.imageHeight - AllGuiTextures.PLAYER_INVENTORY.getHeight(), 100).scale(50).rotateXDegrees(-22).rotateYDegrees(-202);
 
 		GuiGameElement.of(this.menu.contentHolder.getBlockState().setValue(DirectionalBlock.FACING, Direction.UP).setValue(RedstoneLinkBlock.ROTATED_ANTENNA, true)).render(guiGraphics);
 		ms.popPose();

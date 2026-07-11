@@ -66,11 +66,13 @@ public class Frequency {
 		if (stack.isEmpty()) return Frequency.EMPTY;
 
 		final Item item = stack.getItem();
-		if (stack.getComponents().isEmpty()) return Frequency.basicFrequencies.computeIfAbsent(item, u -> new Frequency(item, true));
+		if (stack.getComponents().isEmpty())
+			return Frequency.basicFrequencies.computeIfAbsent(item, u -> new Frequency(item, true));
 
 		final DataComponentPatch componentPatch = Frequency.extractAllowedPatches(stack.getComponentsPatch(), item).build();
 
-		if (componentPatch.isEmpty()) return Frequency.basicFrequencies.computeIfAbsent(item, u -> new Frequency(item, true));
+		if (componentPatch.isEmpty())
+			return Frequency.basicFrequencies.computeIfAbsent(item, u -> new Frequency(item, true));
 
 		final FrequencyHash frequencyHash = new FrequencyHash(item.hashCode(), MurmurHash3.hash128x64((item.toString() + componentPatch).getBytes(StandardCharsets.UTF_8)));
 		return Frequency.complexFrequencies.computeIfAbsent(frequencyHash, u -> {
@@ -114,11 +116,9 @@ public class Frequency {
 			assert Objects.requireNonNull(bucketEntityData).isPresent(); // Make IDE shut up
 			final CompoundTag fullTag = bucketEntityData.get().copyTag();
 			final CompoundTag cleanedTag = new CompoundTag();
-			if (fullTag.contains("BucketVariantTag", Tag.TAG_INT)) {
-				//Tropical Fish
+			if (fullTag.contains("BucketVariantTag", Tag.TAG_INT)) { //Tropical Fish
 				cleanedTag.putInt("BucketVariantTag", fullTag.getInt("BucketVariantTag"));
-			} else if (fullTag.contains("Variant", Tag.TAG_INT)) {
-				//Axolotl
+			} else if (fullTag.contains("Variant", Tag.TAG_INT)) { //Axolotl
 				cleanedTag.putInt("Variant", fullTag.getInt("Variant"));
 			}
 			builder.set(DataComponents.BUCKET_ENTITY_DATA, CustomData.of(cleanedTag));
@@ -191,7 +191,7 @@ public class Frequency {
 		@Override
 		public boolean equals(final Object obj) {
 			return obj instanceof FrequencyHash(
-				final int itemHash, final long[] patchHash
+					final int itemHash, final long[] patchHash
 			) && this.itemHash == itemHash && this.patchHash[0] == patchHash[0] && this.patchHash[1] == patchHash[1];
 		}
 

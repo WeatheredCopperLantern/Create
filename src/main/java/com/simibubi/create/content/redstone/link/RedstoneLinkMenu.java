@@ -43,12 +43,12 @@ public class RedstoneLinkMenu extends GhostItemMenu<RedstoneLinkBlockEntity> {
 
 	@Override
 	protected boolean allowRepeats() {
-		return false;
+		return true;
 	}
 
 	@Override
 	protected void addSlots() {
-		this.addPlayerSlots(8, 99);
+		this.addPlayerSlots(4, 103);
 
 		for (int i = 0; i < 2; i++) {
 			this.addSlot(new SlotItemHandler(this.ghostInventory, i, 67 + (i * 18), 25));

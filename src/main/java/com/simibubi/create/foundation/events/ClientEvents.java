@@ -47,6 +47,8 @@ import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedClie
 import com.simibubi.create.content.logistics.tableCloth.TableClothOverlayRenderer;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
 import com.simibubi.create.content.redstone.displayLink.ClickToLinkBlockItem;
+import com.simibubi.create.content.redstone.link.controller.LinkedControllerClientHandler;
+import com.simibubi.create.content.redstone.link.controller.LinkedControllerItemRenderer;
 import com.simibubi.create.content.trains.CameraDistanceModifier;
 import com.simibubi.create.content.trains.TrainHUD;
 import com.simibubi.create.content.trains.entity.CarriageContraptionEntity;
@@ -64,6 +66,7 @@ import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollVa
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollValueRenderer;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.item.TooltipModifier;
+import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 import com.simibubi.create.foundation.networking.LeftClickPacket;
 import com.simibubi.create.foundation.sound.SoundScapes;
 import com.simibubi.create.foundation.utility.CameraAngleAnimationService;
@@ -81,6 +84,7 @@ import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -93,6 +97,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
@@ -109,6 +114,8 @@ import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage;
 import net.neoforged.neoforge.client.event.ViewportEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.entity.EntityMountEvent;
@@ -134,7 +141,7 @@ public class ClientEvents {
 
 		Level world = Minecraft.getInstance().level;
 		if (isPreEvent) {
-			//LinkedControllerClientHandler.tick();
+			LinkedControllerClientHandler.tick();
 			ControlsHandler.tick();
 			AirCurrent.Client.tickClientPlayerSounds();
 			return;
@@ -310,6 +317,18 @@ public class ClientEvents {
 		return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
 	}
 
+	private static double fov = 70;
+
+	public static double FOV() {
+		return fov;
+	}
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public static void getFieldOfView(ViewportEvent.ComputeFov event) {
+		fov = event.getFOV();
+	}
+
+
 	@SubscribeEvent
 	public static void getFogDensity(ViewportEvent.RenderFog event) {
 		Camera camera = event.getCamera();
@@ -346,6 +365,11 @@ public class ClientEvents {
 		if (stack.getItem() instanceof ZapperItem) {
 			CatnipServices.NETWORK.sendToServer(LeftClickPacket.INSTANCE);
 		}
+	}
+
+	@SubscribeEvent
+	public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
+		event.registerItem(SimpleCustomRenderer.create(AllItems.LINKED_CONTROLLER.asItem(), new LinkedControllerItemRenderer()), AllItems.LINKED_CONTROLLER.asItem());
 	}
 
 	@SubscribeEvent

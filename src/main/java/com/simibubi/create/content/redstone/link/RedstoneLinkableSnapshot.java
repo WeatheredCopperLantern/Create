@@ -5,8 +5,8 @@ import net.createmod.catnip.data.Couple;
 import org.joml.Vector3fc;
 import org.jspecify.annotations.NonNull;
 
-public record RedstoneLinkableSnapshot(Vector3fc receivingPosition, Vector3fc transmissionPosition, int receivingRange, int transmissionRange,
-                                       int signal, boolean receiver, Couple<Frequency> channel) {
+public record RedstoneLinkableSnapshot(Vector3fc receivingPosition, Vector3fc transmissionPosition, int receivingRange,
+                                       int transmissionRange, int signal, boolean receiver, Couple<Frequency> channel) {
 
 	static RedstoneLinkableSnapshot of(final @NonNull RedstoneLinkable linkable) {
 		final Vector3fc receivingPosition = linkable.getReceivingPosition();

@@ -73,7 +73,8 @@
     "client.PlayerRendererMixin",
     "compat.xaeros.XaeroFullscreenMapAccessor",
     "compat.xaeros.XaeroFullscreenMapMixin",
-    "compat.xaeros.XaeroPauseScreenOverrideMixin"
+    "compat.xaeros.XaeroPauseScreenOverrideMixin",
+    "compat.jade.JadeLecternProviderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

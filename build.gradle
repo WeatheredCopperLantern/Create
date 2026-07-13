@@ -97,8 +97,15 @@ repositories {
     maven { url = "https://maven.blamejared.com" } // JEI, Vazkii's Mods
     maven { url = "https://maven.theillusivec4.top/" } // Curios API
     maven { url = "https://maven.squiddev.cc" } // CC: Tweaked
+    exclusiveContent {
+        forRepository {
+            maven { url = "https://api.modrinth.com/maven" }
+        }
+        filter {
+            includeGroup("maven.modrinth")
+        }
+    }
     maven { url = "https://www.cursemaven.com" }
-    maven { url = "https://api.modrinth.com/maven" }
     maven { url = "https://maven.ftb.dev/releases" } // FTB Mods
     maven { url = "https://maven.architectury.dev" } // Arch API
     // NeoForge config api port, needed by ponder
@@ -145,6 +152,10 @@ dependencies {
     localRuntimeOnly("dev.engine-room.vanillin:vanillin-neoforge-$minecraft_version:$vanillin_version")
 
     localImplementation("mezz.jei:jei-$minecraft_version-neoforge:$jei_version")
+
+    compileOnly("maven.modrinth:jade:${jade_version}"){
+        exclude(group: "curse.maven")
+    }
 
     compileOnly("top.theillusivec4.curios:curios-neoforge:$curios_version+$minecraft_version:api")
     localRuntimeOnly("top.theillusivec4.curios:curios-neoforge:$curios_version+$minecraft_version")

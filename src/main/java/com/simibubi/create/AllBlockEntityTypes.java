@@ -203,6 +203,8 @@ import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlockEntity;
 import com.simibubi.create.content.redstone.displayLink.LinkBulbRenderer;
 import com.simibubi.create.content.redstone.link.RedstoneLinkBlockEntity;
 import com.simibubi.create.content.redstone.link.RedstoneLinkRenderer;
+import com.simibubi.create.content.redstone.link.controller.LecternControllerBlockEntity;
+import com.simibubi.create.content.redstone.link.controller.LecternControllerRenderer;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeRenderer;
 import com.simibubi.create.content.redstone.smartObserver.SmartObserverBlockEntity;
@@ -894,11 +896,11 @@ public class AllBlockEntityTypes {
 		.renderer(() -> BrassDiodeRenderer::new)
 		.register();
 
-	//public static final BlockEntityEntry<LecternControllerBlockEntity> LECTERN_CONTROLLER = REGISTRATE
-	//	.blockEntity("lectern_controller", LecternControllerBlockEntity::new)
-	//	.validBlocks(AllBlocks.LECTERN_CONTROLLER)
-	//	.renderer(() -> LecternControllerRenderer::new)
-	//	.register();
+	public static final BlockEntityEntry<LecternControllerBlockEntity> LECTERN_CONTROLLER = REGISTRATE
+		.blockEntity("lectern_controller", LecternControllerBlockEntity::new)
+		.validBlocks(AllBlocks.LECTERN_CONTROLLER)
+		.renderer(() -> LecternControllerRenderer::new)
+		.register();
 
 	// Curiosities
 	public static final BlockEntityEntry<BacktankBlockEntity> BACKTANK = REGISTRATE

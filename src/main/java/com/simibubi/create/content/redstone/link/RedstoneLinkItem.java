@@ -2,16 +2,9 @@ package com.simibubi.create.content.redstone.link;
 
 import com.simibubi.create.AllBlocks;
 
-import com.simibubi.create.Create;
-import net.createmod.catnip.data.Couple;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -45,17 +38,5 @@ public class RedstoneLinkItem extends BlockItem {
 			}
 		}
 		return true;
-	}
-
-	@Override
-	public @NonNull InteractionResult interactLivingEntity(@NonNull ItemStack stack, @NonNull Player player, @NonNull LivingEntity interactionTarget, @NonNull InteractionHand usedHand) {
-		if (!player.level().isClientSide && interactionTarget.getItemBySlot(EquipmentSlot.HEAD).isEmpty()) {
-			Create.LOGGER.warn("aaa");
-			interactionTarget.setItemSlot(EquipmentSlot.HEAD, stack.copy());
-
-			new RedstoneEntityLinkableImp(Couple.create(Frequency.EMPTY, Frequency.EMPTY), interactionTarget);
-			return InteractionResult.CONSUME;
-		}
-		return InteractionResult.PASS;
 	}
 }

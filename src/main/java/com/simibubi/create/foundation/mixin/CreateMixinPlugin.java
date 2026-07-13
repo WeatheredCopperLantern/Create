@@ -3,13 +3,14 @@ package com.simibubi.create.foundation.mixin;
 import java.util.List;
 import java.util.Set;
 
+import com.simibubi.create.compat.Mods;
+
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
-import com.simibubi.create.compat.Mods;
-
 public class CreateMixinPlugin implements IMixinConfigPlugin {
+
 	@Override
 	public void onLoad(String mixinPackage) {
 	}
@@ -21,8 +22,15 @@ public class CreateMixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-		if (mixinClassName.startsWith("com.simibubi.create.foundation.mixin.compat.xaeros") && !Mods.XAEROWORLDMAP.isLoaded())
+		if ((Mods.XAEROWORLDMAP.isLoaded() || Mods.JADE.isLoaded()) && mixinClassName.startsWith("com.simibubi.create.foundation.mixin.compat")) {
+			if (Mods.XAEROWORLDMAP.isLoaded() && mixinClassName.startsWith("com.simibubi.create.foundation.mixin.compat.xaeros")) {
+				return true;
+			}
+			if (Mods.JADE.isLoaded() && mixinClassName.startsWith("com.simibubi.create.foundation.mixin.compat.jade")) {
+				return true;
+			}
 			return false;
+		}
 		return true;
 	}
 
@@ -42,5 +50,4 @@ public class CreateMixinPlugin implements IMixinConfigPlugin {
 	@Override
 	public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
 	}
-
 }

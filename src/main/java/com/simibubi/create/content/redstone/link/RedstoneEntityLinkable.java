@@ -13,6 +13,7 @@ import net.minecraft.world.entity.Entity;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.jspecify.annotations.NonNull;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -21,56 +22,57 @@ public abstract class RedstoneEntityLinkable extends RedstoneLinkable implements
 
 	private static final HashMap<UUID, RedstoneEntityLinkable> missing = new HashMap<>(2);
 
-	private Entity entity;
-	private UUID uuid;
-	private Vector3fc cachedPosition;
+	protected Entity entity;
+	protected UUID uuid;
+	protected Vector3fc cachedPosition;
 
 	@Override
 	public Vector3fc getTransmissionPosition() {
-		return cachedPosition;
+		return this.cachedPosition;
 	}
 
 	@Override
-	public void readAdditional(CompoundTag nbt, HolderLookup.Provider registries, DimensionPalette dimensions) {
+	public void readAdditional(@NonNull final CompoundTag nbt, final HolderLookup.@NonNull Provider registries, @NonNull final DimensionPalette dimensions) {
 		this.uuid = nbt.getUUID("uuid");
 		final ListTag tag = nbt.getList("position", Tag.TAG_COMPOUND);
 		this.cachedPosition = new Vector3f(tag.getFloat(0), tag.getFloat(1), tag.getFloat(2));
 
-		missing.put(this.uuid, this);
+		RedstoneEntityLinkable.missing.put(this.uuid, this);
 	}
 
-	public static void handleSpawn(EntityJoinLevelEvent event) {
+	public static void handleSpawn(final EntityJoinLevelEvent event) {
 		if (!event.loadedFromDisk() || event.getLevel().isClientSide) return;
 
-		RedstoneEntityLinkable linkable = missing.remove(event.getEntity().getUUID());
+		final RedstoneEntityLinkable linkable = RedstoneEntityLinkable.missing.remove(event.getEntity().getUUID());
 		if (linkable != null) linkable.setEntity(event.getEntity());
 	}
 
-	public void setEntity(Entity entity) {
+	public void setEntity(final Entity entity) {
 		this.entity = entity;
 		this.uuid = entity.getUUID();
 		this.cachedPosition = entity.position().toVector3f();
+		this.setNetwork(Create.REDSTONE_LINK_NETWORK.getNetwork(this.entity));
 	}
 
 	@Override
 	public void tick() {
-		if (entity == null) return;
-		if (entity.isRemoved()) {
-			Entity.RemovalReason reason = entity.getRemovalReason();
+		if (this.entity == null) return;
+		if (this.entity.isRemoved()) {
+			final Entity.RemovalReason reason = this.entity.getRemovalReason();
 			assert reason != null;
 
 			if (reason.shouldDestroy() || reason == Entity.RemovalReason.CHANGED_DIMENSION) {
 				if (reason == Entity.RemovalReason.CHANGED_DIMENSION) {
-					setNetwork(Create.REDSTONE_LINK_NETWORK.getNetwork(entity));
+					this.setNetwork(Create.REDSTONE_LINK_NETWORK.getNetwork(this.entity));
 				}else {
 					this.network.removeLinkable(this);
 					this.network = null;
 				}
 			}
 		} else {
-			Vector3fc pos = entity.position().toVector3f();
+			final Vector3fc pos = this.entity.position().toVector3f();
 			if (pos.distanceSquared(this.cachedPosition) > 0.5 * 0.5) {
-				RedstoneLinkableSnapshot snapshot = RedstoneLinkableSnapshot.of(this);
+				final RedstoneLinkableSnapshot snapshot = RedstoneLinkableSnapshot.of(this);
 				this.cachedPosition = pos;
 				this.network.linkMoved(this, snapshot);
 			}
@@ -78,8 +80,8 @@ public abstract class RedstoneEntityLinkable extends RedstoneLinkable implements
 	}
 
 	@Override
-	public void writeAdditional(CompoundTag nbt, HolderLookup.Provider registries, DimensionPalette dimensions) {
-		nbt.putUUID("uuid", entity.getUUID());
+	public void writeAdditional(@NonNull final CompoundTag nbt, final HolderLookup.@NonNull Provider registries, @NonNull final DimensionPalette dimensions) {
+		nbt.putUUID("uuid", this.entity.getUUID());
 		final ListTag tag = new ListTag();
 		tag.add(FloatTag.valueOf(this.cachedPosition.x()));
 		tag.add(FloatTag.valueOf(this.cachedPosition.y()));
@@ -87,13 +89,13 @@ public abstract class RedstoneEntityLinkable extends RedstoneLinkable implements
 		nbt.put("position", tag);
 	}
 
-	public RedstoneEntityLinkable(final CompoundTag nbt, final Couple<Frequency> channel, final boolean receiver, final HolderLookup.Provider registries, final DimensionPalette dimensions, final RedstoneLinkNetwork network) {
+	protected RedstoneEntityLinkable(final CompoundTag nbt, final Couple<Frequency> channel, final boolean receiver, final HolderLookup.Provider registries, final DimensionPalette dimensions, final RedstoneLinkNetwork network) {
 		super(nbt, channel, receiver, registries, dimensions, network);
 	}
 
-	public RedstoneEntityLinkable(Couple<Frequency> channel, Entity entity) {
+	protected RedstoneEntityLinkable(final Couple<Frequency> channel, final Entity entity) {
 		super(channel);
-		setEntity(entity);
-		setNetwork(Create.REDSTONE_LINK_NETWORK.getNetwork(entity));
+		this.setEntity(entity);
+		this.setNetwork(Create.REDSTONE_LINK_NETWORK.getNetwork(entity));
 	}
 }

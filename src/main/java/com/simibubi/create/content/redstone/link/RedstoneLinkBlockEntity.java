@@ -44,7 +44,7 @@ public class RedstoneLinkBlockEntity extends SmartBlockEntity implements IHaveGo
 	@Override
 	public void remove() {
 		if (this.level.isClientSide) return;
-		this.linkable.onDestroy();
+		this.linkable.destroy();
 	}
 
 	@Override

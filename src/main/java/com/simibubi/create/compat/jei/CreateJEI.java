@@ -63,6 +63,7 @@ import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScree
 import com.simibubi.create.content.processing.basin.BasinRecipe;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
 import com.simibubi.create.content.redstone.link.RedstoneLinkScreen;
+import com.simibubi.create.content.redstone.link.controller.LinkedControllerScreen;
 import com.simibubi.create.content.trains.schedule.ScheduleScreen;
 import com.simibubi.create.foundation.data.recipe.LogStrippingFakeRecipes;
 import com.simibubi.create.foundation.gui.menu.AbstractSimiContainerScreen;
@@ -404,7 +405,7 @@ public class CreateJEI implements IModPlugin {
 
 		registration.addGhostIngredientHandler(AbstractFilterScreen.class, new GhostIngredientHandler());
 		registration.addGhostIngredientHandler(BlueprintScreen.class, new GhostIngredientHandler());
-		//registration.addGhostIngredientHandler(LinkedControllerScreen.class, new GhostIngredientHandler());
+		registration.addGhostIngredientHandler(LinkedControllerScreen.class, new GhostIngredientHandler());
 		registration.addGhostIngredientHandler(RedstoneLinkScreen.class, new GhostIngredientHandler());
 		registration.addGhostIngredientHandler(ScheduleScreen.class, new GhostIngredientHandler());
 		registration.addGhostIngredientHandler(RedstoneRequesterScreen.class, new GhostIngredientHandler());

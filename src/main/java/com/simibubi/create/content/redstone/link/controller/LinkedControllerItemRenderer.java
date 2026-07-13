@@ -40,7 +40,7 @@ public class LinkedControllerItemRenderer  extends CustomRenderedItemModelRender
 	static void tick() {
 		if (Minecraft.getInstance().isPaused()) return;
 
-		final boolean active = LinkedControllerClientHandler.MODE != LinkedControllerClientHandler.Mode.IDLE;
+		final boolean active = LinkedControllerClientHandler.MODE != Mode.IDLE;
 		LinkedControllerItemRenderer.equipProgress.chase(active ? 1 : 0, 0.2f, LerpedFloat.Chaser.EXP);
 		LinkedControllerItemRenderer.equipProgress.tickChaser();
 
@@ -101,7 +101,7 @@ public class LinkedControllerItemRenderer  extends CustomRenderedItemModelRender
 				if (stack == mc.player.getOffhandItem() && noControllerInMain) active = true;
 			}
 
-			active &= LinkedControllerClientHandler.MODE != LinkedControllerClientHandler.Mode.IDLE;
+			active &= LinkedControllerClientHandler.MODE != Mode.IDLE;
 
 			renderDepression = true;
 		}
@@ -119,7 +119,7 @@ public class LinkedControllerItemRenderer  extends CustomRenderedItemModelRender
 		int index = 0;
 
 		if (renderType == LinkedControllerItemRenderer.RenderType.NORMAL) {
-			if (LinkedControllerClientHandler.MODE == LinkedControllerClientHandler.Mode.BIND) {
+			if (LinkedControllerClientHandler.MODE == Mode.BIND) {
 				final int i = (int) Mth.lerp((Mth.sin(AnimationTickHolder.getRenderTime() / 4.0f) + 1) / 2, 5, 15);
 				light = i << 20;
 			}

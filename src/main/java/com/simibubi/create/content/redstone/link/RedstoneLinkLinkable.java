@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.jspecify.annotations.NonNull;
 
 public class RedstoneLinkLinkable extends RedstoneLinkable {
 
@@ -24,13 +25,13 @@ public class RedstoneLinkLinkable extends RedstoneLinkable {
 	private Vector3fc cachedPosition;
 
 	@Override
-	public void readAdditional(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions) {
+	public void readAdditional(final @NonNull CompoundTag nbt, final HolderLookup.@NonNull Provider registries, final @NonNull DimensionPalette dimensions) {
 		final ListTag tag = nbt.getList("position", Tag.TAG_COMPOUND);
 		this.cachedPosition = new Vector3f(tag.getFloat(0), tag.getFloat(1), tag.getFloat(2));
 	}
 
 	@Override
-	public void writeAdditional(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions) {
+	public void writeAdditional(final @NonNull CompoundTag nbt, final HolderLookup.@NonNull Provider registries, final @NonNull DimensionPalette dimensions) {
 		final ListTag tag = new ListTag();
 		tag.add(FloatTag.valueOf(this.cachedPosition.x()));
 		tag.add(FloatTag.valueOf(this.cachedPosition.y()));
@@ -48,7 +49,7 @@ public class RedstoneLinkLinkable extends RedstoneLinkable {
 	}
 
 	@Override
-	protected boolean shouldSetFrequency(final boolean first, final Frequency frequency) {
+	protected boolean shouldSetFrequency(final boolean first, final @NonNull Frequency frequency) {
 		return true;
 	}
 
@@ -71,7 +72,7 @@ public class RedstoneLinkLinkable extends RedstoneLinkable {
 	}
 
 	@Override
-	protected void onModeChanged(final RedstoneLinkableSnapshot snapshot) {
+	protected void onModeChanged(final @NonNull RedstoneLinkableSnapshot snapshot) {
 		this.withBeDo(redstoneLinkBlockEntity -> {
 			AllBlocks.REDSTONE_LINK.get().updateFromLinkable(redstoneLinkBlockEntity.getLevel(), redstoneLinkBlockEntity.getBlockPos());
 		});

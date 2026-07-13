@@ -229,7 +229,7 @@ import com.simibubi.create.content.redstone.diodes.ToggleLatchGenerator;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlock;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlockItem;
 import com.simibubi.create.content.redstone.link.RedstoneLinkBlock;
-import com.simibubi.create.content.redstone.link.dummy.controller.LecternControllerBlock;
+import com.simibubi.create.content.redstone.link.controller.LecternControllerBlock;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlock;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeGenerator;
 import com.simibubi.create.content.redstone.rail.ControllerRailBlock;

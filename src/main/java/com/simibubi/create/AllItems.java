@@ -54,6 +54,7 @@ import com.simibubi.create.foundation.data.AssetLookup;
 import com.simibubi.create.foundation.data.BuilderTransformers;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.recipe.CommonMetal;
+import com.simibubi.create.foundation.item.DyedItemList;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.TagDependentIngredientItem;
 
@@ -66,6 +67,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorItem.Type;
 import net.minecraft.world.item.ArmorMaterials;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SwordItem;
@@ -195,11 +197,63 @@ public class AllItems {
 
 	// Curiosities
 
-	public static final ItemEntry<LinkedControllerItem> LINKED_CONTROLLER =
-		REGISTRATE.item("linked_controller", LinkedControllerItem::new)
+	public static final ItemEntry<LinkedControllerItem> BROWN_LINKED_CONTROLLER =
+		REGISTRATE.item("linked_controller", p -> new LinkedControllerItem(p, DyeColor.BROWN))
 			.properties(p -> p.stacksTo(1))
 			.model(AssetLookup.itemModelWithPartials())
 			.register();
+
+	public static final DyedItemList<LinkedControllerItem> LINKED_CONTROLLERS = new DyedItemList<>(colour -> {
+		if (colour == DyeColor.BROWN)
+			return BROWN_LINKED_CONTROLLER;
+
+		String colourName = colour.getSerializedName();
+
+		return REGISTRATE.item(colourName + "_linked_controller", p -> new LinkedControllerItem(p, colour))
+			.properties(p -> p.stacksTo(1))
+			.model(AssetLookup.itemModelWithPartials())
+			.register();
+
+		//return REGISTRATE.block(colourName + "_postbox", p -> new PostboxBlock(p, colour))
+		//	.initialProperties(SharedProperties::wooden)
+		//	.properties(p -> p.mapColor(colour))
+		//	.transform(axeOnly())
+		//	.blockstate((c, p) -> {
+		//		p.horizontalBlock(c.get(), s -> {
+		//			String suffix = s.getValue(PostboxBlock.OPEN) ? "open" : "closed";
+		//			return p.models()
+		//				.withExistingParent(colourName + "_postbox_" + suffix,
+		//					p.modLoc("block/package_postbox/block_" + suffix))
+		//				.texture("0", p.modLoc("block/post_box/post_box_" + colourName))
+		//				.texture("1", p.modLoc("block/post_box/post_box_" + colourName + "_" + suffix));
+		//		});
+		//	})
+		//	.tag(AllTags.AllBlockTags.POSTBOXES.tag)
+		//	.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "block.create.package_postbox"))
+		//	.item(PackagePortItem::new)
+		//	.recipe((c, p) -> {
+		//		ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, c.get())
+		//			.define('D', colour.getTag())
+		//			.define('B', net.minecraft.world.item.Items.BARREL)
+		//			.define('A', AllItems.ANDESITE_ALLOY)
+		//			.pattern("D")
+		//			.pattern("B")
+		//			.pattern("A")
+		//			.unlockedBy("has_barrel", RegistrateRecipeProvider.has(net.minecraft.world.item.Items.BARREL))
+		//			.save(p, Create.asResource("crafting/logistics/" + c.getName()));
+		//		ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get())
+		//			.requires(colour.getTag())
+		//			.requires(AllItemTags.POSTBOXES.tag)
+		//			.unlockedBy("has_postbox", RegistrateRecipeProvider.has(AllItemTags.POSTBOXES.tag))
+		//			.save(p, Create.asResource("crafting/logistics/" + c.getName() + "_from_other_postbox"));
+		//	})
+		//	.model((c, p) -> p.withExistingParent(colourName + "_postbox", p.modLoc("block/package_postbox/item"))
+		//		.texture("0", p.modLoc("block/post_box/post_box_" + colourName))
+		//		.texture("1", p.modLoc("block/post_box/post_box_" + colourName + "_closed")))
+		//	.tag(AllItemTags.POSTBOXES.tag)
+		//	.build()
+		//	.register();
+	});
 
 	public static final ItemEntry<PotatoCannonItem> POTATO_CANNON = REGISTRATE.item("potato_cannon", PotatoCannonItem::new).properties(p -> p.durability(100)).model(AssetLookup.itemModelWithPartials()).tag(Tags.Items.ENCHANTABLES, ItemTags.DURABILITY_ENCHANTABLE, ItemTags.BOW_ENCHANTABLE).register();
 

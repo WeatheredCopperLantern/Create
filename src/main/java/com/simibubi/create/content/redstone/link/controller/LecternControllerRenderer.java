@@ -28,7 +28,7 @@ public class LecternControllerRenderer extends SafeBlockEntityRenderer<LecternCo
 	protected void renderSafe(final LecternControllerBlockEntity be, final float partialTicks, final PoseStack ms, final MultiBufferSource buffer, final int light, final int overlay) {
 		assert Minecraft.getInstance().player != null;
 		
-		final ItemStack stack = AllItems.LINKED_CONTROLLER.asStack();
+		final ItemStack stack = AllItems.BROWN_LINKED_CONTROLLER.asStack();
 		final ItemDisplayContext transformType = ItemDisplayContext.NONE;
 		final CustomRenderedItemModel mainModel = (CustomRenderedItemModel) Minecraft.getInstance().getItemRenderer().getModel(stack, be.getLevel(), null, 0);
 		final PartialItemModelRenderer renderer = PartialItemModelRenderer.of(stack, transformType, ms, buffer, overlay);

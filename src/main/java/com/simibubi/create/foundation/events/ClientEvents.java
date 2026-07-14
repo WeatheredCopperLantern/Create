@@ -47,7 +47,6 @@ import com.simibubi.create.content.logistics.packagerLink.LogisticallyLinkedClie
 import com.simibubi.create.content.logistics.tableCloth.TableClothOverlayRenderer;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
 import com.simibubi.create.content.redstone.displayLink.ClickToLinkBlockItem;
-import com.simibubi.create.content.redstone.link.controller.LinkedControllerClientHandler;
 import com.simibubi.create.content.redstone.link.controller.LinkedControllerItemRenderer;
 import com.simibubi.create.content.trains.CameraDistanceModifier;
 import com.simibubi.create.content.trains.TrainHUD;
@@ -84,7 +83,6 @@ import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -114,7 +112,6 @@ import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage;
 import net.neoforged.neoforge.client.event.ViewportEvent;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -141,7 +138,7 @@ public class ClientEvents {
 
 		Level world = Minecraft.getInstance().level;
 		if (isPreEvent) {
-			LinkedControllerClientHandler.tick();
+			CreateClient.LINKED_CONTROLLER_HANDLER.tick();
 			ControlsHandler.tick();
 			AirCurrent.Client.tickClientPlayerSounds();
 			return;
@@ -369,7 +366,7 @@ public class ClientEvents {
 
 	@SubscribeEvent
 	public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
-		event.registerItem(SimpleCustomRenderer.create(AllItems.LINKED_CONTROLLER.asItem(), new LinkedControllerItemRenderer()), AllItems.LINKED_CONTROLLER.asItem());
+		event.registerItem(SimpleCustomRenderer.create(AllItems.BROWN_LINKED_CONTROLLER.asItem(), new LinkedControllerItemRenderer()), AllItems.BROWN_LINKED_CONTROLLER.asItem());
 	}
 
 	@SubscribeEvent

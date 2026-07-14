@@ -18,7 +18,7 @@ public abstract class LinkedControllerPacketBase implements ServerboundPacketPay
 		ItemStack controller = null;
 		if (pos == null) {
 			controller = player.getMainHandItem();
-			if (!AllItems.LINKED_CONTROLLER.isIn(controller)) {
+			if (!AllItems.BROWN_LINKED_CONTROLLER.isIn(controller)) {
 				return player.getOffhandItem();
 			}
 		} else {

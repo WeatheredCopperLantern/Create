@@ -28,38 +28,33 @@ import org.lwjgl.glfw.GLFW;
 
 public class LinkedControllerClientHandler {
 
-	public static Mode MODE = Mode.IDLE;
+	//region Fields
 	public static final int PACKET_RATE = 10;
-	public static BitSet currentlyPressed = new BitSet(6);
-	private static @Nullable BlockPos lecternPos;
-	private static BlockPos selectedLocation = BlockPos.ZERO;
-	private static int packetCooldown = LinkedControllerClientHandler.PACKET_RATE;
 
-	public static void activateInLectern(final BlockPos worldPosition) {
-		if (LinkedControllerClientHandler.MODE == Mode.IDLE) {
-			LinkedControllerClientHandler.MODE = Mode.ACTIVE;
-			LinkedControllerClientHandler.lecternPos = worldPosition;
-		}
-	}
+	public Mode mode = Mode.IDLE;
+	public BitSet currentlyPressed = new BitSet(6);
+	private @Nullable BlockPos lecternPos;
+	private @Nullable BlockPos selectedLocation;
+	private int packetCooldown = this.PACKET_RATE;
+	//endregion
 
-	public static void tick() {
+	public void tick() {
 		LinkedControllerItemRenderer.tick();
 
-		if (LinkedControllerClientHandler.MODE == Mode.IDLE) return;
-		if (LinkedControllerClientHandler.packetCooldown > 0) LinkedControllerClientHandler.packetCooldown--;
+		if (this.mode == Mode.IDLE) return;
+		if (this.packetCooldown > 0) this.packetCooldown--;
 
 		final Minecraft mc = Minecraft.getInstance();
 		final LocalPlayer player = mc.player;
 		assert player != null;
 
-		if (LinkedControllerClientHandler.shouldReset(player, mc)) {
-			LinkedControllerClientHandler.MODE = Mode.IDLE;
-			LinkedControllerClientHandler.onReset();
+		if (this.shouldReset(player, mc)) {
+			this.reset();
 			return;
 		}
 
-		if (LinkedControllerClientHandler.inLectern() && AllBlocks.LECTERN_CONTROLLER.get().getBlockEntityOptional(mc.level, LinkedControllerClientHandler.lecternPos).map(be -> !be.isUsedBy(mc.player)).orElse(true)) {
-			LinkedControllerClientHandler.deactivateInLectern();
+		if (this.inLectern() && AllBlocks.LECTERN_CONTROLLER.get().getBlockEntityOptional(mc.level, this.lecternPos).map(be -> !be.isUsedBy(mc.player)).orElse(true)) {
+			this.deactivateInLectern();
 			return;
 		}
 
@@ -72,93 +67,91 @@ public class LinkedControllerClientHandler {
 			}
 		}
 
-		final boolean changed = pressedKeys.hashCode() != LinkedControllerClientHandler.currentlyPressed.hashCode();
+		final boolean changed = pressedKeys.hashCode() != this.currentlyPressed.hashCode();
+		this.currentlyPressed = pressedKeys;
 
-		if (LinkedControllerClientHandler.MODE == Mode.ACTIVE) {
-			if (changed) {
-				CatnipServices.NETWORK.sendToServer(new LinkedControllerInputPacket(pressedKeys, LinkedControllerClientHandler.lecternPos));
-				LinkedControllerClientHandler.packetCooldown = LinkedControllerClientHandler.PACKET_RATE;
-				AllSoundEvents.CONTROLLER_CLICK.playAt(player.level(), player.blockPosition(), 1.0f, 0.5f, true);
-			} else if (LinkedControllerClientHandler.packetCooldown == 0 && !pressedKeys.isEmpty()) {
-				CatnipServices.NETWORK.sendToServer(new LinkedControllerInputPacket(pressedKeys, LinkedControllerClientHandler.lecternPos));
-				LinkedControllerClientHandler.packetCooldown = LinkedControllerClientHandler.PACKET_RATE;
-			}
-		}
-
-		if (LinkedControllerClientHandler.MODE == Mode.BIND) {
+		if (this.mode == Mode.BIND && this.selectedLocation != null) {
 			assert mc.level != null;
-			final VoxelShape shape = mc.level.getBlockState(LinkedControllerClientHandler.selectedLocation).getShape(mc.level, LinkedControllerClientHandler.selectedLocation);
+			final VoxelShape shape = mc.level.getBlockState(this.selectedLocation).getShape(mc.level, this.selectedLocation);
 			if (!shape.isEmpty()) {
-				Outliner.getInstance().showAABB("controller", shape.bounds().move(LinkedControllerClientHandler.selectedLocation)).colored(0xB73C2D).lineWidth(1 / 16.0f);
+				Outliner.getInstance().showAABB("controller", shape.bounds().move(this.selectedLocation)).colored(0xB73C2D).lineWidth(1 / 16.0f);
 			}
-
 			if (changed) {
 				final int set = pressedKeys.nextSetBit(0);
 				if (set > -1) {
-					final BlockEntity be = mc.level.getBlockEntity(LinkedControllerClientHandler.selectedLocation);
+					final BlockEntity be = mc.level.getBlockEntity(this.selectedLocation);
 					if (be instanceof ILinkableBlockEntity) {
-						CatnipServices.NETWORK.sendToServer(new LinkedControllerCopyChannelPacket(set, LinkedControllerClientHandler.selectedLocation));
+						CatnipServices.NETWORK.sendToServer(new LinkedControllerCopyChannelPacket(set, this.selectedLocation));
 						CreateLang.translate("linked_controller.key_bound", controls.get(set).getTranslatedKeyMessage().getString()).sendStatus(mc.player);
 					}
-					LinkedControllerClientHandler.MODE = Mode.IDLE;
+					this.mode = Mode.IDLE;
 				}
+			}
+		} else if (this.mode == Mode.ACTIVE && (changed || (this.packetCooldown <= 0 && !pressedKeys.isEmpty()))) {
+			CatnipServices.NETWORK.sendToServer(new LinkedControllerInputPacket(pressedKeys, this.lecternPos));
+			this.packetCooldown = this.PACKET_RATE;
+			if (changed) {
+				AllSoundEvents.CONTROLLER_CLICK.playAt(player.level(), player.blockPosition(), 1.0f, 0.5f, true);
+				LinkedControllerItemRenderer.refreshButtons();
 			}
 		}
 
-		LinkedControllerClientHandler.currentlyPressed = pressedKeys;
 		controls.forEach(kb -> kb.setDown(false));
 	}
 
-	private static boolean shouldReset(final LocalPlayer player, final Minecraft mc) {
-		return (player.isSpectator() || mc.screen != null || InputConstants.isKeyDown(mc.getWindow().getWindow(), GLFW.GLFW_KEY_ESCAPE) || (!LinkedControllerClientHandler.inLectern() && !AllItems.LINKED_CONTROLLER.isIn(player.getMainHandItem()) && !AllItems.LINKED_CONTROLLER.isIn(player.getOffhandItem())));
+	public void activateInLectern(final BlockPos worldPosition) {
+		this.mode = Mode.ACTIVE;
+		this.lecternPos = worldPosition;
 	}
 
-	public static void deactivateInLectern() {
-		if (LinkedControllerClientHandler.MODE == Mode.ACTIVE && LinkedControllerClientHandler.inLectern()) {
-			LinkedControllerClientHandler.MODE = Mode.IDLE;
-			LinkedControllerClientHandler.onReset();
+	public void deactivateInLectern() {
+		if (this.mode == Mode.ACTIVE && this.inLectern()) {
+			this.reset();
 		}
 	}
 
-	public static void toggleBindMode(final BlockPos pos) {
-		if (LinkedControllerClientHandler.MODE == Mode.IDLE) {
-			LinkedControllerClientHandler.MODE = Mode.BIND;
-			LinkedControllerClientHandler.selectedLocation = pos;
-		} else {
-			LinkedControllerClientHandler.MODE = Mode.IDLE;
-			LinkedControllerClientHandler.onReset();
-		}
+	public boolean inLectern() {
+		return this.lecternPos != null;
 	}
 
-	public static void toggle() {
-		if (LinkedControllerClientHandler.MODE == Mode.IDLE) {
-			LinkedControllerClientHandler.MODE = Mode.ACTIVE;
-			LinkedControllerClientHandler.lecternPos = null;
-		} else {
-			LinkedControllerClientHandler.MODE = Mode.IDLE;
-			LinkedControllerClientHandler.onReset();
-		}
-	}
-
-	public static boolean inLectern() {
-		return LinkedControllerClientHandler.lecternPos != null;
-	}
-
-	protected static void onReset() {
+	protected void reset() {
 		ControlsUtil.getControls().forEach(kb -> kb.setDown(ControlsUtil.isActuallyPressed(kb)));
-		LinkedControllerClientHandler.packetCooldown = 0;
-		LinkedControllerClientHandler.selectedLocation = BlockPos.ZERO;
+		this.packetCooldown = 0;
+		this.selectedLocation = null;
+		this.mode = Mode.IDLE;
 
-		if (LinkedControllerClientHandler.inLectern()) {
-			CatnipServices.NETWORK.sendToServer(new LinkedControllerStopLecternPacket(LinkedControllerClientHandler.lecternPos));
+		if (this.inLectern()) {
+			CatnipServices.NETWORK.sendToServer(new LinkedControllerStopLecternPacket(this.lecternPos));
 		}
-		LinkedControllerClientHandler.lecternPos = null;
+		this.lecternPos = null;
 
-		if (!LinkedControllerClientHandler.currentlyPressed.isEmpty()) {
+		if (!this.currentlyPressed.isEmpty()) {
 			CatnipServices.NETWORK.sendToServer(new LinkedControllerInputPacket(new BitSet(6), null));
 		}
-		LinkedControllerClientHandler.currentlyPressed.clear();
+		this.currentlyPressed.clear();
 
 		LinkedControllerItemRenderer.resetButtons();
+	}
+
+	private boolean shouldReset(final LocalPlayer player, final Minecraft mc) {
+		return (player.isSpectator() || mc.screen != null || InputConstants.isKeyDown(mc.getWindow().getWindow(), GLFW.GLFW_KEY_ESCAPE) || (!this.inLectern() && !AllItems.BROWN_LINKED_CONTROLLER.isIn(player.getMainHandItem()) && !AllItems.BROWN_LINKED_CONTROLLER.isIn(player.getOffhandItem())));
+	}
+
+	public void toggle() {
+		if (this.mode == Mode.IDLE) {
+			this.mode = Mode.ACTIVE;
+			this.lecternPos = null;
+		} else {
+			this.reset();
+		}
+	}
+
+	public void toggleBindMode(final BlockPos pos) {
+		if (this.mode == Mode.IDLE) {
+			this.mode = Mode.BIND;
+			this.selectedLocation = pos;
+		} else {
+			this.reset();
+		}
 	}
 }

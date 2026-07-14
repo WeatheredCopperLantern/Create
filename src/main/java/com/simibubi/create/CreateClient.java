@@ -15,6 +15,7 @@ import com.simibubi.create.content.equipment.zapper.ZapperRenderHandler;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import com.simibubi.create.content.kinetics.simpleRelays.CogWheelBlock;
 import com.simibubi.create.content.kinetics.waterwheel.WaterWheelRenderer;
+import com.simibubi.create.content.redstone.link.controller.LinkedControllerClientHandler;
 import com.simibubi.create.content.schematics.client.ClientSchematicLoader;
 import com.simibubi.create.content.schematics.client.SchematicAndQuillHandler;
 import com.simibubi.create.content.schematics.client.SchematicHandler;
@@ -58,6 +59,7 @@ public class CreateClient {
 	public static final SchematicHandler SCHEMATIC_HANDLER = new SchematicHandler();
 	public static final SchematicAndQuillHandler SCHEMATIC_AND_QUILL_HANDLER = new SchematicAndQuillHandler();
 	public static final SuperGlueSelectionHandler GLUE_HANDLER = new SuperGlueSelectionHandler();
+	public static final LinkedControllerClientHandler LINKED_CONTROLLER_HANDLER = new LinkedControllerClientHandler();
 
 	public static final ZapperRenderHandler ZAPPER_RENDER_HANDLER = new ZapperRenderHandler();
 	public static final PotatoCannonRenderHandler POTATO_CANNON_RENDER_HANDLER = new PotatoCannonRenderHandler();

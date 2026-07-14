@@ -14,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -56,7 +57,7 @@ public class LecternControllerBlock extends LecternBlock implements IBE<LecternC
 	public ItemRequirement getRequiredItems(final BlockState state, final @Nullable BlockEntity blockEntity) {
 		final ArrayList<ItemStack> requiredItems = new ArrayList<>(2);
 		requiredItems.add(new ItemStack(Blocks.LECTERN));
-		requiredItems.add(new ItemStack(AllItems.LINKED_CONTROLLER.get()));
+		requiredItems.add(new ItemStack(AllItems.LINKED_CONTROLLERS.get(DyeColor.BLACK).get()));
 		return new ItemRequirement(ItemRequirement.ItemUseType.CONSUME, requiredItems);
 	}
 

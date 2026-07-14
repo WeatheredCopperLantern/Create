@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllSoundEvents;
+import com.simibubi.create.CreateClient;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.createmod.catnip.codecs.CatnipCodecUtils;
@@ -60,7 +61,7 @@ public class LecternControllerBlockEntity extends SmartBlockEntity {
 	}
 
 	private ItemStack createLinkedController() {
-		final ItemStack stack = AllItems.LINKED_CONTROLLER.asStack();
+		final ItemStack stack = AllItems.BROWN_LINKED_CONTROLLER.asStack();
 		stack.set(AllDataComponents.LINKED_CONTROLLER_ITEMS, this.controllerData);
 		return stack;
 	}
@@ -146,9 +147,9 @@ public class LecternControllerBlockEntity extends SmartBlockEntity {
 		this.user = compound.hasUUID("User") ? compound.getUUID("User") : null;
 
 		if (!wasUser && this.user != null && this.user.equals(Minecraft.getInstance().getUser().getProfileId())) {
-			LinkedControllerClientHandler.activateInLectern(this.worldPosition);
+			CreateClient.LINKED_CONTROLLER_HANDLER.activateInLectern(this.worldPosition);
 		} else if (wasUser && !Minecraft.getInstance().getUser().getProfileId().equals(this.user)) {
-			LinkedControllerClientHandler.deactivateInLectern();
+			CreateClient.LINKED_CONTROLLER_HANDLER.deactivateInLectern();
 		}
 	}
 

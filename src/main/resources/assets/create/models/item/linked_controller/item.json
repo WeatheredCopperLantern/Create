@@ -3,8 +3,8 @@
 	"parent": "block/block",
 	"textures": {
 		"redstone_antenna": "create:block/redstone_antenna",
-		"particle": "create:item/linked_controller",
-		"redstone_bridge": "create:item/linked_controller"
+		"particle": "create:item/linked_controller/brown",
+		"redstone_bridge": "create:item/linked_controller/brown"
 	},
 	"elements": [
 		{

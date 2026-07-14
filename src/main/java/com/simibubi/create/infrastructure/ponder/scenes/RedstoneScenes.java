@@ -13,6 +13,8 @@ import com.simibubi.create.content.redstone.diodes.PoweredLatchBlock;
 import com.simibubi.create.content.redstone.diodes.PulseExtenderBlockEntity;
 import com.simibubi.create.content.redstone.diodes.PulseRepeaterBlockEntity;
 import com.simibubi.create.content.redstone.diodes.ToggleLatchBlock;
+import com.simibubi.create.content.redstone.link.RedstoneLinkBlock;
+import com.simibubi.create.content.redstone.link.RedstoneLinkBlockEntity;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlock;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
@@ -36,6 +38,8 @@ import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import net.neoforged.fml.loading.FMLConfig;
 
 public class RedstoneScenes {
 
@@ -678,159 +682,168 @@ public class RedstoneScenes {
 	}
 
 	public static void redstoneLink(SceneBuilder scene, SceneBuildingUtil util) {
-		//scene.title("redstone_link", "Using Redstone Links");
-		//scene.configureBasePlate(0, 0, 5);
-		//scene.world().showSection(util.select().layer(0)
-		//	.add(util.select().fromTo(3, 1, 1, 2, 1, 1)), Direction.UP);
-		//scene.idle(5);
-		//scene.world().showSection(util.select().fromTo(4, 1, 3, 0, 2, 3), Direction.DOWN);
-		//scene.idle(10);
-//
-		//Selection redstone = util.select().fromTo(3, 1, 1, 1, 1, 1);
-		//BlockPos leverPos = util.grid().at(3, 1, 1);
-		//BlockPos link1Pos = util.grid().at(1, 1, 1);
-		//BlockPos link2Pos = util.grid().at(1, 2, 2);
-		//BlockPos link3Pos = util.grid().at(3, 2, 2);
-		//Selection link1Select = util.select().position(link1Pos);
-		//Selection link2Select = util.select().position(link2Pos);
-		//Selection link3Select = util.select().position(link3Pos);
-		//Vec3 link1Vec = util.vector().blockSurface(link1Pos, Direction.DOWN)
-		//	.add(0, 3 / 16f, 0);
-		//Vec3 link2Vec = util.vector().blockSurface(link2Pos, Direction.SOUTH)
-		//	.add(0, 0, -3 / 16f);
-		//Vec3 link3Vec = util.vector().blockSurface(link3Pos, Direction.SOUTH)
-		//	.add(0, 0, -3 / 16f);
-//
-		//scene.world().showSection(link1Select, Direction.DOWN);
-		//scene.idle(5);
-		//scene.world().showSection(link2Select, Direction.DOWN);
-		//scene.idle(5);
-		//scene.world().showSection(link3Select, Direction.DOWN);
-		//scene.idle(10);
-//
-		//scene.overlay().showText(50)
-		//	.attachKeyFrame()
-		//	.text("Redstone Links can transmit redstone signals wirelessly")
-		//	.placeNearTarget()
-		//	.pointAt(link1Vec);
-		//scene.idle(60);
-//
-		//scene.overlay().showControls(link2Vec, Pointing.UP, 40).rightClick()
-		//	.whileSneaking();
-		//scene.idle(7);
-		//scene.world().modifyBlock(link2Pos, s -> s.cycle(RedstoneLinkBlock.RECEIVER), true);
-		//scene.idle(10);
-		//scene.overlay().showText(50)
-		//	.text("Right-click while Sneaking to toggle receive mode")
-		//	.placeNearTarget()
-		//	.pointAt(link2Vec);
-		//scene.idle(60);
-//
-		//scene.overlay().showControls(link3Vec, Pointing.UP, 40).rightClick()
-		//	.withItem(AllItems.WRENCH.asStack());
-		//scene.idle(7);
-		//scene.world().modifyBlock(link3Pos, s -> s.cycle(RedstoneLinkBlock.RECEIVER), true);
-		//scene.idle(10);
-		//scene.overlay().showText(50)
-		//	.text("A simple Right-click with a Wrench can do the same")
-		//	.placeNearTarget()
-		//	.pointAt(link3Vec);
-		//scene.idle(70);
-//
-		//scene.addKeyframe();
-		//scene.idle(10);
-		//scene.world().toggleRedstonePower(redstone);
-		//scene.effects().indicateRedstone(leverPos);
-		//scene.idle(5);
-		//scene.world().toggleRedstonePower(util.select().fromTo(3, 2, 3, 1, 2, 2));
-		//scene.effects().indicateRedstone(link2Pos);
-		//scene.effects().indicateRedstone(link3Pos);
-//
-		//scene.idle(10);
-//
-		//scene.overlay().showText(70)
-		//	.colored(PonderPalette.GREEN)
-		//	.text("Receivers emit the redstone power of transmitters within %1$s blocks", AllConfigs.server().logistics.linkRange.get())
-		//	.placeNearTarget()
-		//	.pointAt(link2Vec);
-		//scene.idle(80);
-		//scene.world().toggleRedstonePower(redstone);
-		//scene.idle(5);
-		//scene.world().toggleRedstonePower(util.select().fromTo(3, 2, 3, 1, 2, 2));
-		//scene.idle(20);
-//
-		//Vec3 frontSlot = link1Vec.add(0, .025, -.15);
-		//Vec3 backSlot = link1Vec.add(0, .025, .15);
-		//Vec3 top2Slot = link2Vec.add(0, .15, 0);
-		//Vec3 bottom2Slot = link2Vec.add(0, -.2, 0);
-		//Vec3 top3Slot = link3Vec.add(0, .15, 0);
-		//Vec3 bottom3Slot = link3Vec.add(0, -.2, 0);
-//
-		//scene.addKeyframe();
-		//scene.idle(10);
-		//scene.overlay().showFilterSlotInput(frontSlot, Direction.UP, 100);
-		//scene.overlay().showFilterSlotInput(backSlot, Direction.UP, 100);
-		//scene.idle(10);
-//
-		//scene.overlay().showText(50)
-		//	.text("Placing items in the two slots can specify a Frequency")
-		//	.placeNearTarget()
-		//	.pointAt(backSlot);
-		//scene.idle(60);
-//
-		//ItemStack iron = new ItemStack(Items.IRON_INGOT);
-		//ItemStack gold = new ItemStack(Items.GOLD_INGOT);
-		//ItemStack sapling = new ItemStack(Items.OAK_SAPLING);
-//
-		//scene.overlay().showControls(frontSlot, Pointing.UP, 30).withItem(iron);
-		//scene.idle(7);
-		//scene.overlay().showControls(backSlot, Pointing.DOWN, 30).withItem(sapling);
-		//scene.world().modifyBlockEntityNBT(link1Select, RedstoneLinkBlockEntity.class,
-		//	nbt -> nbt.put("FrequencyLast", iron.saveOptional(scene.world().getHolderLookupProvider())));
-		//scene.idle(7);
-		//scene.world().modifyBlockEntityNBT(link1Select, RedstoneLinkBlockEntity.class,
-		//	nbt -> nbt.put("FrequencyFirst", sapling.saveOptional(scene.world().getHolderLookupProvider())));
-		//scene.idle(20);
-//
-		//scene.overlay().showControls(bottom2Slot, Pointing.UP, 30).withItem(iron);
-		//scene.idle(7);
-		//scene.overlay().showControls(top2Slot, Pointing.DOWN, 30).withItem(sapling);
-		//scene.world().modifyBlockEntityNBT(link2Select, RedstoneLinkBlockEntity.class,
-		//	nbt -> nbt.put("FrequencyLast", iron.saveOptional(scene.world().getHolderLookupProvider())));
-		//scene.idle(7);
-		//scene.world().modifyBlockEntityNBT(link2Select, RedstoneLinkBlockEntity.class,
-		//	nbt -> nbt.put("FrequencyFirst", sapling.saveOptional(scene.world().getHolderLookupProvider())));
-		//scene.idle(20);
-//
-		//scene.overlay().showControls(bottom3Slot, Pointing.UP, 30).withItem(gold);
-		//scene.idle(7);
-		//scene.overlay().showControls(top3Slot, Pointing.DOWN, 30).withItem(sapling);
-		//scene.world().modifyBlockEntityNBT(link3Select, RedstoneLinkBlockEntity.class,
-		//	nbt -> nbt.put("FrequencyLast", gold.saveOptional(scene.world().getHolderLookupProvider())));
-		//scene.idle(7);
-		//scene.world().modifyBlockEntityNBT(link3Select, RedstoneLinkBlockEntity.class,
-		//	nbt -> nbt.put("FrequencyFirst", sapling.saveOptional(scene.world().getHolderLookupProvider())));
-		//scene.idle(20);
-//
-		//scene.world().toggleRedstonePower(redstone);
-		//scene.effects().indicateRedstone(leverPos);
-		//scene.idle(2);
-		//scene.world().toggleRedstonePower(util.select().fromTo(1, 2, 2, 1, 2, 3));
-		//scene.overlay().showText(90)
-		//	.attachKeyFrame()
-		//	.text("Only the links with matching Frequencies will communicate")
-		//	.placeNearTarget()
-		//	.pointAt(link2Vec);
-//
-		//scene.idle(30);
-		//for (int i = 0; i < 4; i++) {
-		//	if (i % 2 == 1)
-		//		scene.effects().indicateRedstone(leverPos);
-		//	scene.world().toggleRedstonePower(redstone);
-		//	scene.idle(2);
-		//	scene.world().toggleRedstonePower(util.select().fromTo(1, 2, 2, 1, 2, 3));
-		//	scene.idle(20);
-		//}
+		scene.title("redstone_link", "Using Redstone Links");
+		scene.configureBasePlate(0, 0, 5);
+		scene.world().showSection(util.select().layer(0)
+			.add(util.select().fromTo(3, 1, 1, 2, 1, 1)), Direction.UP);
+		scene.idle(5);
+		scene.world().showSection(util.select().fromTo(4, 1, 3, 0, 2, 3), Direction.DOWN);
+		scene.idle(10);
+
+		Selection redstone = util.select().fromTo(3, 1, 1, 1, 1, 1);
+		BlockPos leverPos = util.grid().at(3, 1, 1);
+		BlockPos link1Pos = util.grid().at(1, 1, 1);
+		BlockPos link2Pos = util.grid().at(1, 2, 2);
+		BlockPos link3Pos = util.grid().at(3, 2, 2);
+		Selection link1Select = util.select().position(link1Pos);
+		Selection link2Select = util.select().position(link2Pos);
+		Selection link3Select = util.select().position(link3Pos);
+		Vec3 link1Vec = util.vector().blockSurface(link1Pos, Direction.DOWN)
+			.add(0, 3 / 16f, 0);
+		Vec3 link2Vec = util.vector().blockSurface(link2Pos, Direction.SOUTH)
+			.add(0, 0, -3 / 16f);
+		Vec3 link3Vec = util.vector().blockSurface(link3Pos, Direction.SOUTH)
+			.add(0, 0, -3 / 16f);
+
+		scene.world().showSection(link1Select, Direction.DOWN);
+		scene.idle(5);
+		scene.world().showSection(link2Select, Direction.DOWN);
+		scene.idle(5);
+		scene.world().showSection(link3Select, Direction.DOWN);
+		scene.idle(10);
+
+		scene.overlay().showText(50)
+			.attachKeyFrame()
+			.text("Redstone Links can transmit redstone signals wirelessly")
+			.placeNearTarget()
+			.pointAt(link1Vec);
+		scene.idle(60);
+
+		scene.overlay().showControls(link2Vec, Pointing.UP, 40).rightClick()
+			.whileSneaking();
+		scene.idle(7);
+		scene.world().modifyBlock(link2Pos, s -> s.cycle(RedstoneLinkBlock.RECEIVER), true);
+		scene.idle(10);
+		scene.overlay().showText(50)
+			.text("Right-click while Sneaking to toggle receive mode")
+			.placeNearTarget()
+			.pointAt(link2Vec);
+		scene.idle(60);
+
+		scene.overlay().showControls(link3Vec, Pointing.UP, 40).rightClick()
+			.withItem(AllItems.WRENCH.asStack());
+		scene.idle(7);
+		scene.world().modifyBlock(link3Pos, s -> s.cycle(RedstoneLinkBlock.RECEIVER), true);
+		scene.idle(10);
+		scene.overlay().showText(50)
+			.text("A simple Right-click with a Wrench can do the same")
+			.placeNearTarget()
+			.pointAt(link3Vec);
+		scene.idle(70);
+
+		scene.addKeyframe();
+		scene.idle(10);
+		scene.world().toggleRedstonePower(redstone);
+		scene.effects().indicateRedstone(leverPos);
+		scene.idle(5);
+		scene.world().toggleRedstonePower(util.select().fromTo(3, 2, 3, 1, 2, 2));
+		scene.effects().indicateRedstone(link2Pos);
+		scene.effects().indicateRedstone(link3Pos);
+
+		scene.idle(10);
+
+		// Data Task will throw because config isn't loaded. Will work fine during normal Gameplay.
+		// TODO: Try handling this without try/catch
+		int range = 256;
+		try {
+			range = AllConfigs.server().logistics.linkRange.get();
+		}catch (final RuntimeException ignored){
+
+		}
+
+		scene.overlay().showText(70)
+			.colored(PonderPalette.GREEN)
+			.text("Receivers emit the redstone power of transmitters within %1$s blocks", range)
+			.placeNearTarget()
+			.pointAt(link2Vec);
+		scene.idle(80);
+		scene.world().toggleRedstonePower(redstone);
+		scene.idle(5);
+		scene.world().toggleRedstonePower(util.select().fromTo(3, 2, 3, 1, 2, 2));
+		scene.idle(20);
+
+		Vec3 frontSlot = link1Vec.add(0, .025, -.15);
+		Vec3 backSlot = link1Vec.add(0, .025, .15);
+		Vec3 top2Slot = link2Vec.add(0, .15, 0);
+		Vec3 bottom2Slot = link2Vec.add(0, -.2, 0);
+		Vec3 top3Slot = link3Vec.add(0, .15, 0);
+		Vec3 bottom3Slot = link3Vec.add(0, -.2, 0);
+
+		scene.addKeyframe();
+		scene.idle(10);
+		scene.overlay().showFilterSlotInput(frontSlot, Direction.UP, 100);
+		scene.overlay().showFilterSlotInput(backSlot, Direction.UP, 100);
+		scene.idle(10);
+
+		scene.overlay().showText(50)
+			.text("Placing items in the two slots can specify a Frequency")
+			.placeNearTarget()
+			.pointAt(backSlot);
+		scene.idle(60);
+
+		ItemStack iron = new ItemStack(Items.IRON_INGOT);
+		ItemStack gold = new ItemStack(Items.GOLD_INGOT);
+		ItemStack sapling = new ItemStack(Items.OAK_SAPLING);
+
+		scene.overlay().showControls(frontSlot, Pointing.UP, 30).withItem(iron);
+		scene.idle(7);
+		scene.overlay().showControls(backSlot, Pointing.DOWN, 30).withItem(sapling);
+		scene.world().modifyBlockEntityNBT(link1Select, RedstoneLinkBlockEntity.class,
+			nbt -> nbt.put("FrequencyLast", iron.saveOptional(scene.world().getHolderLookupProvider())));
+		scene.idle(7);
+		scene.world().modifyBlockEntityNBT(link1Select, RedstoneLinkBlockEntity.class,
+			nbt -> nbt.put("FrequencyFirst", sapling.saveOptional(scene.world().getHolderLookupProvider())));
+		scene.idle(20);
+
+		scene.overlay().showControls(bottom2Slot, Pointing.UP, 30).withItem(iron);
+		scene.idle(7);
+		scene.overlay().showControls(top2Slot, Pointing.DOWN, 30).withItem(sapling);
+		scene.world().modifyBlockEntityNBT(link2Select, RedstoneLinkBlockEntity.class,
+			nbt -> nbt.put("FrequencyLast", iron.saveOptional(scene.world().getHolderLookupProvider())));
+		scene.idle(7);
+		scene.world().modifyBlockEntityNBT(link2Select, RedstoneLinkBlockEntity.class,
+			nbt -> nbt.put("FrequencyFirst", sapling.saveOptional(scene.world().getHolderLookupProvider())));
+		scene.idle(20);
+
+		scene.overlay().showControls(bottom3Slot, Pointing.UP, 30).withItem(gold);
+		scene.idle(7);
+		scene.overlay().showControls(top3Slot, Pointing.DOWN, 30).withItem(sapling);
+		scene.world().modifyBlockEntityNBT(link3Select, RedstoneLinkBlockEntity.class,
+			nbt -> nbt.put("FrequencyLast", gold.saveOptional(scene.world().getHolderLookupProvider())));
+		scene.idle(7);
+		scene.world().modifyBlockEntityNBT(link3Select, RedstoneLinkBlockEntity.class,
+			nbt -> nbt.put("FrequencyFirst", sapling.saveOptional(scene.world().getHolderLookupProvider())));
+		scene.idle(20);
+
+		scene.world().toggleRedstonePower(redstone);
+		scene.effects().indicateRedstone(leverPos);
+		scene.idle(2);
+		scene.world().toggleRedstonePower(util.select().fromTo(1, 2, 2, 1, 2, 3));
+		scene.overlay().showText(90)
+			.attachKeyFrame()
+			.text("Only the links with matching Frequencies will communicate")
+			.placeNearTarget()
+			.pointAt(link2Vec);
+
+		scene.idle(30);
+		for (int i = 0; i < 4; i++) {
+			if (i % 2 == 1)
+				scene.effects().indicateRedstone(leverPos);
+			scene.world().toggleRedstonePower(redstone);
+			scene.idle(2);
+			scene.world().toggleRedstonePower(util.select().fromTo(1, 2, 2, 1, 2, 3));
+			scene.idle(20);
+		}
 	}
 
 }

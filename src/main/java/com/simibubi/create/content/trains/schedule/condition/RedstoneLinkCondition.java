@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
+import com.simibubi.create.content.redstone.link.Frequency;
 import com.simibubi.create.content.trains.entity.Train;
 import com.simibubi.create.foundation.gui.ModularGuiLineBuilder;
 import com.simibubi.create.foundation.utility.CreateLang;
@@ -25,10 +26,10 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 public class RedstoneLinkCondition extends ScheduleWaitCondition {
 
-	//public Couple<Frequency> freq;
+	public Couple<Frequency> freq;
 
 	public RedstoneLinkCondition() {
-		//freq = Couple.create(() -> Frequency.EMPTY);
+		freq = Couple.create(() -> Frequency.EMPTY);
 	}
 
 	@Override
@@ -38,7 +39,7 @@ public class RedstoneLinkCondition extends ScheduleWaitCondition {
 
 	@Override
 	public Pair<ItemStack, Component> getSummary() {
-		return Pair.of(ItemStack.EMPTY, //AllBlocks.REDSTONE_LINK.asStack(),
+		return Pair.of(AllBlocks.REDSTONE_LINK.asStack(),
 			lowActivation() ? CreateLang.translateDirect("schedule.condition.redstone_link_off")
 				: CreateLang.translateDirect("schedule.condition.redstone_link_on"));
 	}

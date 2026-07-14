@@ -200,7 +200,9 @@ public class AllItems {
 	public static final ItemEntry<LinkedControllerItem> BROWN_LINKED_CONTROLLER =
 		REGISTRATE.item("linked_controller", p -> new LinkedControllerItem(p, DyeColor.BROWN))
 			.properties(p -> p.stacksTo(1))
-			.model(AssetLookup.itemModelWithPartials())
+			.model((c, p) -> p.withExistingParent("linked_controller", p.modLoc("item/linked_controller/item"))
+				.texture("redstone_bridge", p.modLoc("item/linked_controller/brown"))
+				.texture("particle", p.modLoc("item/linked_controller/brown")))
 			.register();
 
 	public static final DyedItemList<LinkedControllerItem> LINKED_CONTROLLERS = new DyedItemList<>(colour -> {
@@ -211,48 +213,10 @@ public class AllItems {
 
 		return REGISTRATE.item(colourName + "_linked_controller", p -> new LinkedControllerItem(p, colour))
 			.properties(p -> p.stacksTo(1))
-			.model(AssetLookup.itemModelWithPartials())
+			.model((c, p) -> p.withExistingParent(colourName + "_linked_controller", p.modLoc("item/linked_controller/item"))
+				.texture("redstone_bridge", p.modLoc("item/linked_controller/" + colourName))
+				.texture("particle", p.modLoc("item/linked_controller/" + colourName)))
 			.register();
-
-		//return REGISTRATE.block(colourName + "_postbox", p -> new PostboxBlock(p, colour))
-		//	.initialProperties(SharedProperties::wooden)
-		//	.properties(p -> p.mapColor(colour))
-		//	.transform(axeOnly())
-		//	.blockstate((c, p) -> {
-		//		p.horizontalBlock(c.get(), s -> {
-		//			String suffix = s.getValue(PostboxBlock.OPEN) ? "open" : "closed";
-		//			return p.models()
-		//				.withExistingParent(colourName + "_postbox_" + suffix,
-		//					p.modLoc("block/package_postbox/block_" + suffix))
-		//				.texture("0", p.modLoc("block/post_box/post_box_" + colourName))
-		//				.texture("1", p.modLoc("block/post_box/post_box_" + colourName + "_" + suffix));
-		//		});
-		//	})
-		//	.tag(AllTags.AllBlockTags.POSTBOXES.tag)
-		//	.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "block.create.package_postbox"))
-		//	.item(PackagePortItem::new)
-		//	.recipe((c, p) -> {
-		//		ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, c.get())
-		//			.define('D', colour.getTag())
-		//			.define('B', net.minecraft.world.item.Items.BARREL)
-		//			.define('A', AllItems.ANDESITE_ALLOY)
-		//			.pattern("D")
-		//			.pattern("B")
-		//			.pattern("A")
-		//			.unlockedBy("has_barrel", RegistrateRecipeProvider.has(net.minecraft.world.item.Items.BARREL))
-		//			.save(p, Create.asResource("crafting/logistics/" + c.getName()));
-		//		ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, c.get())
-		//			.requires(colour.getTag())
-		//			.requires(AllItemTags.POSTBOXES.tag)
-		//			.unlockedBy("has_postbox", RegistrateRecipeProvider.has(AllItemTags.POSTBOXES.tag))
-		//			.save(p, Create.asResource("crafting/logistics/" + c.getName() + "_from_other_postbox"));
-		//	})
-		//	.model((c, p) -> p.withExistingParent(colourName + "_postbox", p.modLoc("block/package_postbox/item"))
-		//		.texture("0", p.modLoc("block/post_box/post_box_" + colourName))
-		//		.texture("1", p.modLoc("block/post_box/post_box_" + colourName + "_closed")))
-		//	.tag(AllItemTags.POSTBOXES.tag)
-		//	.build()
-		//	.register();
 	});
 
 	public static final ItemEntry<PotatoCannonItem> POTATO_CANNON = REGISTRATE.item("potato_cannon", PotatoCannonItem::new).properties(p -> p.durability(100)).model(AssetLookup.itemModelWithPartials()).tag(Tags.Items.ENCHANTABLES, ItemTags.DURABILITY_ENCHANTABLE, ItemTags.BOW_ENCHANTABLE).register();
@@ -302,7 +266,7 @@ public class AllItems {
 	// Logistics
 
 	public static final ItemEntry<RedstoneLinkItem> REDSTONE_LINK = REGISTRATE.item("redstone_link", RedstoneLinkItem::new)
-		//.model(AssetLookup.customBlockItemModel("gearbox", "item_vertical"))
+		.model(AssetLookup.customBlockItemModel("redstone_link", "item"))
 		.register();
 
 	// Shortcuts

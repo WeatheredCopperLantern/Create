@@ -350,24 +350,24 @@ public class FactoryPanelScreen extends AbstractSimiScreen {
 		ms.popPose();
 
 		// REDSTONE LINKS
-		//if (!behaviour.targetedByLinks.isEmpty()) {
-		//	ItemStack asStack = AllBlocks.REDSTONE_LINK.asStack();
-		//	int itemX = x + 9;
-		//	int itemY = y + windowHeight - 24;
-		//	AllGuiTextures.FROGPORT_SLOT.render(graphics, itemX - 1, itemY - 1);
-		//	graphics.renderItem(asStack, itemX, itemY);
-//
-		//	if (mouseX >= itemX && mouseX < itemX + 16 && mouseY >= itemY && mouseY < itemY + 16) {
-		//		List<Component> linkTip = List.of(CreateLang.translate("gui.factory_panel.has_link_connections")
-		//			.color(ScrollInput.HEADER_RGB)
-		//			.component(),
-		//			CreateLang.translate("gui.factory_panel.left_click_disconnect")
-		//				.style(ChatFormatting.DARK_GRAY)
-		//				.style(ChatFormatting.ITALIC)
-		//				.component());
-		//		graphics.renderComponentTooltip(font, linkTip, mouseX, mouseY);
-		//	}
-		//}
+		if (!behaviour.targetedByLinks.isEmpty()) {
+			ItemStack asStack = AllBlocks.REDSTONE_LINK.asStack();
+			int itemX = x + 9;
+			int itemY = y + windowHeight - 24;
+			AllGuiTextures.FROGPORT_SLOT.render(graphics, itemX - 1, itemY - 1);
+			graphics.renderItem(asStack, itemX, itemY);
+
+			if (mouseX >= itemX && mouseX < itemX + 16 && mouseY >= itemY && mouseY < itemY + 16) {
+				List<Component> linkTip = List.of(CreateLang.translate("gui.factory_panel.has_link_connections")
+					.color(ScrollInput.HEADER_RGB)
+					.component(),
+					CreateLang.translate("gui.factory_panel.left_click_disconnect")
+						.style(ChatFormatting.DARK_GRAY)
+						.style(ChatFormatting.ITALIC)
+						.component());
+				graphics.renderComponentTooltip(font, linkTip, mouseX, mouseY);
+			}
+		}
 
 		// PROMISES
 		int state = promiseExpiration.getState();

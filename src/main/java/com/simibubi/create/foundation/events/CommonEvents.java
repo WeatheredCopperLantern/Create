@@ -194,7 +194,6 @@ public class CommonEvents {
 	@SubscribeEvent
 	public static void onLoadWorld(LevelEvent.Load event) {
 		LevelAccessor world = event.getLevel();
-		//Create.REDSTONE_LINK_NETWORK_HANDLER.createNetworkFor(world);
 		Create.TORQUE_PROPAGATOR.onLoadWorld(world);
 		Create.RAILWAYS.levelLoaded(world);
 		Create.LOGISTICS.levelLoaded(world);
@@ -204,7 +203,6 @@ public class CommonEvents {
 	@SubscribeEvent
 	public static void onUnloadWorld(LevelEvent.Unload event) {
 		LevelAccessor world = event.getLevel();
-		//Create.REDSTONE_LINK_NETWORK_HANDLER.deleteNetworkOf(world);
 		Create.TORQUE_PROPAGATOR.onUnloadWorld(world);
 		WorldAttached.invalidateWorld(world);
 		CobbleGenOptimisation.invalidateWorld(world);

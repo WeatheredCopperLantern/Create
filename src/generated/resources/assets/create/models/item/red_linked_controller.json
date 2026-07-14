@@ -1,7 +1,7 @@
 {
   "parent": "create:item/linked_controller/item",
-    "textures": {
-        "redstone_bridge": "create:item/linked_controller/red",
-        "particle": "create:item/linked_controller/red"
-    }
+  "textures": {
+    "particle": "create:item/linked_controller/red",
+    "redstone_bridge": "create:item/linked_controller/red"
+  }
 }

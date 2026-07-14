@@ -17,6 +17,7 @@ import static com.simibubi.create.AllBlocks.PULSE_EXTENDER;
 import static com.simibubi.create.AllBlocks.PULSE_REPEATER;
 import static com.simibubi.create.AllBlocks.RADIAL_CHASSIS;
 import static com.simibubi.create.AllBlocks.REDSTONE_CONTACT;
+import static com.simibubi.create.AllBlocks.REDSTONE_LINK;
 import static com.simibubi.create.AllBlocks.SECONDARY_LINEAR_CHASSIS;
 import static com.simibubi.create.AllBlocks.SMART_OBSERVER;
 import static com.simibubi.create.AllBlocks.SPEEDOMETER;
@@ -90,7 +91,7 @@ public class RemapHelper {
 		reMap.put("flexpeater", PULSE_EXTENDER.getId());
 		reMap.put("rotation_chassis", RADIAL_CHASSIS.getId());
 		reMap.put("belt_tunnel", BRASS_TUNNEL.getId());
-		//reMap.put("redstone_bridge", REDSTONE_LINK.getId());
+		reMap.put("redstone_bridge", REDSTONE_LINK.getId());
 		reMap.put("speed_gauge", SPEEDOMETER.getId());
 		reMap.put("translation_chassis", LINEAR_CHASSIS.getId());
 		reMap.put("translation_chassis_secondary", SECONDARY_LINEAR_CHASSIS.getId());

@@ -23,6 +23,11 @@ public class RedstoneLinkItem extends BlockItem {
 	}
 
 	@Override
+	public @NonNull String getDescriptionId() {
+		return this.getOrCreateDescriptionId();
+	}
+
+	@Override
 	protected boolean updateCustomBlockEntityTag(final @NonNull BlockPos pos, final @NonNull Level level, @Nullable final Player player, final @NonNull ItemStack stack, final @NonNull BlockState state) {
 		if (level.isClientSide) return false;
 

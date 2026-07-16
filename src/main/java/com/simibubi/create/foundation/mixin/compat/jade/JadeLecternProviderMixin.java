@@ -1,6 +1,7 @@
 package com.simibubi.create.foundation.mixin.compat.jade;
 
-import com.simibubi.create.content.redstone.link.controller.LecternControllerBlockEntity;
+import com.simibubi.create.AllItems;
+import com.simibubi.create.content.redstone.link.controller.lecternController.LecternControllerBlockEntity;
 
 import net.minecraft.world.item.ItemStack;
 
@@ -16,8 +17,8 @@ public class JadeLecternProviderMixin {
 
 	@Inject(method = "streamData(Lsnownee/jade/api/BlockAccessor;)Lnet/minecraft/world/item/ItemStack;", at = @At("HEAD"), cancellable = true)
 	private static void streamDataInject(final BlockAccessor accessor, final CallbackInfoReturnable<ItemStack> cir) {
-		if (accessor.getBlockEntity() instanceof final LecternControllerBlockEntity lcbe) {
-			cir.setReturnValue(lcbe.getController());
+		if (accessor.getBlockEntity() instanceof final LecternControllerBlockEntity lecternControllerBlockEntity) {
+			cir.setReturnValue(AllItems.LINKED_CONTROLLERS.get(lecternControllerBlockEntity.getColor()).asStack());
 		}
 	}
 }

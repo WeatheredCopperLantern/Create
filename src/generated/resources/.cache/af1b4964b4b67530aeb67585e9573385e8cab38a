@@ -1,4 +1,4 @@
-// 1.21.1	2026-07-14T15:47:14.8336257	Registrate Provider for create [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+// 1.21.1	2026-07-15T13:41:52.468964	Registrate Provider for create [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
 60bbdf92d2ac9824ea6144955c74043a6005f79d assets/create/blockstates/acacia_window.json
 6a67703c2697d81b7dc83e9d72a66f9c9ff08383 assets/create/blockstates/acacia_window_pane.json
 c3ae87b62e81d8e9476eccd793bb1548d74c66a1 assets/create/blockstates/adjustable_chain_gearshift.json
@@ -1854,6 +1854,7 @@ def88cd2c79a1f0ed40bbf5a0332187dd1d6006e assets/create/models/item/basin.json
 f5dcb9096a52d5d2eab1e4204fbd1222e0d5094d assets/create/models/item/birch_window.json
 9589b0f3d31028c1499a49298600eede6d84f7bb assets/create/models/item/birch_window_pane.json
 de00f1ec6ffb661126f7e91f723a863d67206bc6 assets/create/models/item/black_linked_controller.json
+daf2d82907a51a7ee26f06bc287790eb9148e735 assets/create/models/item/black_linked_controller_powered.json
 641b85751f91c0b4931307548c12034fc56286bc assets/create/models/item/black_postbox.json
 7ca635d45fef81e6681a492be6c7bb71fd0f4574 assets/create/models/item/black_seat.json
 67256e7c62c3ed2cee1dc88c2437083966165f92 assets/create/models/item/black_table_cloth.json
@@ -1863,6 +1864,7 @@ c31038397821b6abe296d2799aa81edf3c12d095 assets/create/models/item/blaze_burner.
 9d28754112688323a6b55ecb6742e918eabfd6a3 assets/create/models/item/blaze_cake.json
 01637416bb932d861e9c9b10b256b2fdf4c96d44 assets/create/models/item/blaze_cake_base.json
 cf31daebc53dab61526fa4f438f6f577b558a5af assets/create/models/item/blue_linked_controller.json
+20901c12928c49bbde36d07a8a70e90847b12f9e assets/create/models/item/blue_linked_controller_powered.json
 ef453775edb9342dc68e0e4ed7aa2e845b819fa6 assets/create/models/item/blue_postbox.json
 de8beb7ef521822eb9b2826806baf1fa3344a45d assets/create/models/item/blue_seat.json
 b1059dd00b8b4102e345a3d4f3e903a92c372ea1 assets/create/models/item/blue_table_cloth.json
@@ -1885,6 +1887,7 @@ af97ba84be90381e2cc9434e31e2199c2e7e3aa6 assets/create/models/item/brass_scaffol
 b78e9274156f5027a9a3b6fb7725c57a7aecc8bb assets/create/models/item/brass_sheet.json
 7085ab446db5fa59aafe9bbba41c0e0f43bf749a assets/create/models/item/brass_table_cloth.json
 28e104d5041c1f4676704c0f6b4e2e80aac43106 assets/create/models/item/brass_tunnel.json
+07dd16782a71d79e03dd4a3b56513a3b959c9105 assets/create/models/item/brown_linked_controller_powered.json
 35c8539a0b2f927e65a43c3a2c3cb82db429c2eb assets/create/models/item/brown_postbox.json
 fce64539b36fc8a5ffa39d7a3f73765818437cbf assets/create/models/item/brown_seat.json
 a126a50454ea449e66c6f6e36eb96bff96652c92 assets/create/models/item/brown_table_cloth.json
@@ -2122,6 +2125,7 @@ f633006045ccfcdf486d7a240217229d6eed717e assets/create/models/item/cut_veridium_
 62697c0922b11537914d2f4f84faa0b909ee518d assets/create/models/item/cut_veridium_stairs.json
 3921d61a26d48d999cbb2f6645611e53ea71978b assets/create/models/item/cut_veridium_wall.json
 79ff242ad03f66ee938bd937504e62c969e97ecf assets/create/models/item/cyan_linked_controller.json
+0148b5774fdc3fb85c31fb6e7515a3dcea39d3c2 assets/create/models/item/cyan_linked_controller_powered.json
 73c2eed9b6a906a519e27361211ae05bc6ed2d87 assets/create/models/item/cyan_postbox.json
 eef3be2fa3b6424436a553e3c1bfee3979015962 assets/create/models/item/cyan_seat.json
 fb3660aa1b33ef63361d91598c2b46dd5b1c30d7 assets/create/models/item/cyan_table_cloth.json
@@ -2174,12 +2178,14 @@ b17d9fd1a92db0965f2e5da6215956b0451af29e assets/create/models/item/furnace_minec
 b1ae37998326c8ca054e57b0cbff0b51cad98625 assets/create/models/item/golden_sheet.json
 85c301898775d5720d4d11c1c555b331a5c2e93b assets/create/models/item/granite_pillar.json
 dc4f738b5edace3377cfae354d42168233d476a8 assets/create/models/item/gray_linked_controller.json
+c68aaaee3739892920aa202872a07b69a489035d assets/create/models/item/gray_linked_controller_powered.json
 44173ca711aa497d08ca3b8a9613290378072870 assets/create/models/item/gray_postbox.json
 b8d6d2d163e2ab5f654bbc4eda9ad63f8064d27c assets/create/models/item/gray_seat.json
 4a9aa604745afcb19c3495a879013e263415f214 assets/create/models/item/gray_table_cloth.json
 6492f86b693f924d0222d0ca1d16fbe33d797b1a assets/create/models/item/gray_toolbox.json
 2a9500f9630b1da44615c7c9ca145b56324c46bb assets/create/models/item/gray_valve_handle.json
 4f79c06c6c9444780e56d8fa909e667d2e4f237a assets/create/models/item/green_linked_controller.json
+1996acd99f24d9bff6ab7dd20e51d46f4d8d1ec4 assets/create/models/item/green_linked_controller_powered.json
 1a97f63df2977ac2f2e3363c61a7e36bf60d3ce3 assets/create/models/item/green_postbox.json
 2843370b0e693e1ba1777c26416914edbd87c4f9 assets/create/models/item/green_seat.json
 334fd81d5e6574220ee5815f1452b4f4aa7ad223 assets/create/models/item/green_table_cloth.json
@@ -2221,12 +2227,14 @@ a22638fd361a8185175e107a8ee092a9ac030b7b assets/create/models/item/layered_grani
 b1174d783c62dda84aafd4259c622197f4664421 assets/create/models/item/layered_tuff.json
 952b07dbf9ecc1883deabaa1344667f13936f7f2 assets/create/models/item/layered_veridium.json
 c969a5ebb4313e787d98e7e37cd9a25c4472cc1c assets/create/models/item/light_blue_linked_controller.json
+8050ccd9dfb771256a75f09ad1ac6503732fad1d assets/create/models/item/light_blue_linked_controller_powered.json
 623c937db944651cf1075b3875afe002db527ed6 assets/create/models/item/light_blue_postbox.json
 b44a9f1bd9079f3533d7f708d76eb19a864e5ebb assets/create/models/item/light_blue_seat.json
 df2a3c76b7dbe1f5f6556436e7db3b72288b2232 assets/create/models/item/light_blue_table_cloth.json
 dae914625ff1bc3ebe1463485cad4526a7d7e9f5 assets/create/models/item/light_blue_toolbox.json
 1d94314f185151eb9dcabcef950abf6f86c3c836 assets/create/models/item/light_blue_valve_handle.json
 111066cf08c459b59f3f00f0071ac4b2d2159eec assets/create/models/item/light_gray_linked_controller.json
+5279dad328d06154ddb7701d7882493c2ee5b285 assets/create/models/item/light_gray_linked_controller_powered.json
 b56a28924b0b1b2530ebac7834e011700b09b966 assets/create/models/item/light_gray_postbox.json
 1747bcdea3b1d3f5dfb786102069e07198d36dfe assets/create/models/item/light_gray_seat.json
 cc8834024208662cb100f7cd38a04637da3b6852 assets/create/models/item/light_gray_table_cloth.json
@@ -2235,6 +2243,7 @@ c8513eb1c89652783e26d7dcfcf64afa97619bc8 assets/create/models/item/light_gray_to
 8f53caad3899a30be5087a0ba155080834418cc0 assets/create/models/item/limestone.json
 fba1e7d1cad39c89976b427db62544d80f47ad5d assets/create/models/item/limestone_pillar.json
 8eb56c9e47e794074edf73e786b9e3f2e799fa4f assets/create/models/item/lime_linked_controller.json
+f5f208092536a5cee6fb3045fe7a1830a7995f0d assets/create/models/item/lime_linked_controller_powered.json
 26b8e1daf9cc4b206fb5f62904c7f1701ba93e67 assets/create/models/item/lime_postbox.json
 32cd55a1c97a31a13ad106a457ec9925aa91f6d3 assets/create/models/item/lime_seat.json
 a0843c3731fa3c4d23bc2b91fd68410fcf1df149 assets/create/models/item/lime_table_cloth.json
@@ -2243,6 +2252,7 @@ d0f4148bdb0a905e68f54b5dfd829fd47e528fea assets/create/models/item/lime_valve_ha
 1d30f9b525e8e9736b34a92f848e235c71fd6bd8 assets/create/models/item/linear_chassis.json
 2363c96b117151393bbd16ebe0278083c3f46110 assets/create/models/item/linked_controller.json
 82778408aedc975993b29c4e9ddb9e95b28cb30c assets/create/models/item/magenta_linked_controller.json
+5a59f8aa0c9a1a0007a138c00cf7d286964266c4 assets/create/models/item/magenta_linked_controller_powered.json
 538e28af9013a43c258a659cbe67671991f3eee7 assets/create/models/item/magenta_postbox.json
 ad6fd371ee989c9c3c21e762273e8a4e903f0af8 assets/create/models/item/magenta_seat.json
 c50cb6b0285ee3a2b7d7f592ee48672d66e02af3 assets/create/models/item/magenta_table_cloth.json
@@ -2279,6 +2289,7 @@ f80358eba19bc8d1741e4e25753866799631a118 assets/create/models/item/nixie_tube.js
 af50363d603d61340b336569d58c1febde253665 assets/create/models/item/ochrum.json
 62ec1afee14f9de3f5b02ee930d002a240a3c337 assets/create/models/item/ochrum_pillar.json
 233618eb8045d86e748ef2536d096ac27a6e5a0b assets/create/models/item/orange_linked_controller.json
+ebac3a311bd98d4f95bae96682ca9d8d4feb16c8 assets/create/models/item/orange_linked_controller_powered.json
 226f99c241b1d8b03d8fc57db32c1bee0721b64f assets/create/models/item/orange_postbox.json
 56e7d28824d3fc566b5f551babbe423a550ef08c assets/create/models/item/orange_seat.json
 9f122183a1b04ac6346631db4f505e53ed333acf assets/create/models/item/orange_table_cloth.json
@@ -2297,6 +2308,7 @@ b21a1f3ee7de3e17f69d27fd13ae6b23b62aa22c assets/create/models/item/packager.json
 7fd76e7d2e6c6d94352f1fa08d096b63616ad01e assets/create/models/item/package_frogport.json
 76aeceb41bb7df873dbafe1bd5e26deb24abf93f assets/create/models/item/peculiar_bell.json
 fd2b02c3ca3daa347926948627e438b74ead8ca7 assets/create/models/item/pink_linked_controller.json
+afd072a3d386d3ae3a7abd9eb84f51e10f39cc6b assets/create/models/item/pink_linked_controller_powered.json
 ab6c05a0468f3f4295a07adb362fa2d36cf6e3e8 assets/create/models/item/pink_postbox.json
 df13d4281dc45041ecd93504d45daef61d070581 assets/create/models/item/pink_seat.json
 d142627de73dc821281d64ab54fe9956936253b4 assets/create/models/item/pink_table_cloth.json
@@ -2374,6 +2386,7 @@ d9a736e7a6fc70e0848de3e318c739d58b1e563f assets/create/models/item/propeller.jso
 ea76bd3bd9e5bea4d64d91347d473b538e926b02 assets/create/models/item/pulse_repeater.json
 6ff9ce0cc633ea39b779b2e873a1d0fd7cfe7119 assets/create/models/item/pulse_timer.json
 71ee4e899e4d0cd337002e97df272706db4d3b59 assets/create/models/item/purple_linked_controller.json
+c969365794173d262226148ad8776733af939cd1 assets/create/models/item/purple_linked_controller_powered.json
 8496f6c5449a70eef12e9c68ba46eee2f365fb77 assets/create/models/item/purple_postbox.json
 7e165f83266edf34bb03fa3e8d2a83d44829c10a assets/create/models/item/purple_seat.json
 0d688a25e03c9f0e7059998a44a5be31e570a04d assets/create/models/item/purple_table_cloth.json
@@ -2397,6 +2410,7 @@ d3274003067a943d749ba5d23b5abc0fee8727a2 assets/create/models/item/rare_thunder_
 597cd23d2ab8f1d4e368f41e708c98dee45d92ac assets/create/models/item/redstone_link.json
 ae0ba4827a81bd51c5c01178c2ccdae3a722628a assets/create/models/item/redstone_requester.json
 725f24ced48f484eaa642b8486c31c2787cb3d2a assets/create/models/item/red_linked_controller.json
+f06d780e9acd2460b07cdb2d828d4cfa56667937 assets/create/models/item/red_linked_controller_powered.json
 4b73ee9cc2651a3d1a97476d100f9c4d7e2b2efe assets/create/models/item/red_postbox.json
 8d00eb1a10055a802556eab10e13f522d12acd1c assets/create/models/item/red_sand_paper.json
 b64a054c92cbd2e055502d470f3921d1077e63a1 assets/create/models/item/red_seat.json
@@ -2562,6 +2576,7 @@ a569ddd725898a86f8745e46723edeff7fe7f2e9 assets/create/models/item/weathered_iro
 0fd2214cdff8a92e05d9d5ee888329b3235143c0 assets/create/models/item/wheat_flour.json
 aacced59d21212090d508a9684bb46c9472a8a2f assets/create/models/item/whisk.json
 5875adbedb17e7a135f9460feb876c952ff0e382 assets/create/models/item/white_linked_controller.json
+af8e4e6ebff3aa400e286af23e48208c0c7f8915 assets/create/models/item/white_linked_controller_powered.json
 bcf3104e463ec212dc239281033e4e80d78e1d74 assets/create/models/item/white_postbox.json
 4e112e82185e2c1a5c57f5a94fa11c59c92cef0d assets/create/models/item/white_sail.json
 17ed8ac7d745117f622190a46c5e1b42892afc29 assets/create/models/item/white_seat.json
@@ -2572,6 +2587,7 @@ bccccbdfa5d376936e123defa44f2907dc317617 assets/create/models/item/windmill_bear
 47c6ad1c146366156a0ec4bc1cbf74282784698f assets/create/models/item/wooden_bracket.json
 6c08d2fa59e56e4848063ab6f3e45894b89f1744 assets/create/models/item/wrench.json
 6699469195128559705775f4cc5de0e8fa2383be assets/create/models/item/yellow_linked_controller.json
+7c56984cbab1f25bca1d0609f2e412eef658ed8f assets/create/models/item/yellow_linked_controller_powered.json
 3a899db3044ee39ac5d6385c16630733e00f77ca assets/create/models/item/yellow_postbox.json
 ac59f141cd3c3f7e57a794e542d6e22bf8ebb8f9 assets/create/models/item/yellow_seat.json
 1f9f7c6102a0c5e1a6e50a6ac67858009a13153f assets/create/models/item/yellow_table_cloth.json

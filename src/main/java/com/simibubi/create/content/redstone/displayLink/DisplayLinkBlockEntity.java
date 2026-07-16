@@ -13,6 +13,7 @@ import com.simibubi.create.compat.computercraft.ComputerCraftProxy;
 import com.simibubi.create.content.contraptions.StructureTransform;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelPosition;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelSupportBehaviour;
+import com.simibubi.create.content.logistics.factoryBoard.IFactoryPanelSupportBehaviourEventHandler;
 import com.simibubi.create.foundation.advancement.AllAdvancements;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 
@@ -32,7 +33,7 @@ import net.minecraft.world.phys.Vec3;
 
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
-public class DisplayLinkBlockEntity extends LinkWithBulbBlockEntity  implements TransformableBlockEntity {
+public class DisplayLinkBlockEntity extends LinkWithBulbBlockEntity  implements TransformableBlockEntity, IFactoryPanelSupportBehaviourEventHandler {
 
 	protected BlockPos targetOffset;
 
@@ -44,7 +45,17 @@ public class DisplayLinkBlockEntity extends LinkWithBulbBlockEntity  implements 
 
 	public int refreshTicks;
 	public AbstractComputerBehaviour computerBehaviour;
-	public FactoryPanelSupportBehaviour factoryPanelSupport;
+	public FactoryPanelSupportBehaviour<DisplayLinkBlockEntity> factoryPanelSupport;
+
+	@Override
+	public void onLinkedPanelAdded(final FactoryPanelPosition panelPosition) {
+
+	}
+
+	@Override
+	public void onLinkedPanelRemoved(final FactoryPanelPosition panelPosition) {
+
+	}
 
 	public DisplayLinkBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -66,9 +77,10 @@ public class DisplayLinkBlockEntity extends LinkWithBulbBlockEntity  implements 
 	@Override
 	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
 		behaviours.add(computerBehaviour = ComputerCraftProxy.behaviour(this));
-		behaviours.add(factoryPanelSupport = new FactoryPanelSupportBehaviour(this, () -> false, () -> false, () -> {
-			updateGatheredData();
-		}));
+		//behaviours.add(factoryPanelSupport = new FactoryPanelSupportBehaviour(this, () -> false, () -> false, () -> {
+		//	updateGatheredData();
+		//}));
+		behaviours.add(factoryPanelSupport = new FactoryPanelSupportBehaviour<>(this));
 		registerAwardables(behaviours, AllAdvancements.DISPLAY_LINK, AllAdvancements.DISPLAY_BOARD);
 	}
 

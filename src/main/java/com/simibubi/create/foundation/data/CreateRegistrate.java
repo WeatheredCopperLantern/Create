@@ -10,8 +10,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import com.simibubi.create.content.redstone.link.RedstoneLinkable;
-import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.CreateClient;

@@ -4,14 +4,21 @@ import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllMenuTypes;
 import com.simibubi.create.foundation.gui.menu.HeldItemGhostItemMenu;
 import com.simibubi.create.foundation.item.ItemHelper;
+
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class LinkedControllerMenu extends HeldItemGhostItemMenu {
+
 	@Override
 	protected ItemStackHandler createGhostInventory() {
 		return LinkedControllerItem.getFrequencyItems(this.contentHolder);

@@ -4,10 +4,9 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.CreateClient;
-import com.simibubi.create.content.redstone.link.Frequency;
 import com.simibubi.create.foundation.item.ItemHelper;
-import net.createmod.catnip.data.Couple;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -28,21 +27,27 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class LinkedControllerItem extends Item implements MenuProvider {
 
-	private final DyeColor color;
+	public final DyeColor color;
 
 	public LinkedControllerItem(final Properties properties, DyeColor color) {
 		super(properties);
 		this.color = color;
 	}
 
+	private void putOnCooldown(final Player player) {
+		AllItems.LINKED_CONTROLLERS.forEach(linkedControllerItemItemEntry -> player.getCooldowns().addCooldown(linkedControllerItemItemEntry.asItem(), 5));
+	}
+
 	@Override
-	public @NonNull InteractionResult onItemUseFirst(@NonNull final ItemStack stack, @NonNull final UseOnContext context) {
+	public InteractionResult onItemUseFirst(final ItemStack stack, final UseOnContext context) {
 		final Player player = context.getPlayer();
 		if (player == null || !player.mayBuild()) return InteractionResult.PASS;
 		final Level world = context.getLevel();
@@ -60,7 +65,7 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 		} else {
 			if (block == AllBlocks.REDSTONE_LINK.get()) {
 				if (world.isClientSide) CreateClient.LINKED_CONTROLLER_HANDLER.toggleBindMode(pos);
-				player.getCooldowns().addCooldown(this, 2);
+				this.putOnCooldown(player);
 				return InteractionResult.SUCCESS;
 			}
 
@@ -76,7 +81,7 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 	}
 
 	@Override
-	public @NonNull InteractionResultHolder<ItemStack> use(@NonNull final Level world, @NonNull final Player player, @NonNull final InteractionHand hand) {
+	public InteractionResultHolder<ItemStack> use(final Level world, final Player player, final InteractionHand hand) {
 		final ItemStack heldItem = player.getItemInHand(hand);
 
 		if (player.isShiftKeyDown() && hand == InteractionHand.MAIN_HAND) {
@@ -88,34 +93,29 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 
 		if (!player.isShiftKeyDown()) {
 			if (world.isClientSide) CreateClient.LINKED_CONTROLLER_HANDLER.toggle();
-			player.getCooldowns().addCooldown(this, 2);
+			this.putOnCooldown(player);
 		}
 
 		return InteractionResultHolder.pass(heldItem);
 	}
 
 	public static ItemStackHandler getFrequencyItems(final ItemStack stack) {
-		final ItemStackHandler newInv = new ItemStackHandler(12);
-		if (stack.getItem() != AllItems.BROWN_LINKED_CONTROLLER.get()) {
+		if (!AllItems.LINKED_CONTROLLERS.contains(stack.getItem())) {
 			throw new IllegalArgumentException("Cannot get frequency items from non-controller: " + stack);
 		}
+		final ItemStackHandler newInv = new ItemStackHandler(12);
 		if (!stack.has(AllDataComponents.LINKED_CONTROLLER_ITEMS)) return newInv;
 		ItemHelper.fillItemStackHandler(stack.getOrDefault(AllDataComponents.LINKED_CONTROLLER_ITEMS, ItemContainerContents.EMPTY), newInv);
 		return newInv;
 	}
 
-	public static Couple<Frequency> toFrequency(final ItemStack controller, final int slot) {
-		final ItemStackHandler frequencyItems = com.simibubi.create.content.redstone.link.dummy.controller.LinkedControllerItem.getFrequencyItems(controller);
-		return Couple.create(Frequency.of(frequencyItems.getStackInSlot(slot * 2)), Frequency.of(frequencyItems.getStackInSlot(slot * 2 + 1)));
-	}
-
 	@Override
-	public @NonNull Component getDisplayName() {
+	public Component getDisplayName() {
 		return this.getDescription();
 	}
 
 	@Override
-	public @Nullable AbstractContainerMenu createMenu(final int id, @NonNull final Inventory inventory, @NonNull final Player player) {
+	public @Nullable AbstractContainerMenu createMenu(final int id, final Inventory inventory, final Player player) {
 		final ItemStack heldItem = player.getMainHandItem();
 		return LinkedControllerMenu.create(id, inventory, heldItem);
 	}

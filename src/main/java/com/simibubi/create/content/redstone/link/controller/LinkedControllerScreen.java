@@ -8,11 +8,13 @@ import com.simibubi.create.foundation.utility.ControlsUtil;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.gui.element.GuiGameElement;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import org.jspecify.annotations.NonNull;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -20,6 +22,8 @@ import java.util.Objects;
 
 import static com.simibubi.create.foundation.gui.AllGuiTextures.PLAYER_INVENTORY;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class LinkedControllerScreen extends AbstractSimiContainerScreen<LinkedControllerMenu> {
 
 	protected static final AllGuiTextures BG = AllGuiTextures.LINKED_CONTROLLER;
@@ -49,7 +53,7 @@ public class LinkedControllerScreen extends AbstractSimiContainerScreen<LinkedCo
 	}
 
 	@Override
-	protected void renderBg(@NonNull GuiGraphics guiGraphics, float v, int i, int i1) {
+	protected void renderBg(GuiGraphics guiGraphics, float v, int i, int i1) {
 		final int invX = this.getLeftOfCentered(PLAYER_INVENTORY.getWidth());
 		final int invY = this.topPos + LinkedControllerScreen.BG.getHeight() + 4;
 		this.renderPlayerInventory(guiGraphics, invX, invY);
@@ -65,7 +69,7 @@ public class LinkedControllerScreen extends AbstractSimiContainerScreen<LinkedCo
 	}
 
 	@Override
-	protected void renderTooltip(final @NonNull GuiGraphics graphics, final int x, final int y) {
+	protected void renderTooltip(final GuiGraphics graphics, final int x, final int y) {
 		if (!this.menu.getCarried().isEmpty() || this.hoveredSlot == null || this.hoveredSlot.container == this.menu.playerInventory) {
 			super.renderTooltip(graphics, x, y);
 			return;

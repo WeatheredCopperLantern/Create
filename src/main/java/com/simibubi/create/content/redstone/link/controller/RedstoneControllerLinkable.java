@@ -1,20 +1,23 @@
 package com.simibubi.create.content.redstone.link.controller;
 
 import com.simibubi.create.AllRedstoneLinkables;
-import com.simibubi.create.content.redstone.link.Frequency;
+import com.simibubi.create.content.redstone.link.linkable.Frequency;
 import com.simibubi.create.content.redstone.link.RedstoneEntityLinkable;
-import com.simibubi.create.content.redstone.link.RedstoneLinkNetwork;
-import com.simibubi.create.content.redstone.link.RedstoneLinkableSnapshot;
-import com.simibubi.create.content.redstone.link.RedstoneLinkableType;
+import com.simibubi.create.content.redstone.link.network.RedstoneLinkNetwork;
+import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkableSnapshot;
+import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkableType;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
 import net.createmod.catnip.data.Couple;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 
-import org.jspecify.annotations.NonNull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class RedstoneControllerLinkable extends RedstoneEntityLinkable {
 
 	private int lifetime;
@@ -35,12 +38,12 @@ public class RedstoneControllerLinkable extends RedstoneEntityLinkable {
 	}
 
 	@Override
-	public @NonNull RedstoneLinkableType getType() {
+	public RedstoneLinkableType getType() {
 		return AllRedstoneLinkables.REDSTONE_CONTROLLER.value();
 	}
 
 	@Override
-	protected boolean shouldSetFrequency(final boolean first, final @NonNull Frequency frequency) {
+	protected boolean shouldSetFrequency(final boolean first, final Frequency frequency) {
 		return true;
 	}
 
@@ -50,7 +53,7 @@ public class RedstoneControllerLinkable extends RedstoneEntityLinkable {
 	}
 
 	@Override
-	protected void onModeChanged(final @NonNull RedstoneLinkableSnapshot snapshot) {
+	protected void onModeChanged(final RedstoneLinkableSnapshot snapshot) {
 
 	}
 

@@ -245,6 +245,7 @@ public class AllPartialModels {
 	public static final Map<Direction, PartialModel> METAL_GIRDER_BRACKETS = new EnumMap<>(Direction.class);
 	public static final Map<DyeColor, PartialModel> TOOLBOX_LIDS = new EnumMap<>(DyeColor.class);
 	public static final Map<DyeColor, PartialModel> DYED_VALVE_HANDLES = new EnumMap<>(DyeColor.class);
+	public static final Map<DyeColor, PartialModel> DYED_LINKED_CONTROLLERS_POWERED = new EnumMap<>(DyeColor.class);
 	public static final Map<ResourceLocation, Couple<PartialModel>> FOLDING_DOORS = new HashMap<>();
 	public static final List<PartialModel> CONTRAPTION_CONTROLS_INDICATOR = new ArrayList<>();
 
@@ -267,6 +268,7 @@ public class AllPartialModels {
 		for (DyeColor color : DyeColor.values()) {
 			TOOLBOX_LIDS.put(color, block("toolbox/lid/" + Lang.asId(color.name())));
 			DYED_VALVE_HANDLES.put(color, block(Lang.asId(color.name()) + "_valve_handle"));
+			DYED_LINKED_CONTROLLERS_POWERED.put(color, item(Lang.asId(color.name()) + "_linked_controller_powered"));
 		}
 		for (Direction d : Iterate.horizontalDirections) {
 			METAL_GIRDER_BRACKETS.put(d, block("metal_girder/bracket_" + Lang.asId(d.name())));
@@ -322,6 +324,10 @@ public class AllPartialModels {
 
 	private static PartialModel block(String path) {
 		return PartialModel.of(Create.asResource("block/" + path));
+	}
+
+	private static PartialModel item(String path) {
+		return PartialModel.of(Create.asResource("item/" + path));
 	}
 
 	private static PartialModel entity(String path) {

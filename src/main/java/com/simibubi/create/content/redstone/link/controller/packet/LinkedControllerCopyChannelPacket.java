@@ -2,7 +2,7 @@ package com.simibubi.create.content.redstone.link.controller.packet;
 
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllPackets;
-import com.simibubi.create.content.redstone.link.dummy.controller.LinkedControllerItem;
+import com.simibubi.create.content.redstone.link.controller.LinkedControllerItem;
 import com.simibubi.create.content.redstone.link.interfaces.ILinkableBlockEntity;
 import com.simibubi.create.foundation.item.ItemHelper;
 
@@ -34,16 +34,15 @@ public class LinkedControllerCopyChannelPacket extends LinkedControllerPacketBas
 	public void handle(final ServerPlayer player) {
 		if (player.isSpectator()) return;
 
-		final ItemStack controller = this.getController(player, null);
+		final ItemStack controller = this.getController(player);
 
 		if (controller == null) return;
 
 		final BlockEntity be = player.level().getBlockEntity(this.pos);
 		if (be instanceof final ILinkableBlockEntity linkableBe) {
-			final ItemStackHandler frequencyItems = LinkedControllerItem.getFrequencyItems(controller);
-
-			linkableBe.getLinkable().channel.forEachWithContext((frequency, isFirst) -> frequencyItems.setStackInSlot(this.key * 2 + (isFirst ? 0 : 1), frequency.stack.copy()));
-			controller.set(AllDataComponents.LINKED_CONTROLLER_ITEMS, ItemHelper.containerContentsFromHandler(frequencyItems));
+			ItemStackHandler controllerItems = LinkedControllerItem.getFrequencyItems(controller);
+			linkableBe.getLinkable().channel.forEachWithContext((frequency, isFirst) -> controllerItems.setStackInSlot(this.key * 2 + (isFirst ? 0 : 1), frequency.stack.copy()));
+			controller.set(AllDataComponents.LINKED_CONTROLLER_ITEMS, ItemHelper.containerContentsFromHandler(controllerItems));
 		}
 	}
 

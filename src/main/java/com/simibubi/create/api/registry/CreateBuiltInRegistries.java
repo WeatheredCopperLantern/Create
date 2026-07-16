@@ -13,7 +13,7 @@ import com.simibubi.create.content.kinetics.fan.processing.FanProcessingTypeRegi
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPointType;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttributeType;
 import com.simibubi.create.content.logistics.packagePort.PackagePortTargetType;
-import com.simibubi.create.content.redstone.link.RedstoneLinkableType;
+import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkableType;
 
 import net.minecraft.core.RegistrationInfo;
 import net.minecraft.core.Registry;

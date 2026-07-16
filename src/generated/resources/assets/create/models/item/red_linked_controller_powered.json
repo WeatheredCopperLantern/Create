@@ -1,0 +1,7 @@
+{
+  "parent": "create:item/linked_controller/powered",
+  "textures": {
+    "particle": "create:item/linked_controller/red_powered",
+    "redstone_bridge": "create:item/linked_controller/red_powered"
+  }
+}

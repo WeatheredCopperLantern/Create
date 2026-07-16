@@ -1,7 +1,7 @@
 package com.simibubi.create.content.redstone.link.controller.packet;
 
 import com.simibubi.create.AllPackets;
-import com.simibubi.create.content.redstone.link.controller.LecternControllerBlockEntity;
+import com.simibubi.create.content.redstone.link.controller.lecternController.LecternControllerBlockEntity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
@@ -26,8 +26,8 @@ public class LinkedControllerStopLecternPacket extends LinkedControllerPacketBas
 	@Override
 	public void handle(final ServerPlayer player) {
 		final BlockEntity be = player.level().getBlockEntity(this.pos);
-		if (be instanceof final LecternControllerBlockEntity lcbe) {
-			lcbe.tryStopUsing(player);
+		if (be instanceof final LecternControllerBlockEntity lecternControllerBlockEntity) {
+			lecternControllerBlockEntity.tryStopUsing(player);
 		}
 	}
 

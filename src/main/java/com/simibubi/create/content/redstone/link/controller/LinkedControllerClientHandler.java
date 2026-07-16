@@ -15,6 +15,7 @@ import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.outliner.Outliner;
 import net.createmod.catnip.platform.CatnipServices;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -23,9 +24,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import javax.annotation.ParametersAreNonnullByDefault;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class LinkedControllerClientHandler {
 
 	//region Fields
@@ -35,7 +39,7 @@ public class LinkedControllerClientHandler {
 	public BitSet currentlyPressed = new BitSet(6);
 	private @Nullable BlockPos lecternPos;
 	private @Nullable BlockPos selectedLocation;
-	private int packetCooldown = this.PACKET_RATE;
+	private int packetCooldown = PACKET_RATE;
 	//endregion
 
 	public void tick() {
@@ -89,7 +93,7 @@ public class LinkedControllerClientHandler {
 			}
 		} else if (this.mode == Mode.ACTIVE && (changed || (this.packetCooldown <= 0 && !pressedKeys.isEmpty()))) {
 			CatnipServices.NETWORK.sendToServer(new LinkedControllerInputPacket(pressedKeys, this.lecternPos));
-			this.packetCooldown = this.PACKET_RATE;
+			this.packetCooldown = PACKET_RATE;
 			if (changed) {
 				AllSoundEvents.CONTROLLER_CLICK.playAt(player.level(), player.blockPosition(), 1.0f, 0.5f, true);
 				LinkedControllerItemRenderer.refreshButtons();
@@ -134,7 +138,7 @@ public class LinkedControllerClientHandler {
 	}
 
 	private boolean shouldReset(final LocalPlayer player, final Minecraft mc) {
-		return (player.isSpectator() || mc.screen != null || InputConstants.isKeyDown(mc.getWindow().getWindow(), GLFW.GLFW_KEY_ESCAPE) || (!this.inLectern() && !AllItems.BROWN_LINKED_CONTROLLER.isIn(player.getMainHandItem()) && !AllItems.BROWN_LINKED_CONTROLLER.isIn(player.getOffhandItem())));
+		return (player.isSpectator() || mc.screen != null || InputConstants.isKeyDown(mc.getWindow().getWindow(), GLFW.GLFW_KEY_ESCAPE) || (!this.inLectern() && !AllItems.LINKED_CONTROLLERS.contains(player.getMainHandItem()) && !AllItems.LINKED_CONTROLLERS.contains(player.getOffhandItem())));
 	}
 
 	public void toggle() {

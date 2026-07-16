@@ -1,9 +1,13 @@
 package com.simibubi.create;
 
 import com.simibubi.create.api.registry.CreateBuiltInRegistries;
-import com.simibubi.create.content.redstone.link.*;
 import com.simibubi.create.content.redstone.link.controller.RedstoneControllerLinkable;
 import com.simibubi.create.content.redstone.link.interfaces.HexaFunction;
+import com.simibubi.create.content.redstone.link.linkable.Frequency;
+import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkable;
+import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkableType;
+import com.simibubi.create.content.redstone.link.network.RedstoneLinkNetwork;
+import com.simibubi.create.content.redstone.link.redstoneLink.RedstoneLinkLinkable;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
 import net.createmod.catnip.data.Couple;
 

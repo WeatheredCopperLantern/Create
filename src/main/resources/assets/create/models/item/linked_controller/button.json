@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"parent": "create:item/linked_controller/powered",
 	"textures": {
-		"particle": "create:item/linked_controller",
-		"redstone_bridge": "create:item/linked_controller"
+        "particle": "create:item/linked_controller/brown",
+        "redstone_bridge": "create:item/linked_controller/brown"
 	},
 	"elements": [
 		{

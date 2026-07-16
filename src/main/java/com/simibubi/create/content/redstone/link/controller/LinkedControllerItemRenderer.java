@@ -3,6 +3,7 @@ package com.simibubi.create.content.redstone.link.controller;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import com.simibubi.create.AllItems;
+import com.simibubi.create.AllPartialModels;
 import com.simibubi.create.Create;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
@@ -11,6 +12,7 @@ import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
 
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.animation.LerpedFloat;
@@ -23,9 +25,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
+@ParametersAreNonnullByDefault
 public class LinkedControllerItemRenderer extends CustomRenderedItemModelRenderer {
 
-	protected static final PartialModel POWERED = PartialModel.of(Create.asResource("item/linked_controller/powered"));
 	protected static final PartialModel BUTTON = PartialModel.of(Create.asResource("item/linked_controller/button"));
 
 	private static LerpedFloat equipProgress;
@@ -75,7 +77,7 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 		if (active) {
 			final Player player = Minecraft.getInstance().player;
 			assert player != null;
-			final boolean controllerInMain = AllItems.BROWN_LINKED_CONTROLLER.isIn(player.getMainHandItem());
+			final boolean controllerInMain = AllItems.LINKED_CONTROLLERS.contains(player.getMainHandItem());
 
 			if (stack == player.getOffhandItem() && controllerInMain) {
 				active = false;
@@ -84,21 +86,21 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 		} else if (animatePosition) {
 			final Player player = Minecraft.getInstance().player;
 			assert player != null;
-			final boolean controllerInMain = AllItems.BROWN_LINKED_CONTROLLER.isIn(player.getMainHandItem());
+			final boolean controllerInMain = AllItems.LINKED_CONTROLLERS.contains(player.getMainHandItem());
 
 			if (stack == player.getOffhandItem() && controllerInMain) {
 				animatePosition = false;
 			}
 		}
 
-		LinkedControllerItemRenderer.render(model, renderer, transformType, ms, light, RenderType.NORMAL, active, true, animatePosition);
+		LinkedControllerItemRenderer.render((LinkedControllerItem) stack.getItem(), model, renderer, transformType, ms, light, RenderType.NORMAL, active, true, animatePosition);
 	}
 
 	public static void renderInLectern(final ItemStack stack, final CustomRenderedItemModel model, final PartialItemModelRenderer renderer, final ItemDisplayContext transformType, final PoseStack ms, final int light, final boolean active, final boolean renderDepression) {
-		LinkedControllerItemRenderer.render(model, renderer, transformType, ms, light, RenderType.LECTERN, active, renderDepression, false);
+		LinkedControllerItemRenderer.render((LinkedControllerItem) stack.getItem(), model, renderer, transformType, ms, light, RenderType.LECTERN, active, renderDepression, false);
 	}
 
-	protected static void render(final CustomRenderedItemModel model, final PartialItemModelRenderer renderer, final ItemDisplayContext transformType, final PoseStack ms, int light, final RenderType renderType, final boolean active, final boolean renderDepression, final boolean animatePosition) {
+	protected static void render(final LinkedControllerItem item, final CustomRenderedItemModel model, final PartialItemModelRenderer renderer, final ItemDisplayContext transformType, final PoseStack ms, int light, final RenderType renderType, final boolean active, final boolean renderDepression, final boolean animatePosition) {
 		final float pt = AnimationTickHolder.getPartialTicks();
 		final var msr = TransformStack.of(ms);
 
@@ -111,8 +113,7 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 			msr.rotateYDegrees(equip * -30 * handModifier);
 			msr.rotateZDegrees(equip * -30);
 		}
-
-		renderer.render(active ? LinkedControllerItemRenderer.POWERED.get() : model.getOriginalModel(), light);
+		renderer.render(active ? AllPartialModels.DYED_LINKED_CONTROLLERS_POWERED.get(item.color).get() : model.getOriginalModel(), light);
 
 		if (!active) {
 			ms.popPose();
@@ -120,8 +121,8 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 		}
 
 		final BakedModel button = LinkedControllerItemRenderer.BUTTON.get();
-		final float s = 1 / 16.0f;
-		final float b = s * -0.75f;
+		final float pixelSize = 1 / 16.0f;
+		final float depressionDepth = renderDepression ? -0.05f : 0;
 		int index = 0;
 
 		if (renderType == RenderType.NORMAL && CreateClient.LINKED_CONTROLLER_HANDLER.mode == Mode.BIND) {
@@ -130,35 +131,32 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 		}
 
 		ms.pushPose();
-		msr.translate(2 * s, 0, 8 * s);
-		LinkedControllerItemRenderer.renderButton(renderer, ms, light, pt, button, b, index, renderDepression);
+		msr.translate(2 * pixelSize, 0, 8 * pixelSize);
+		LinkedControllerItemRenderer.renderButton(renderer, ms, light, button, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
 		index++;
-		msr.translate(4 * s, 0, 0);
-		LinkedControllerItemRenderer.renderButton(renderer, ms, light, pt, button, b, index, renderDepression);
+		msr.translate(4 * pixelSize, 0, 0);
+		LinkedControllerItemRenderer.renderButton(renderer, ms, light, button, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
 		index++;
-		msr.translate(-2 * s, 0, 2 * s);
-		LinkedControllerItemRenderer.renderButton(renderer, ms, light, pt, button, b, index, renderDepression);
+		msr.translate(-2 * pixelSize, 0, 2 * pixelSize);
+		LinkedControllerItemRenderer.renderButton(renderer, ms, light, button, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
 		index++;
-		msr.translate(0, 0, -4 * s);
-		LinkedControllerItemRenderer.renderButton(renderer, ms, light, pt, button, b, index, renderDepression);
+		msr.translate(0, 0, -4 * pixelSize);
+		LinkedControllerItemRenderer.renderButton(renderer, ms, light, button, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
 		index++;
 		ms.popPose();
 
-		msr.translate(3 * s, 0, 3 * s);
-		LinkedControllerItemRenderer.renderButton(renderer, ms, light, pt, button, b, index, renderDepression);
+		msr.translate(3 * pixelSize, 0, 3 * pixelSize);
+		LinkedControllerItemRenderer.renderButton(renderer, ms, light, button, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
 		index++;
-		msr.translate(2 * s, 0, 0);
-		LinkedControllerItemRenderer.renderButton(renderer, ms, light, pt, button, b, index, renderDepression);
+		msr.translate(2 * pixelSize, 0, 0);
+		LinkedControllerItemRenderer.renderButton(renderer, ms, light, button, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
 
 		ms.popPose();
 	}
 
-	protected static void renderButton(final PartialItemModelRenderer renderer, final PoseStack ms, final int light, final float pt, final BakedModel button, final float b, final int index, final boolean renderDepression) {
+	protected static void renderButton(final PartialItemModelRenderer renderer, final PoseStack ms, final int light, final BakedModel button, final float depressionDepth) {
 		ms.pushPose();
-		if (renderDepression) {
-			final float depression = b * LinkedControllerItemRenderer.buttons[index].getValue(pt);
-			ms.translate(0, depression, 0);
-		}
+		ms.translate(0, depressionDepth, 0);
 		renderer.renderSolid(button, light);
 		ms.popPose();
 	}

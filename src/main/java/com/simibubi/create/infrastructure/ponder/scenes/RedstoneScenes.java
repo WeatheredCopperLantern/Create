@@ -13,8 +13,8 @@ import com.simibubi.create.content.redstone.diodes.PoweredLatchBlock;
 import com.simibubi.create.content.redstone.diodes.PulseExtenderBlockEntity;
 import com.simibubi.create.content.redstone.diodes.PulseRepeaterBlockEntity;
 import com.simibubi.create.content.redstone.diodes.ToggleLatchBlock;
-import com.simibubi.create.content.redstone.link.RedstoneLinkBlock;
-import com.simibubi.create.content.redstone.link.RedstoneLinkBlockEntity;
+import com.simibubi.create.content.redstone.link.redstoneLink.RedstoneLinkBlock;
+import com.simibubi.create.content.redstone.link.redstoneLink.RedstoneLinkBlockEntity;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlock;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlockEntity;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
@@ -38,8 +38,6 @@ import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
-import net.neoforged.fml.loading.FMLConfig;
 
 public class RedstoneScenes {
 

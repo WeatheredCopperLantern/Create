@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
 import com.simibubi.create.CreateClient;
@@ -80,6 +81,7 @@ import net.createmod.catnip.levelWrappers.WrappedClientLevel;
 import net.createmod.catnip.platform.CatnipServices;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
+
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -122,6 +124,7 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class ClientEvents {
+
 	@SubscribeEvent
 	public static void onTickPre(ClientTickEvent.Pre event) {
 		onTick(true);
@@ -133,8 +136,7 @@ public class ClientEvents {
 	}
 
 	public static void onTick(boolean isPreEvent) {
-		if (!isGameActive())
-			return;
+		if (!isGameActive()) return;
 
 		Level world = Minecraft.getInstance().level;
 		if (isPreEvent) {
@@ -162,7 +164,7 @@ public class ClientEvents {
 		// ScreenOpener.tick();
 		ServerSpeedProvider.clientTick();
 		BeltConnectorHandler.tick();
-//		BeltSlicer.tickHoveringInformation();
+		//		BeltSlicer.tickHoveringInformation();
 		FilteringRenderer.tick();
 		//LinkRenderer.tick();
 		ScrollValueRenderer.tick();
@@ -225,9 +227,7 @@ public class ClientEvents {
 
 	@SubscribeEvent
 	public static void onUnloadWorld(LevelEvent.Unload event) {
-		if (!event.getLevel()
-			.isClientSide())
-			return;
+		if (!event.getLevel().isClientSide()) return;
 		CreateClient.invalidateRenderers();
 		CreateClient.SOUL_PULSE_EFFECT_HANDLER.refresh();
 		AnimationTickHolder.reset();
@@ -236,14 +236,12 @@ public class ClientEvents {
 
 	@SubscribeEvent
 	public static void onRenderWorld(RenderLevelStageEvent event) {
-		if (event.getStage() != Stage.AFTER_PARTICLES)
-			return;
+		if (event.getStage() != Stage.AFTER_PARTICLES) return;
 
 		PoseStack ms = event.getPoseStack();
 		ms.pushPose();
 		SuperRenderTypeBuffer buffer = DefaultSuperRenderTypeBuffer.getInstance();
-		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera()
-			.getPosition();
+		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
 
 		TrackBlockOutline.drawCurveSelection(ms, buffer, camera);
 		TrackTargetingClient.render(ms, buffer, camera);
@@ -263,19 +261,15 @@ public class ClientEvents {
 	public static void onCameraSetup(ViewportEvent.ComputeCameraAngles event) {
 		float partialTicks = AnimationTickHolder.getPartialTicks();
 
-		if (CameraAngleAnimationService.isYawAnimating())
-			event.setYaw(CameraAngleAnimationService.getYaw(partialTicks));
+		if (CameraAngleAnimationService.isYawAnimating()) event.setYaw(CameraAngleAnimationService.getYaw(partialTicks));
 
-		if (CameraAngleAnimationService.isPitchAnimating())
-			event.setPitch(CameraAngleAnimationService.getPitch(partialTicks));
+		if (CameraAngleAnimationService.isPitchAnimating()) event.setPitch(CameraAngleAnimationService.getPitch(partialTicks));
 	}
 
 	@SubscribeEvent
 	public static void addToItemTooltip(ItemTooltipEvent event) {
-		if (!AllConfigs.client().tooltips.get())
-			return;
-		if (event.getEntity() == null)
-			return;
+		if (!AllConfigs.client().tooltips.get()) return;
+		if (event.getEntity() == null) return;
 
 		Item item = event.getItemStack().getItem();
 		TooltipModifier modifier = TooltipModifier.REGISTRY.get(item);
@@ -288,15 +282,13 @@ public class ClientEvents {
 
 	@SubscribeEvent
 	public static void onRenderFrame(RenderFrameEvent.Pre event) {
-		if (!isGameActive())
-			return;
+		if (!isGameActive()) return;
 		TurntableHandler.gameRenderFrame(event.getPartialTick());
 	}
 
 	@SubscribeEvent
 	public static void onMount(EntityMountEvent event) {
-		if (event.getEntityMounting() != Minecraft.getInstance().player)
-			return;
+		if (event.getEntityMounting() != Minecraft.getInstance().player) return;
 
 		if (event.isDismounting()) {
 			CameraDistanceModifier.reset();
@@ -325,21 +317,18 @@ public class ClientEvents {
 		fov = event.getFOV();
 	}
 
-
 	@SubscribeEvent
 	public static void getFogDensity(ViewportEvent.RenderFog event) {
 		Camera camera = event.getCamera();
 		Level level = Minecraft.getInstance().level;
 		BlockPos blockPos = camera.getBlockPosition();
 		FluidState fluidState = level.getFluidState(blockPos);
-		if (camera.getPosition().y >= blockPos.getY() + fluidState.getHeight(level, blockPos))
-			return;
+		if (camera.getPosition().y >= blockPos.getY() + fluidState.getHeight(level, blockPos)) return;
 
 		Fluid fluid = fluidState.getType();
 		Entity entity = camera.getEntity();
 
-		if (entity.isSpectator())
-			return;
+		if (entity.isSpectator()) return;
 
 		ItemStack divingHelmet = DivingHelmetItem.getWornItem(entity);
 		if (!divingHelmet.isEmpty()) {
@@ -366,7 +355,9 @@ public class ClientEvents {
 
 	@SubscribeEvent
 	public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
-		event.registerItem(SimpleCustomRenderer.create(AllItems.BROWN_LINKED_CONTROLLER.asItem(), new LinkedControllerItemRenderer()), AllItems.BROWN_LINKED_CONTROLLER.asItem());
+		AllItems.LINKED_CONTROLLERS.forEach(linkedControllerItemItemEntry -> {
+			event.registerItem(SimpleCustomRenderer.create(linkedControllerItemItemEntry.asItem(), new LinkedControllerItemRenderer()), linkedControllerItemItemEntry);
+		});
 	}
 
 	@SubscribeEvent
@@ -382,8 +373,7 @@ public class ClientEvents {
 
 	@SubscribeEvent
 	public static void addEntityRendererLayers(EntityRenderersEvent.AddLayers event) {
-		EntityRenderDispatcher dispatcher = Minecraft.getInstance()
-			.getEntityRenderDispatcher();
+		EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
 		BacktankArmorLayer.registerOnAll(dispatcher);
 		CreateHatArmorLayer.registerOnAll(dispatcher);
 	}
@@ -409,9 +399,7 @@ public class ClientEvents {
 
 	@SubscribeEvent
 	public static void onLoadComplete(FMLLoadCompleteEvent event) {
-		ModContainer createContainer = ModList.get()
-			.getModContainerById(Create.ID)
-			.orElseThrow(() -> new IllegalStateException("Create mod container missing on LoadComplete"));
+		ModContainer createContainer = ModList.get().getModContainerById(Create.ID).orElseThrow(() -> new IllegalStateException("Create mod container missing on LoadComplete"));
 		Supplier<IConfigScreenFactory> configScreen = () -> (mc, previousScreen) -> new BaseConfigScreen(previousScreen, Create.ID);
 		createContainer.registerExtensionPoint(IConfigScreenFactory.class, configScreen);
 	}

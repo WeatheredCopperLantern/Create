@@ -173,17 +173,17 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 	}
 
 	@Nullable
-	public static FactoryPanelSupportBehaviour linkAt(BlockAndTintGetter world, FactoryPanelConnection connection) {
+	public static FactoryPanelSupportBehaviour<?> linkAt(BlockAndTintGetter world, FactoryPanelConnection connection) {
 		Object cached = connection.cachedSource.get();
-		if (cached instanceof FactoryPanelSupportBehaviour fpsb && !fpsb.blockEntity.isRemoved())
+		if (cached instanceof FactoryPanelSupportBehaviour<?> fpsb && !fpsb.blockEntity.isRemoved())
 			return fpsb;
-		FactoryPanelSupportBehaviour result = linkAt(world, connection.from);
+		FactoryPanelSupportBehaviour<?> result = linkAt(world, connection.from);
 		connection.cachedSource = new WeakReference<>(result);
 		return result;
 	}
 
 	@Nullable
-	public static FactoryPanelSupportBehaviour linkAt(BlockAndTintGetter world, FactoryPanelPosition pos) {
+	public static FactoryPanelSupportBehaviour<?> linkAt(BlockAndTintGetter world, FactoryPanelPosition pos) {
 		if (world instanceof Level l && !l.isLoaded(pos.pos()))
 			return null;
 		return BlockEntityBehaviour.get(world, pos.pos(), FactoryPanelSupportBehaviour.TYPE);
@@ -265,7 +265,7 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 
 		// Reconnect links
 		for (BlockPos pos : targetedByLinks.keySet()) {
-			FactoryPanelSupportBehaviour at = linkAt(level, new FactoryPanelPosition(pos, slot));
+			FactoryPanelSupportBehaviour<?> at = linkAt(level, new FactoryPanelPosition(pos, slot));
 			if (at != null)
 				at.connect(this);
 		}
@@ -328,7 +328,7 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 		for (FactoryPanelConnection connection : targetedByLinks.values()) {
 			if (!getWorld().isLoaded(connection.from.pos()))
 				return;
-			FactoryPanelSupportBehaviour linkAt = linkAt(getWorld(), connection);
+			FactoryPanelSupportBehaviour<?> linkAt = linkAt(getWorld(), connection);
 			if (linkAt == null)
 				return;
 			shouldPower |= linkAt.shouldPanelBePowered();
@@ -346,7 +346,7 @@ public class FactoryPanelBehaviour extends FilteringBehaviour implements MenuPro
 		for (FactoryPanelConnection connection : targetedByLinks.values()) {
 			if (!getWorld().isLoaded(connection.from.pos()))
 				return;
-			FactoryPanelSupportBehaviour linkAt = linkAt(getWorld(), connection);
+			FactoryPanelSupportBehaviour<?> linkAt = linkAt(getWorld(), connection);
 			if (linkAt == null || linkAt.isOutput())
 				return;
 			linkAt.notifyChange();

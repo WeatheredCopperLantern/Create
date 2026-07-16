@@ -3,6 +3,7 @@ package com.simibubi.create.content.redstone.link.controller.packet;
 import java.util.BitSet;
 
 import com.simibubi.create.AllPackets;
+import com.simibubi.create.Create;
 import com.simibubi.create.content.redstone.link.controller.LinkedControllerServerHandler;
 import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
 
@@ -10,9 +11,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 
 import io.netty.buffer.ByteBuf;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public class LinkedControllerInputPacket extends LinkedControllerPacketBase {
 
@@ -32,10 +33,10 @@ public class LinkedControllerInputPacket extends LinkedControllerPacketBase {
 	public void handle(final ServerPlayer player) {
 		if (player.isSpectator() && !this.keys.isEmpty()) return;
 
-		final ItemStack controller = this.getController(player, this.pos);
+		final ItemStackHandler frequencyItems = this.getFrequencyItems(player, this.pos);
 
-		if (controller != null) {
-			LinkedControllerServerHandler.handle(this.keys, player, controller);
+		if (frequencyItems != null) {
+			Create.LINKED_CONTROLLER_HANDLER.handle(this.keys, player, frequencyItems);
 		}
 	}
 

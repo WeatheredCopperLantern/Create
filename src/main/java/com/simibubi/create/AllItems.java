@@ -45,7 +45,7 @@ import com.simibubi.create.content.logistics.tableCloth.ShoppingListItem;
 import com.simibubi.create.content.materials.ExperienceNuggetItem;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockItem;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyItem;
-import com.simibubi.create.content.redstone.link.RedstoneLinkItem;
+import com.simibubi.create.content.redstone.link.redstoneLink.RedstoneLinkItem;
 import com.simibubi.create.content.redstone.link.controller.LinkedControllerItem;
 import com.simibubi.create.content.schematics.SchematicAndQuillItem;
 import com.simibubi.create.content.schematics.SchematicItem;
@@ -200,9 +200,14 @@ public class AllItems {
 	public static final ItemEntry<LinkedControllerItem> BROWN_LINKED_CONTROLLER =
 		REGISTRATE.item("linked_controller", p -> new LinkedControllerItem(p, DyeColor.BROWN))
 			.properties(p -> p.stacksTo(1))
-			.model((c, p) -> p.withExistingParent("linked_controller", p.modLoc("item/linked_controller/item"))
-				.texture("redstone_bridge", p.modLoc("item/linked_controller/brown"))
-				.texture("particle", p.modLoc("item/linked_controller/brown")))
+			.model((c, p) -> {
+				p.withExistingParent("linked_controller", p.modLoc("item/linked_controller/item"))
+					.texture("redstone_bridge", p.modLoc("item/linked_controller/brown"))
+					.texture("particle", p.modLoc("item/linked_controller/brown"));
+				p.withExistingParent("brown_linked_controller_powered", p.modLoc("item/linked_controller/powered"))
+					.texture("redstone_bridge", p.modLoc("item/linked_controller/brown_powered"))
+					.texture("particle", p.modLoc("item/linked_controller/brown_powered"));
+			})
 			.register();
 
 	public static final DyedItemList<LinkedControllerItem> LINKED_CONTROLLERS = new DyedItemList<>(colour -> {
@@ -213,9 +218,15 @@ public class AllItems {
 
 		return REGISTRATE.item(colourName + "_linked_controller", p -> new LinkedControllerItem(p, colour))
 			.properties(p -> p.stacksTo(1))
-			.model((c, p) -> p.withExistingParent(colourName + "_linked_controller", p.modLoc("item/linked_controller/item"))
-				.texture("redstone_bridge", p.modLoc("item/linked_controller/" + colourName))
-				.texture("particle", p.modLoc("item/linked_controller/" + colourName)))
+			.onRegisterAfter(Registries.ITEM, v -> ItemDescription.useKey(v, "item.create.linked_controller"))
+			.model((c, p) -> {
+				p.withExistingParent(colourName + "_linked_controller", p.modLoc("item/linked_controller/item"))
+					.texture("redstone_bridge", p.modLoc("item/linked_controller/" + colourName))
+					.texture("particle", p.modLoc("item/linked_controller/" + colourName));
+				p.withExistingParent(colourName + "_linked_controller_powered", p.modLoc("item/linked_controller/powered"))
+					.texture("redstone_bridge", p.modLoc("item/linked_controller/" + colourName + "_powered"))
+					.texture("particle", p.modLoc("item/linked_controller/" + colourName + "_powered"));
+			})
 			.register();
 	});
 

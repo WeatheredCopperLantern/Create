@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
 import com.tterrag.registrate.util.entry.ItemEntry;
@@ -29,9 +30,13 @@ public class DyedItemList<T extends Item> implements Iterable<ItemEntry<T>> {
 		return this.values[color.ordinal()];
 	}
 
-	public boolean contains(final Block block) {
+	public boolean contains(final ItemStack itemStack) {
+		return this.contains(itemStack.getItem());
+	}
+
+	public boolean contains(final Item item) {
 		for (final ItemEntry<?> entry : this.values) {
-			if (entry.is(block)) {
+			if (entry.is(item)) {
 				return true;
 			}
 		}

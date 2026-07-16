@@ -2,14 +2,22 @@ package com.simibubi.create.content.redstone.link;
 
 import com.simibubi.create.Create;
 import com.simibubi.create.content.redstone.link.interfaces.ITickingLinkable;
+import com.simibubi.create.content.redstone.link.linkable.Frequency;
+import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkable;
+import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkableSnapshot;
+import com.simibubi.create.content.redstone.link.network.RedstoneLinkNetwork;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
 import net.createmod.catnip.data.Couple;
+
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -18,6 +26,8 @@ import org.jspecify.annotations.NonNull;
 import java.util.HashMap;
 import java.util.UUID;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public abstract class RedstoneEntityLinkable extends RedstoneLinkable implements ITickingLinkable {
 
 	private static final HashMap<UUID, RedstoneEntityLinkable> missing = new HashMap<>(2);
@@ -32,7 +42,7 @@ public abstract class RedstoneEntityLinkable extends RedstoneLinkable implements
 	}
 
 	@Override
-	public void readAdditional(@NonNull final CompoundTag nbt, final HolderLookup.@NonNull Provider registries, @NonNull final DimensionPalette dimensions) {
+	public void readAdditional(final CompoundTag nbt, final HolderLookup.@NonNull Provider registries, final DimensionPalette dimensions) {
 		this.uuid = nbt.getUUID("uuid");
 		final ListTag tag = nbt.getList("position", Tag.TAG_COMPOUND);
 		this.cachedPosition = new Vector3f(tag.getFloat(0), tag.getFloat(1), tag.getFloat(2));
@@ -56,7 +66,7 @@ public abstract class RedstoneEntityLinkable extends RedstoneLinkable implements
 
 	@Override
 	public void tick() {
-		if (this.entity == null) return;
+		if (this.entity == null || this.network == null) return;
 		if (this.entity.isRemoved()) {
 			final Entity.RemovalReason reason = this.entity.getRemovalReason();
 			assert reason != null;
@@ -80,7 +90,7 @@ public abstract class RedstoneEntityLinkable extends RedstoneLinkable implements
 	}
 
 	@Override
-	public void writeAdditional(@NonNull final CompoundTag nbt, final HolderLookup.@NonNull Provider registries, @NonNull final DimensionPalette dimensions) {
+	public void writeAdditional(final CompoundTag nbt, final HolderLookup.@NonNull Provider registries, final DimensionPalette dimensions) {
 		nbt.putUUID("uuid", this.entity.getUUID());
 		final ListTag tag = new ListTag();
 		tag.add(FloatTag.valueOf(this.cachedPosition.x()));

@@ -16,12 +16,14 @@ import com.simibubi.create.content.fluids.tank.BoilerHeaters;
 import com.simibubi.create.content.kinetics.TorquePropagator;
 import com.simibubi.create.content.kinetics.fan.processing.AllFanProcessingTypes;
 import com.simibubi.create.content.kinetics.mechanicalArm.AllArmInteractionPointTypes;
+import com.simibubi.create.content.logistics.factoryBoard.network.GlobalFactoryBoardNetworkManager;
 import com.simibubi.create.content.logistics.item.filter.attribute.AllItemAttributeTypes;
 import com.simibubi.create.content.logistics.packagePort.AllPackagePortTargetTypes;
 import com.simibubi.create.content.logistics.packager.AllInventoryIdentifiers;
 import com.simibubi.create.content.logistics.packager.AllUnpackingHandlers;
 import com.simibubi.create.content.logistics.packagerLink.GlobalLogisticsManager;
-import com.simibubi.create.content.redstone.link.GlobalRedstoneLinkNetworksManager;
+import com.simibubi.create.content.redstone.link.network.GlobalRedstoneLinkNetworksManager;
+import com.simibubi.create.content.redstone.link.controller.LinkedControllerServerHandler;
 import com.simibubi.create.content.schematics.ServerSchematicLoader;
 import com.simibubi.create.content.trains.GlobalRailwayManager;
 import com.simibubi.create.content.trains.bogey.BogeySizes;
@@ -90,6 +92,8 @@ public class Create {
 
 	public static final ServerSchematicLoader SCHEMATIC_RECEIVER = new ServerSchematicLoader();
 	public static final GlobalRedstoneLinkNetworksManager REDSTONE_LINK_NETWORK = new GlobalRedstoneLinkNetworksManager();
+	public static final GlobalFactoryBoardNetworkManager FACTORY_BOARD_NETWORK = new GlobalFactoryBoardNetworkManager();
+	public static final LinkedControllerServerHandler LINKED_CONTROLLER_HANDLER = new LinkedControllerServerHandler();
 	public static final TorquePropagator TORQUE_PROPAGATOR = new TorquePropagator();
 	public static final GlobalRailwayManager RAILWAYS = new GlobalRailwayManager();
 	public static final GlobalLogisticsManager LOGISTICS = new GlobalLogisticsManager();

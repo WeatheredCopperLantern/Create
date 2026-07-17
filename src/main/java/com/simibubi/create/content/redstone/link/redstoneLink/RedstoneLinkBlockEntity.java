@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
-import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
+import com.simibubi.create.content.equipment.clipboard.ClipboardCloneable;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelSupportBehaviour;
 import com.simibubi.create.content.redstone.link.interfaces.ILinkableBlockEntity;
 import com.simibubi.create.content.redstone.link.linkable.Frequency;
@@ -12,11 +12,14 @@ import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkable;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import net.createmod.catnip.data.Couple;
+import net.createmod.catnip.data.Iterate;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -32,12 +35,35 @@ import org.jspecify.annotations.Nullable;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class RedstoneLinkBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation, MenuProvider, ILinkableBlockEntity {
+public class RedstoneLinkBlockEntity extends SmartBlockEntity implements MenuProvider, ILinkableBlockEntity, ClipboardCloneable {
 
 	public RedstoneLinkLinkable linkable;
 	public Couple<Frequency> channel = Couple.create(Frequency.EMPTY, Frequency.EMPTY);
 
 	public FactoryPanelSupportBehaviour panelSupport;
+
+	@Override
+	public String getClipboardKey() {
+		return RedstoneLinkable.CLIPBOARD_KEY;
+	}
+
+	@Override
+	public boolean writeToClipboard(final HolderLookup.Provider registries, final CompoundTag tag, final Direction side) {
+		tag.put(RedstoneLinkable.FIRST_FREQUENCY, channel.getFirst().write(registries));
+		tag.put(RedstoneLinkable.SECOND_FREQUENCY, channel.getSecond().write(registries));
+		return true;
+	}
+
+	@Override
+	public boolean readFromClipboard(final HolderLookup.Provider registries, final CompoundTag tag, final Player player, final Direction side, final boolean simulate) {
+		if (simulate) return true;
+
+		for (boolean first : Iterate.trueAndFalse) {
+			Tag tmpTag = tag.get(first ? RedstoneLinkable.FIRST_FREQUENCY : RedstoneLinkable.SECOND_FREQUENCY);
+			if (tmpTag != null) linkable.setFrequency(first, Frequency.read(tmpTag, registries));
+		}
+		return true;
+	}
 
 	public ItemStackHandler getFrequencyItems() {
 		final ItemStackHandler newInv = new ItemStackHandler(2);

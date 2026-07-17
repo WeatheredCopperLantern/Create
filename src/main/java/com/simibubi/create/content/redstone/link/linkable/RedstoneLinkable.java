@@ -3,6 +3,7 @@ package com.simibubi.create.content.redstone.link.linkable;
 import java.util.UUID;
 
 import com.simibubi.create.CreateBuildInfo;
+import com.simibubi.create.content.equipment.clipboard.ClipboardCloneable;
 import com.simibubi.create.content.redstone.link.network.RedstoneLinkNetwork;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
 import com.simibubi.create.foundation.mixin.accessor.CValueAccessor;
@@ -10,6 +11,7 @@ import com.simibubi.create.infrastructure.config.AllConfigs;
 import net.createmod.catnip.data.Couple;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
@@ -61,6 +63,11 @@ import org.jspecify.annotations.Nullable;
 public abstract class RedstoneLinkable {
 
 	//region Fields
+
+	public static final String CLIPBOARD_KEY = "RedstoneLinkable";
+	public static final String FIRST_FREQUENCY = "First";
+	public static final String SECOND_FREQUENCY = "Last";
+
 	//TODO: Build caching for linkables in communication range, so we can completely skip any checks for signal change/removal updates
 	//Transmission/Receiving ranges get queried a lot. Skipping the ConfigBase#get() method actually has a measurable impact on performance.
 	private static ModConfigSpec.ConfigValue<Integer> logistics_linkRange;

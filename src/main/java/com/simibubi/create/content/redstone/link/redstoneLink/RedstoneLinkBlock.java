@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllShapes;
+import com.simibubi.create.content.redstone.link.interfaces.ILinkableBlockEntity;
 import com.simibubi.create.content.redstone.link.linkable.Frequency;
 import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkable;
 import com.simibubi.create.foundation.block.IBE;
@@ -64,6 +65,7 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 
 	public static final Pair<ValueBoxTransform, ValueBoxTransform> SLOTS = ValueBoxTransform.Dual.makeSlots(RedstoneLinkFrequencySlot::new);
 
+	//TODO: move this somewhere more generic
 	@SubscribeEvent
 	public static void onBlockActivated(final PlayerInteractEvent.RightClickBlock event) {
 		final Player player = event.getEntity();
@@ -73,8 +75,8 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 		final Level world = event.getLevel();
 		final BlockPos pos = event.getPos();
 
-		final Optional<RedstoneLinkBlockEntity> be = world.getBlockEntity(pos, AllBlockEntityTypes.REDSTONE_LINK.get());
-		if (be.isEmpty()) return;
+		final BlockEntity be = world.getBlockEntity(pos);
+		if (!(be instanceof ILinkableBlockEntity linkableBlockEntity)) return;
 
 		final InteractionHand hand = event.getHand();
 
@@ -94,7 +96,7 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 
 		for (final boolean first : Arrays.asList(false, true)) {
 			if (fakePlayer && fakePlayerChoice == first || RedstoneLinkBlock.testHit(world, blockState, pos, first, ray.getLocation())) {
-				if (!world.isClientSide) be.get().linkable.setFrequency(first, Frequency.of(heldItem));
+				if (!world.isClientSide) linkableBlockEntity.getLinkable().setFrequency(first, Frequency.of(heldItem));
 				event.setCanceled(true);
 				event.setCancellationResult(InteractionResult.SUCCESS);
 				world.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 0.25f, 0.1f);

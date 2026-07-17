@@ -22,13 +22,10 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class LecternControllerRenderer extends SafeBlockEntityRenderer<LecternControllerBlockEntity> {
 
-	public LecternControllerRenderer(final BlockEntityRendererProvider.Context context) {
-	}
-
 	@Override
 	protected void renderSafe(final LecternControllerBlockEntity be, final float partialTicks, final PoseStack ms, final MultiBufferSource buffer, final int light, final int overlay) {
 		assert Minecraft.getInstance().player != null;
-		
+
 		final ItemStack stack = AllItems.LINKED_CONTROLLERS.get(be.getColor()).asStack();
 		final ItemDisplayContext transformType = ItemDisplayContext.NONE;
 		final CustomRenderedItemModel mainModel = (CustomRenderedItemModel) Minecraft.getInstance().getItemRenderer().getModel(stack, be.getLevel(), null, 0);
@@ -46,5 +43,8 @@ public class LecternControllerRenderer extends SafeBlockEntityRenderer<LecternCo
 		msr.rotateZDegrees(-22.0f);
 		LinkedControllerItemRenderer.renderInLectern(stack, mainModel, renderer, transformType, ms, light, active, renderDepression);
 		ms.popPose();
+	}
+
+	public LecternControllerRenderer(final BlockEntityRendererProvider.Context ignored) {
 	}
 }

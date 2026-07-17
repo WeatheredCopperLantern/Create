@@ -28,7 +28,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -54,7 +53,7 @@ public class LecternControllerBlockEntity extends SmartBlockEntity {
 		if (!(this.level instanceof ServerLevel serverLevel) || this.user == null) return;
 
 		final Entity entity = serverLevel.getEntity(this.user);
-		if (!(entity instanceof final Player player) || !LecternControllerBlockEntity.playerInRange(player, this.level, this.worldPosition)) {
+		if (!(entity instanceof final Player player) || !LecternControllerBlockEntity.playerInRange(player, this.worldPosition)) {
 			this.removeUser();
 		}
 	}
@@ -112,9 +111,8 @@ public class LecternControllerBlockEntity extends SmartBlockEntity {
 		return this.hasUser() && player.getUUID().equals(this.user);
 	}
 
-	public static boolean playerInRange(final Player player, final Level world, final BlockPos pos) {
-		//double modifier = world.isRemote ? 0 : 1.0;
-		final double reach = 0.4 * player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE);// + modifier;
+	public static boolean playerInRange(final Player player, final BlockPos pos) {
+		final double reach = 0.4 * player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE);
 		return player.getEyePosition().distanceToSqr(Vec3.atCenterOf(pos)) < reach * reach;
 	}
 

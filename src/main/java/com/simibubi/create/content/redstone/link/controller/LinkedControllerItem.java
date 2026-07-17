@@ -4,7 +4,7 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.CreateClient;
-import com.simibubi.create.content.redstone.link.interfaces.ILinkableBlockEntity;
+import com.simibubi.create.content.redstone.link.linkable.LinkableBlockEntity;
 import com.simibubi.create.foundation.item.ItemHelper;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -64,7 +64,7 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 				return InteractionResult.SUCCESS;
 			}
 		} else {
-			if (world.getBlockEntity(pos) instanceof ILinkableBlockEntity) {
+			if (world.getBlockEntity(pos) instanceof LinkableBlockEntity<?>) {
 				if (world.isClientSide) CreateClient.LINKED_CONTROLLER_HANDLER.toggleBindMode(pos);
 				this.putOnCooldown(player);
 				return InteractionResult.SUCCESS;
@@ -82,18 +82,18 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(final Level world, final Player player, final InteractionHand hand) {
+	public InteractionResultHolder<ItemStack> use(final Level level, final Player player, final InteractionHand hand) {
 		final ItemStack heldItem = player.getItemInHand(hand);
 
 		if (player.isShiftKeyDown() && hand == InteractionHand.MAIN_HAND) {
-			if (!world.isClientSide && player.mayBuild()) {
+			if (!level.isClientSide && player.mayBuild()) {
 				player.openMenu(this, buf -> ItemStack.STREAM_CODEC.encode(buf, heldItem));
 			}
 			return InteractionResultHolder.success(heldItem);
 		}
 
 		if (!player.isShiftKeyDown()) {
-			if (world.isClientSide) CreateClient.LINKED_CONTROLLER_HANDLER.toggle();
+			if (level.isClientSide) CreateClient.LINKED_CONTROLLER_HANDLER.toggle();
 			this.putOnCooldown(player);
 		}
 

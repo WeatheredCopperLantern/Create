@@ -4,17 +4,21 @@ import java.util.BitSet;
 
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.Create;
-import com.simibubi.create.content.redstone.link.controller.LinkedControllerServerHandler;
 import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 
 import io.netty.buffer.ByteBuf;
+import javax.annotation.ParametersAreNonnullByDefault;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import org.jspecify.annotations.Nullable;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class LinkedControllerInputPacket extends LinkedControllerPacketBase {
 
 	//region Fields
@@ -40,7 +44,7 @@ public class LinkedControllerInputPacket extends LinkedControllerPacketBase {
 		}
 	}
 
-	public LinkedControllerInputPacket(final BitSet keys, final BlockPos pos) {
+	public LinkedControllerInputPacket(final BitSet keys, final @Nullable BlockPos pos) {
 		this.keys = keys;
 		this.pos = pos;
 	}

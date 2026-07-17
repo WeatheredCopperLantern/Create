@@ -1,8 +1,10 @@
 package com.simibubi.create.content.redstone.link.linkable;
 
+import java.util.function.Consumer;
+
 import com.simibubi.create.Create;
 import com.simibubi.create.content.equipment.clipboard.ClipboardCloneable;
-import com.simibubi.create.content.redstone.link.interfaces.ILinkableBlockEntity;
+import com.simibubi.create.content.redstone.link.redstoneLink.RedstoneLinkLinkable;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 
 import net.createmod.catnip.data.Couple;
@@ -16,6 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,7 +28,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public abstract class LinkableBlockEntity<T extends RedstoneLinkable> extends SmartBlockEntity implements MenuProvider, ILinkableBlockEntity, ClipboardCloneable {
+public abstract class LinkableBlockEntity<T extends RedstoneLinkable> extends SmartBlockEntity implements MenuProvider, ClipboardCloneable {
 
 	private final Class<T> linkableType;
 	public T linkable;
@@ -51,10 +54,11 @@ public abstract class LinkableBlockEntity<T extends RedstoneLinkable> extends Sm
 		return RedstoneLinkable.CLIPBOARD_KEY;
 	}
 
-	@Override
 	public T getLinkable() {
 		return linkable;
 	}
+
+	public abstract void updateFromLinkable();
 
 	@Override
 	public boolean writeToClipboard(final HolderLookup.Provider registries, final CompoundTag tag, final Direction side) {

@@ -4,31 +4,28 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllPartialModels;
-import com.simibubi.create.Create;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModelRenderer;
 import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
 
-import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.animation.LerpedFloat;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 @ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class LinkedControllerItemRenderer extends CustomRenderedItemModelRenderer {
-
-	protected static final PartialModel BUTTON = PartialModel.of(Create.asResource("item/linked_controller/button"));
 
 	private static LerpedFloat equipProgress;
 	private final static LerpedFloat[] buttons = new LerpedFloat[6];
@@ -120,7 +117,6 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 			return;
 		}
 
-		final BakedModel button = LinkedControllerItemRenderer.BUTTON.get();
 		final float pixelSize = 1 / 16.0f;
 		final float depressionDepth = renderDepression ? -0.05f : 0;
 		int index = 0;
@@ -132,32 +128,32 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 
 		ms.pushPose();
 		msr.translate(2 * pixelSize, 0, 8 * pixelSize);
-		LinkedControllerItemRenderer.renderButton(renderer, ms, light, button, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
+		LinkedControllerItemRenderer.renderButton(renderer, ms, light, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
 		index++;
 		msr.translate(4 * pixelSize, 0, 0);
-		LinkedControllerItemRenderer.renderButton(renderer, ms, light, button, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
+		LinkedControllerItemRenderer.renderButton(renderer, ms, light, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
 		index++;
 		msr.translate(-2 * pixelSize, 0, 2 * pixelSize);
-		LinkedControllerItemRenderer.renderButton(renderer, ms, light, button, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
+		LinkedControllerItemRenderer.renderButton(renderer, ms, light, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
 		index++;
 		msr.translate(0, 0, -4 * pixelSize);
-		LinkedControllerItemRenderer.renderButton(renderer, ms, light, button, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
+		LinkedControllerItemRenderer.renderButton(renderer, ms, light, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
 		index++;
 		ms.popPose();
 
 		msr.translate(3 * pixelSize, 0, 3 * pixelSize);
-		LinkedControllerItemRenderer.renderButton(renderer, ms, light, button, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
+		LinkedControllerItemRenderer.renderButton(renderer, ms, light, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
 		index++;
 		msr.translate(2 * pixelSize, 0, 0);
-		LinkedControllerItemRenderer.renderButton(renderer, ms, light, button, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
+		LinkedControllerItemRenderer.renderButton(renderer, ms, light, depressionDepth * LinkedControllerItemRenderer.buttons[index].getValue(pt));
 
 		ms.popPose();
 	}
 
-	protected static void renderButton(final PartialItemModelRenderer renderer, final PoseStack ms, final int light, final BakedModel button, final float depressionDepth) {
+	protected static void renderButton(final PartialItemModelRenderer renderer, final PoseStack ms, final int light, final float depressionDepth) {
 		ms.pushPose();
 		ms.translate(0, depressionDepth, 0);
-		renderer.renderSolid(button, light);
+		renderer.renderSolid(AllPartialModels.LINKABLE_CONTROLLER_BUTTON.get(), light);
 		ms.popPose();
 	}
 

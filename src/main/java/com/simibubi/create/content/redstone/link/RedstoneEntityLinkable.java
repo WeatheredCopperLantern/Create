@@ -67,10 +67,10 @@ public abstract class RedstoneEntityLinkable extends RedstoneLinkable implements
 	}
 
 	@Override
-	public void readAdditional(final CompoundTag nbt, final HolderLookup.@NonNull Provider registries, final DimensionPalette dimensions) {
-		this.uuid = nbt.getUUID("uuid");
-		final ListTag tag = nbt.getList("position", Tag.TAG_COMPOUND);
-		this.cachedPosition = new Vector3f(tag.getFloat(0), tag.getFloat(1), tag.getFloat(2));
+	public void readAdditional(final CompoundTag tag, final HolderLookup.@NonNull Provider registries, final DimensionPalette dimensions) {
+		this.uuid = tag.getUUID("uuid");
+		final ListTag listTag = tag.getList("position", Tag.TAG_COMPOUND);
+		this.cachedPosition = new Vector3f(listTag.getFloat(0), listTag.getFloat(1), listTag.getFloat(2));
 
 		RedstoneEntityLinkable.missing.put(this.uuid, this);
 	}
@@ -115,17 +115,17 @@ public abstract class RedstoneEntityLinkable extends RedstoneLinkable implements
 	}
 
 	@Override
-	public void writeAdditional(final CompoundTag nbt, final HolderLookup.@NonNull Provider registries, final DimensionPalette dimensions) {
-		nbt.putUUID("uuid", this.entity.getUUID());
-		final ListTag tag = new ListTag();
-		tag.add(FloatTag.valueOf(this.cachedPosition.x()));
-		tag.add(FloatTag.valueOf(this.cachedPosition.y()));
-		tag.add(FloatTag.valueOf(this.cachedPosition.z()));
-		nbt.put("position", tag);
+	public void writeAdditional(final CompoundTag tag, final HolderLookup.@NonNull Provider registries, final DimensionPalette dimensions) {
+		tag.putUUID("uuid", this.entity.getUUID());
+		final ListTag listTag = new ListTag();
+		listTag.add(FloatTag.valueOf(this.cachedPosition.x()));
+		listTag.add(FloatTag.valueOf(this.cachedPosition.y()));
+		listTag.add(FloatTag.valueOf(this.cachedPosition.z()));
+		tag.put("position", listTag);
 	}
 
-	protected RedstoneEntityLinkable(final CompoundTag nbt, final Couple<Frequency> channel, final boolean receiver, final HolderLookup.Provider registries, final DimensionPalette dimensions, final RedstoneLinkNetwork network) {
-		super(nbt, channel, receiver, registries, dimensions, network);
+	protected RedstoneEntityLinkable(final CompoundTag tag, final Couple<Frequency> channel, final boolean receiver, final HolderLookup.Provider registries, final DimensionPalette dimensions, final RedstoneLinkNetwork network) {
+		super(tag, channel, receiver, registries, dimensions, network);
 	}
 
 	protected RedstoneEntityLinkable(final Couple<Frequency> channel, final Entity entity) {

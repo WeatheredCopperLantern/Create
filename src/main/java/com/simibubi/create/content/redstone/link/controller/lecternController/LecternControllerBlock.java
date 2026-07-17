@@ -92,7 +92,7 @@ public class LecternControllerBlock extends LecternBlock implements IBE<LecternC
 
 	@Override
 	protected ItemInteractionResult useItemOn(final ItemStack stack, final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hitResult) {
-		if (!player.isShiftKeyDown() && LecternControllerBlockEntity.playerInRange(player, level, pos)) {
+		if (!player.isShiftKeyDown() && LecternControllerBlockEntity.playerInRange(player, pos)) {
 			if (!level.isClientSide) {
 				this.withBlockEntityDo(level, pos, be -> {
 					if (be.isUsedBy(player)) {

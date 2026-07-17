@@ -54,8 +54,8 @@ public class RedstoneControllerLinkable extends RedstoneEntityLinkable {
 		return false;
 	}
 
-	public RedstoneControllerLinkable(final CompoundTag nbt, final Couple<Frequency> channel, final boolean receiver, final HolderLookup.Provider registries, final DimensionPalette dimensions, final RedstoneLinkNetwork network) {
-		super(nbt, channel, receiver, registries, dimensions, network);
+	public RedstoneControllerLinkable(final CompoundTag compound, final Couple<Frequency> channel, final boolean receiver, final HolderLookup.Provider registries, final DimensionPalette dimensions, final RedstoneLinkNetwork network) {
+		super(compound, channel, receiver, registries, dimensions, network);
 	}
 
 	public RedstoneControllerLinkable(final Couple<Frequency> channel, final Entity entity) {

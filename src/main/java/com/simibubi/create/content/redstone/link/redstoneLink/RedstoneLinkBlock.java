@@ -1,14 +1,13 @@
 package com.simibubi.create.content.redstone.link.redstoneLink;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllShapes;
-import com.simibubi.create.content.redstone.link.interfaces.ILinkableBlockEntity;
 import com.simibubi.create.content.redstone.link.linkable.Frequency;
+import com.simibubi.create.content.redstone.link.linkable.LinkableBlockEntity;
 import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkable;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
@@ -76,7 +75,7 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 		final BlockPos pos = event.getPos();
 
 		final BlockEntity be = world.getBlockEntity(pos);
-		if (!(be instanceof ILinkableBlockEntity linkableBlockEntity)) return;
+		if (!(be instanceof LinkableBlockEntity<?> linkableBlockEntity)) return;
 
 		final InteractionHand hand = event.getHand();
 
@@ -111,18 +110,6 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 
 	private void withLinkableDo(final BlockGetter world, final BlockPos pos, final Consumer<RedstoneLinkLinkable> action) {
 		this.getBlockEntityOptional(world, pos).ifPresent(be -> action.accept(be.linkable));
-	}
-
-	public void updateFromLinkable(final Level world, final BlockPos pos) {
-		this.withLinkableDo(world, pos, linkable -> {
-			BlockState state = world.getBlockState(pos);
-			if (state.getValue(RedstoneLinkBlock.POWERED) != linkable.signal > 0 || state.getValue(RedstoneLinkBlock.RECEIVER) != linkable.isReceiver()) {
-				state = state.setValue(RedstoneLinkBlock.POWERED, linkable.signal > 0);
-				state = state.setValue(RedstoneLinkBlock.RECEIVER, linkable.isReceiver());
-				world.setBlock(pos, state, Block.UPDATE_ALL);
-				this.updateNeighbours(state, world, pos);
-			}
-		});
 	}
 
 	public void updateFromWorld(final Level level, final BlockPos pos, BlockState currentState) {
@@ -179,11 +166,6 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 	@Override
 	protected void neighborChanged(final BlockState state, final Level level, final BlockPos pos, final Block neighborBlock, final BlockPos neighborPos, final boolean movedByPiston) {
 		this.withLinkableDo(level, pos, RedstoneLinkable::queueUpdate);
-	}
-
-	private void updateNeighbours(final BlockState state, final Level level, final BlockPos pos) {
-		level.updateNeighborsAt(pos, this);
-		level.updateNeighborsAt(pos.relative(state.getValue(DirectionalBlock.FACING).getOpposite()), this);
 	}
 
 	@Override

@@ -231,7 +231,9 @@ public class AllPartialModels {
 		TRAIN_HAT = entity("train_hat"), LOGISTICS_HAT = entity("logistics_hat"),
 
 		COUPLING_ATTACHMENT = entity("minecart_coupling/attachment"), COUPLING_RING = entity("minecart_coupling/ring"),
-		COUPLING_CONNECTOR = entity("minecart_coupling/connector")
+		COUPLING_CONNECTOR = entity("minecart_coupling/connector"),
+
+		LINKABLE_CONTROLLER_BUTTON = item("linked_controller/button")
 
 	;
 

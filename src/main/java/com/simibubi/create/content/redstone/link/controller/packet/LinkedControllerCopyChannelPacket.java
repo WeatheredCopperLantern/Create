@@ -3,9 +3,10 @@ package com.simibubi.create.content.redstone.link.controller.packet;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.redstone.link.controller.LinkedControllerItem;
-import com.simibubi.create.content.redstone.link.interfaces.ILinkableBlockEntity;
+import com.simibubi.create.content.redstone.link.linkable.LinkableBlockEntity;
 import com.simibubi.create.foundation.item.ItemHelper;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -14,8 +15,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import io.netty.buffer.ByteBuf;
+import javax.annotation.ParametersAreNonnullByDefault;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class LinkedControllerCopyChannelPacket extends LinkedControllerPacketBase {
 
 	//region Fields
@@ -39,7 +43,7 @@ public class LinkedControllerCopyChannelPacket extends LinkedControllerPacketBas
 		if (controller == null) return;
 
 		final BlockEntity be = player.level().getBlockEntity(this.pos);
-		if (be instanceof final ILinkableBlockEntity linkableBe) {
+		if (be instanceof final LinkableBlockEntity<?> linkableBe) {
 			ItemStackHandler controllerItems = LinkedControllerItem.getFrequencyItems(controller);
 			linkableBe.getLinkable().channel.forEachWithContext((frequency, isFirst) -> controllerItems.setStackInSlot(this.key * 2 + (isFirst ? 0 : 1), frequency.stack.copy()));
 			controller.set(AllDataComponents.LINKED_CONTROLLER_ITEMS, ItemHelper.containerContentsFromHandler(controllerItems));

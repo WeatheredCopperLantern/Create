@@ -5,18 +5,21 @@ import com.simibubi.create.content.redstone.link.controller.LinkedControllerItem
 import com.simibubi.create.content.redstone.link.controller.lecternController.LecternControllerBlockEntity;
 import net.createmod.catnip.net.base.ServerboundPacketPayload;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public abstract class LinkedControllerPacketBase implements ServerboundPacketPayload {
 
-	public @Nullable ItemStackHandler getFrequencyItems(final @NonNull ServerPlayer player, final @Nullable BlockPos pos) {
+	public @Nullable ItemStackHandler getFrequencyItems(final ServerPlayer player, final @Nullable BlockPos pos) {
 		if (pos == null) {
 			if (AllItems.LINKED_CONTROLLERS.contains(player.getMainHandItem())) {
 				return LinkedControllerItem.getFrequencyItems(player.getMainHandItem());
@@ -32,7 +35,7 @@ public abstract class LinkedControllerPacketBase implements ServerboundPacketPay
 		return null;
 	}
 
-	public @Nullable ItemStack getController(final @NonNull ServerPlayer player) {
+	public @Nullable ItemStack getController(final ServerPlayer player) {
 		if (AllItems.LINKED_CONTROLLERS.contains(player.getMainHandItem())) {
 			return player.getMainHandItem();
 		} else if (AllItems.LINKED_CONTROLLERS.contains(player.getOffhandItem())) {

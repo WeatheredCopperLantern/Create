@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Base class for {@code Receiver/Transmitter behaviour} implementations. <br>
- *
+ * <p>
  * //TODO: rephrase everything to should
  * <h2>Lifecycle</h2>
  * <ol>
@@ -113,7 +113,7 @@ public abstract class RedstoneLinkable {
 		this.network = null;
 	}
 
-	public void removeFromNetworkInstantly(){
+	public void removeFromNetworkInstantly() {
 		if (this.network != null) {
 			this.network.removeLinkable(this);
 		}
@@ -154,7 +154,7 @@ public abstract class RedstoneLinkable {
 	@SuppressWarnings("MethodMayBeStatic")
 	@Contract(pure = true)
 	public int getReceivingRange() {
-		if(RedstoneLinkable.logistics_linkRange == null){
+		if (RedstoneLinkable.logistics_linkRange == null) {
 			//noinspection unchecked
 			RedstoneLinkable.logistics_linkRange = (ModConfigSpec.ConfigValue<Integer>) ((CValueAccessor) AllConfigs.server().logistics.linkRange).create$getRawValue();
 		}
@@ -164,7 +164,7 @@ public abstract class RedstoneLinkable {
 	@SuppressWarnings("MethodMayBeStatic")
 	@Contract(pure = true)
 	public int getTransmissionRange() {
-		if(RedstoneLinkable.logistics_linkRange == null){
+		if (RedstoneLinkable.logistics_linkRange == null) {
 			//noinspection unchecked
 			RedstoneLinkable.logistics_linkRange = (ModConfigSpec.ConfigValue<Integer>) ((CValueAccessor) AllConfigs.server().logistics.linkRange).create$getRawValue();
 		}
@@ -251,25 +251,25 @@ public abstract class RedstoneLinkable {
 
 	@ApiStatus.NonExtendable
 	public CompoundTag write(final HolderLookup.Provider registries, final DimensionPalette dimensions) {
-		final CompoundTag nbt = new CompoundTag();
-		nbt.putInt("Signal", this.signal);
-		nbt.putUUID("UUID", this.uuid);
+		final CompoundTag tag = new CompoundTag();
+		tag.putInt("Signal", this.signal);
+		tag.putUUID("UUID", this.uuid);
 
 		final CompoundTag additionalNBT = new CompoundTag();
 		this.writeAdditional(additionalNBT, registries, dimensions);
-		nbt.put("Additional", additionalNBT);
+		tag.put("Additional", additionalNBT);
 
-		return nbt;
+		return tag;
 	}
 
-	protected RedstoneLinkable(final CompoundTag nbt, final Couple<Frequency> channel, final boolean receiver, final HolderLookup.Provider registries, final DimensionPalette dimensions, final RedstoneLinkNetwork network) {
+	protected RedstoneLinkable(final CompoundTag tag, final Couple<Frequency> channel, final boolean receiver, final HolderLookup.Provider registries, final DimensionPalette dimensions, final RedstoneLinkNetwork network) {
 		this.channel = channel;
 		this.receiver = receiver;
 		this.network = network;
-		this.signal = nbt.getInt("Signal");
-		this.uuid = nbt.getUUID("UUID");
+		this.signal = tag.getInt("Signal");
+		this.uuid = tag.getUUID("UUID");
 
-		this.readAdditional(nbt.getCompound("Additional"), registries, dimensions);
+		this.readAdditional(tag.getCompound("Additional"), registries, dimensions);
 	}
 
 	protected RedstoneLinkable(final Couple<Frequency> channel) {
@@ -289,13 +289,13 @@ public abstract class RedstoneLinkable {
 
 	protected abstract void onSignalChanged();
 
-	public abstract void readAdditional(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions);
+	public abstract void readAdditional(final CompoundTag tag, final HolderLookup.Provider registries, final DimensionPalette dimensions);
 
 	protected abstract boolean shouldSetFrequency(boolean first, Frequency frequency);
 
 	protected abstract boolean shouldSetMode(final boolean receiver);
 
-	public abstract void writeAdditional(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions);
+	public abstract void writeAdditional(final CompoundTag tag, final HolderLookup.Provider registries, final DimensionPalette dimensions);
 
 	public abstract void representationUnloaded();
 }

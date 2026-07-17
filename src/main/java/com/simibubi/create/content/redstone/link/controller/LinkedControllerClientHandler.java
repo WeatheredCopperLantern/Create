@@ -9,7 +9,7 @@ import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.redstone.link.controller.packet.LinkedControllerCopyChannelPacket;
 import com.simibubi.create.content.redstone.link.controller.packet.LinkedControllerInputPacket;
 import com.simibubi.create.content.redstone.link.controller.packet.LinkedControllerStopLecternPacket;
-import com.simibubi.create.content.redstone.link.interfaces.ILinkableBlockEntity;
+import com.simibubi.create.content.redstone.link.linkable.LinkableBlockEntity;
 import com.simibubi.create.foundation.utility.ControlsUtil;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.outliner.Outliner;
@@ -84,7 +84,7 @@ public class LinkedControllerClientHandler {
 				final int set = pressedKeys.nextSetBit(0);
 				if (set > -1) {
 					final BlockEntity be = mc.level.getBlockEntity(this.selectedLocation);
-					if (be instanceof ILinkableBlockEntity) {
+					if (be instanceof LinkableBlockEntity<?>) {
 						CatnipServices.NETWORK.sendToServer(new LinkedControllerCopyChannelPacket(set, this.selectedLocation));
 						CreateLang.translate("linked_controller.key_bound", controls.get(set).getTranslatedKeyMessage().getString()).sendStatus(mc.player);
 					}
@@ -125,6 +125,7 @@ public class LinkedControllerClientHandler {
 		this.mode = Mode.IDLE;
 
 		if (this.inLectern()) {
+			assert this.lecternPos != null;
 			CatnipServices.NETWORK.sendToServer(new LinkedControllerStopLecternPacket(this.lecternPos));
 		}
 		this.lecternPos = null;

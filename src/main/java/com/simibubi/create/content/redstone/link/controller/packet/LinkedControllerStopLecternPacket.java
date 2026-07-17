@@ -3,13 +3,17 @@ package com.simibubi.create.content.redstone.link.controller.packet;
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.redstone.link.controller.lecternController.LecternControllerBlockEntity;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import io.netty.buffer.ByteBuf;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class LinkedControllerStopLecternPacket extends LinkedControllerPacketBase {
 
 	//region Fields

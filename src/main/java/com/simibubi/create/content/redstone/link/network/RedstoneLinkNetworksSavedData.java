@@ -32,37 +32,37 @@ public class RedstoneLinkNetworksSavedData extends SavedData {
 	public Map<UUID, RedstoneLinkable> linkables;
 
 	@Override
-	public CompoundTag save(final CompoundTag nbt, final HolderLookup.@NonNull Provider registries) {
+	public CompoundTag save(final CompoundTag tag, final HolderLookup.@NonNull Provider registries) {
 		final GlobalRedstoneLinkNetworksManager linkNetworks = Create.REDSTONE_LINK_NETWORK;
 		final DimensionPalette dimensions = new DimensionPalette();
 
-		nbt.put("Networks", NBTHelper.writeCompoundList(linkNetworks.networks.entrySet(), set -> {
+		tag.put("Networks", NBTHelper.writeCompoundList(linkNetworks.networks.entrySet(), set -> {
 			final CompoundTag networkNBT = new CompoundTag(2);
 			networkNBT.putInt("D", dimensions.encode(set.getKey()));
 			networkNBT.put("Network", set.getValue().write(registries, dimensions));
 			return networkNBT;
 		}));
 
-		nbt.putInt("Linkables", linkNetworks.linkables.size());
+		tag.putInt("Linkables", linkNetworks.linkables.size());
 
-		dimensions.write(nbt);
+		dimensions.write(tag);
 		this.setDirty(false);
-		return nbt;
+		return tag;
 	}
 
-	private static RedstoneLinkNetworksSavedData load(final CompoundTag nbt, final HolderLookup.Provider registries, final MinecraftServer server) {
+	private static RedstoneLinkNetworksSavedData load(final CompoundTag tag, final HolderLookup.Provider registries, final MinecraftServer server) {
 		final Set<ResourceKey<Level>> levelKeys = server.levelKeys();
 		final Map<ResourceKey<Level>, RedstoneLinkNetwork> networks = new HashMap<>((int) Math.ceil(levelKeys.size() / 0.7), 0.7f);
-		final Map<UUID, RedstoneLinkable> linkables = new HashMap<>((int) Math.ceil(nbt.getInt("Linkables") / 0.7), 0.7f);
+		final Map<UUID, RedstoneLinkable> linkables = new HashMap<>((int) Math.ceil(tag.getInt("Linkables") / 0.7), 0.7f);
 
-		final DimensionPalette dimensions = DimensionPalette.read(nbt);
+		final DimensionPalette dimensions = DimensionPalette.read(tag);
 
-		NBTHelper.iterateCompoundList(nbt.getList("Networks", Tag.TAG_COMPOUND), tag -> {
-			final ResourceKey<Level> levelKey = dimensions.decode(tag.getInt("D"));
+		NBTHelper.iterateCompoundList(tag.getList("Networks", Tag.TAG_COMPOUND), compoundTag -> {
+			final ResourceKey<Level> levelKey = dimensions.decode(compoundTag.getInt("D"));
 			final ServerLevel level = server.getLevel(levelKey);
 			assert level != null;
-			final RedstoneLinkNetwork network = RedstoneLinkNetwork.read(tag.getCompound("Network"), registries, dimensions, linkables, level);
-			networks.put(dimensions.decode(tag.getInt("D")), network);
+			final RedstoneLinkNetwork network = RedstoneLinkNetwork.read(compoundTag.getCompound("Network"), registries, dimensions, linkables, level);
+			networks.put(dimensions.decode(compoundTag.getInt("D")), network);
 		});
 
 		levelKeys.forEach(levelKey -> networks.computeIfAbsent(levelKey, u -> new RedstoneLinkNetwork(Objects.requireNonNull(server.getLevel(u)))));

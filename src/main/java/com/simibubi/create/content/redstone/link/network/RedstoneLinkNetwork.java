@@ -59,9 +59,9 @@ public class RedstoneLinkNetwork {
 
 	// region Saving/Loading =========================================================
 	public CompoundTag write(final HolderLookup.Provider registries, final DimensionPalette dimensions) {
-		final CompoundTag nbt = new CompoundTag(1);
+		final CompoundTag tag = new CompoundTag(1);
 
-		nbt.put("Channels", NBTHelper.writeCompoundList(this.channels.entrySet(), entry -> {
+		tag.put("Channels", NBTHelper.writeCompoundList(this.channels.entrySet(), entry -> {
 			final CompoundTag channelNBT = new CompoundTag(4);
 
 			final Couple<Frequency> channel = entry.getKey();
@@ -89,38 +89,38 @@ public class RedstoneLinkNetwork {
 			return channelNBT;
 		}));
 
-		final ListTag tag = new ListTag();
+		final ListTag listTag = new ListTag();
 		for (final RedstoneLinkable linkable : this.updates) {
-			tag.add(NbtUtils.createUUID(linkable.uuid));
+			listTag.add(NbtUtils.createUUID(linkable.uuid));
 		}
-		nbt.put("Updates", tag);
+		tag.put("Updates", listTag);
 
-		tag.clear();
+		listTag.clear();
 		for (final RedstoneLinkable linkable : this.recalcQueue) {
-			tag.add(NbtUtils.createUUID(linkable.uuid));
+			listTag.add(NbtUtils.createUUID(linkable.uuid));
 		}
-		nbt.put("Recalc", tag);
+		tag.put("Recalc", listTag);
 
-		nbt.put("QueuedSignals", NBTHelper.writeCompoundList(this.queuedReceiverSignals, redstoneLinkableIntegerPair -> {
+		tag.put("QueuedSignals", NBTHelper.writeCompoundList(this.queuedReceiverSignals, redstoneLinkableIntegerPair -> {
 			final CompoundTag compoundTag = new CompoundTag(2);
 			compoundTag.putUUID("uuid", redstoneLinkableIntegerPair.getFirst().uuid);
 			compoundTag.putInt("strength", redstoneLinkableIntegerPair.getSecond());
 			return compoundTag;
 		}));
 
-		nbt.put("QueuedRemovals", NBTHelper.writeCompoundList(this.queuedRemovals.entrySet(), redstoneLinkableIntegerEntry -> {
+		tag.put("QueuedRemovals", NBTHelper.writeCompoundList(this.queuedRemovals.entrySet(), redstoneLinkableIntegerEntry -> {
 			final CompoundTag compoundTag = new CompoundTag(2);
 			compoundTag.putUUID("uuid", redstoneLinkableIntegerEntry.getKey().uuid);
 			compoundTag.putInt("time", redstoneLinkableIntegerEntry.getValue());
 			return compoundTag;
 		}));
 
-		return nbt;
+		return tag;
 	}
 
-	public static RedstoneLinkNetwork read(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions, final Map<UUID, RedstoneLinkable> linkables, final ServerLevel level) {
+	public static RedstoneLinkNetwork read(final CompoundTag tag, final HolderLookup.Provider registries, final DimensionPalette dimensions, final Map<UUID, RedstoneLinkable> linkables, final ServerLevel level) {
 		final RedstoneLinkNetwork network = new RedstoneLinkNetwork();
-		final ListTag channelsTag = nbt.getList("Channels", Tag.TAG_COMPOUND);
+		final ListTag channelsTag = tag.getList("Channels", Tag.TAG_COMPOUND);
 		final Map<Couple<Frequency>, Couple<Set<RedstoneLinkable>>> channels = new HashMap<>((int) Math.ceil(channelsTag.size() / 0.7f), 0.7f);
 
 		NBTHelper.iterateCompoundList(channelsTag, channelNBT -> {
@@ -136,7 +136,7 @@ public class RedstoneLinkNetwork {
 					final RedstoneLinkable link = linkType.factory().apply(linkableNBT, channel.copy(), aBoolean, registries, dimensions, network);
 					set.add(link);
 					linkables.put(link.uuid, link);
-					if(link instanceof  ITickingLinkable tickingLinkable){
+					if (link instanceof ITickingLinkable tickingLinkable) {
 						network.tickingLinkables.add(tickingLinkable);
 					}
 				});
@@ -146,18 +146,18 @@ public class RedstoneLinkNetwork {
 			channels.put(channel, sets);
 		});
 
-		ListTag tag = nbt.getList("Updates", Tag.TAG_INT_ARRAY);
-		tag.forEach(tag1 -> network.updates.add(linkables.get(NbtUtils.loadUUID(tag1))));
+		ListTag listTag = tag.getList("Updates", Tag.TAG_INT_ARRAY);
+		listTag.forEach(tag1 -> network.updates.add(linkables.get(NbtUtils.loadUUID(tag1))));
 
-		tag = nbt.getList("Recalc", Tag.TAG_INT_ARRAY);
-		tag.forEach(tag1 -> network.recalcQueue.add(linkables.get(NbtUtils.loadUUID(tag1))));
+		listTag = tag.getList("Recalc", Tag.TAG_INT_ARRAY);
+		listTag.forEach(tag1 -> network.recalcQueue.add(linkables.get(NbtUtils.loadUUID(tag1))));
 
-		NBTHelper.iterateCompoundList(nbt.getList("QueuedSignals", Tag.TAG_COMPOUND), compoundTag -> {
+		NBTHelper.iterateCompoundList(tag.getList("QueuedSignals", Tag.TAG_COMPOUND), compoundTag -> {
 			final int strength = compoundTag.getInt("strength");
 			network.queuedReceiverSignals.add(Pair.of(linkables.get(compoundTag.getUUID("uuid")), strength));
 		});
 
-		NBTHelper.iterateCompoundList(nbt.getList("QueuedRemovals", Tag.TAG_COMPOUND), compoundTag -> {
+		NBTHelper.iterateCompoundList(tag.getList("QueuedRemovals", Tag.TAG_COMPOUND), compoundTag -> {
 			final int time = compoundTag.getInt("time");
 			network.queuedRemovals.put(linkables.get(compoundTag.getUUID("uuid")), time);
 		});

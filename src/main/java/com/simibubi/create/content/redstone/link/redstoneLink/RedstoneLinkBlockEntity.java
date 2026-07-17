@@ -66,8 +66,8 @@ public class RedstoneLinkBlockEntity extends SmartBlockEntity implements IHaveGo
 		if (!this.initialized) return;
 		super.write(compound, registries, false);
 		if (clientPacket) {
-			compound.put("FrequencyFirst", this.channel.getFirst().write());
-			compound.put("FrequencyLast", this.channel.getSecond().write());
+			compound.put("FrequencyFirst", this.channel.getFirst().write(registries));
+			compound.put("FrequencyLast", this.channel.getSecond().write(registries));
 		} else {
 			compound.putUUID("uuid", this.linkable.uuid);
 		}

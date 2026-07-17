@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import net.createmod.catnip.nbt.NBTHelper;
-
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -22,11 +20,16 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import javax.annotation.ParametersAreNonnullByDefault;
 import org.apache.commons.codec.digest.MurmurHash3;
 import org.jspecify.annotations.NonNull;
@@ -34,6 +37,30 @@ import org.jspecify.annotations.NonNull;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class Frequency {
+
+	public static final Codec<Frequency> CODEC = RecordCodecBuilder.create(instance -> instance.group(ResourceLocation.CODEC.fieldOf("Item").forGetter(frequency -> BuiltInRegistries.ITEM.getKey(frequency.item)), Codec.BOOL.fieldOf("Simple").forGetter(frequency -> frequency.isSimple), DataComponentPatch.CODEC.optionalFieldOf("Patch", DataComponentPatch.EMPTY).forGetter(frequency -> frequency.componentPatch)).apply(instance, (itemId, simple, patch) -> {
+		Item item = BuiltInRegistries.ITEM.get(itemId);
+
+		if (simple) {
+			return Frequency.of(new ItemStack(item));
+		}
+
+		return Frequency.of(new ItemStack(Holder.direct(item), 1, patch));
+	}));
+
+	public static final StreamCodec<RegistryFriendlyByteBuf, Frequency> STREAM_CODEC = ItemStack.STREAM_CODEC.map(Frequency::of, frequency -> frequency.stack);
+
+	public static Tag write(Frequency frequency, HolderLookup.Provider registries) {
+		return Frequency.CODEC.encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), frequency).getOrThrow();
+	}
+
+	public static Frequency read(Tag tag, HolderLookup.Provider registries) {
+		if (tag instanceof final CompoundTag compound && compound.contains("id")) {
+			return Frequency.of(ItemStack.CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE), tag).getOrThrow());
+		}
+
+		return CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE), tag).getOrThrow();
+	}
 
 	public static final Frequency EMPTY = new Frequency(Items.AIR, true);
 	// TODO: save sizes and apply during load to avoid/reduce resizing
@@ -141,36 +168,8 @@ public class Frequency {
 		}
 	}
 
-	public static Frequency read(final CompoundTag nbt, final HolderLookup.Provider registries) {
-		if (nbt.contains("Item")) {
-			return Frequency.readNew(nbt);
-		} else if (nbt.contains("id")) {
-			return Frequency.readLegacy(nbt, registries);
-		}
-		return Frequency.EMPTY;
-	}
-
-	private static Frequency readNew(final CompoundTag nbt) {
-		final Item item = BuiltInRegistries.ITEM.get(NBTHelper.readResourceLocation(nbt, "Item"));
-		if (nbt.getBoolean("Simple")) {
-			return Frequency.of(new ItemStack(item));
-		}
-		final DataComponentPatch componentPatch = DataComponentPatch.CODEC.parse(NbtOps.INSTANCE, nbt.get("Patch")).getOrThrow();
-		return Frequency.of(new ItemStack(Holder.direct(item), 1, componentPatch));
-	}
-
-	private static Frequency readLegacy(final CompoundTag nbt, final HolderLookup.Provider registries) {
-		return Frequency.of(ItemStack.parseOptional(registries, nbt));
-	}
-
-	public CompoundTag write() {
-		final CompoundTag nbt = new CompoundTag();
-		NBTHelper.writeResourceLocation(nbt, "Item", BuiltInRegistries.ITEM.getKey(this.item));
-		nbt.putBoolean("Simple", this.isSimple);
-		if (!this.isSimple) {
-			nbt.put("Patch", DataComponentPatch.CODEC.encodeStart(NbtOps.INSTANCE, this.componentPatch).getOrThrow());
-		}
-		return nbt;
+	public Tag write(HolderLookup.Provider registries) {
+		return Frequency.write(this, registries);
 	}
 
 	@Override

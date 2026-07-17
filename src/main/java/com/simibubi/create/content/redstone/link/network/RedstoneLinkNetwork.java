@@ -69,7 +69,7 @@ public class RedstoneLinkNetwork {
 
 			if (linkables.both(Set::isEmpty)) return null;
 
-			channel.forEachWithParams((frequency, name) -> channelNBT.put(name, frequency.write()), Couple.create("Frequency_1", "Frequency_2"));
+			channel.forEachWithParams((frequency, name) -> channelNBT.put(name, frequency.write(registries)), Couple.create("Frequency_1", "Frequency_2"));
 
 			linkables.forEachWithParams((redstoneLinkables, name) -> channelNBT.put(name, NBTHelper.writeCompoundList(redstoneLinkables, linkable -> {
 				if (!linkable.doSave()) return null;

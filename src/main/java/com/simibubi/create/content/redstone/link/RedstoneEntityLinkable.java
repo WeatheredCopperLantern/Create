@@ -42,6 +42,31 @@ public abstract class RedstoneEntityLinkable extends RedstoneLinkable implements
 	}
 
 	@Override
+	public void representationUnloaded() {
+
+	}
+
+	@Override
+	protected boolean shouldSetFrequency(final boolean first, final Frequency frequency) {
+		return true;
+	}
+
+	@Override
+	protected void onFrequencyChanged(final boolean first) {
+
+	}
+
+	@Override
+	protected void onModeChanged(final RedstoneLinkableSnapshot snapshot) {
+
+	}
+
+	@Override
+	protected void onSignalChanged() {
+
+	}
+
+	@Override
 	public void readAdditional(final CompoundTag nbt, final HolderLookup.@NonNull Provider registries, final DimensionPalette dimensions) {
 		this.uuid = nbt.getUUID("uuid");
 		final ListTag tag = nbt.getList("position", Tag.TAG_COMPOUND);

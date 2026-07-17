@@ -40,7 +40,7 @@ public class LinkedControllerServerHandler {
 			if (pressed) {
 				link.refresh(LinkedControllerServerHandler.TIMEOUT, channel);
 			} else {
-				link.destroy();
+				link.removeFromNetworkInstantly();
 			}
 		}
 	}

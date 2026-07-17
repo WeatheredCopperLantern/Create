@@ -274,7 +274,7 @@ public class RedstoneLinkNetwork {
 		}
 	}
 
-	public void removeIn(final RedstoneLinkable linkable, final int ticks) {
+	public void removeLinkableIn(final RedstoneLinkable linkable, final int ticks) {
 		this.queuedRemovals.compute(linkable, (redstoneLinkable, integer) -> (integer == null) ? ticks : Math.max(integer, ticks));
 	}
 

@@ -3,7 +3,6 @@ package com.simibubi.create.content.redstone.link.linkable;
 import java.util.UUID;
 
 import com.simibubi.create.CreateBuildInfo;
-import com.simibubi.create.content.equipment.clipboard.ClipboardCloneable;
 import com.simibubi.create.content.redstone.link.network.RedstoneLinkNetwork;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
 import com.simibubi.create.foundation.mixin.accessor.CValueAccessor;
@@ -11,7 +10,6 @@ import com.simibubi.create.infrastructure.config.AllConfigs;
 import net.createmod.catnip.data.Couple;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
@@ -25,10 +23,11 @@ import org.jspecify.annotations.Nullable;
 /**
  * Base class for {@code Receiver/Transmitter behaviour} implementations. <br>
  *
+ * //TODO: rephrase everything to should
  * <h2>Lifecycle</h2>
  * <ol>
  *  <li>An instance can be created through {@link #RedstoneLinkable(Couple)} during gameplay or {@link #RedstoneLinkable(CompoundTag, Couple, boolean, HolderLookup.Provider, DimensionPalette, RedstoneLinkNetwork)} during loading.</li>
- *  <li>An instance is properly destroyed through {@link RedstoneLinkable#destroy()}.</li>
+ *  <li>//TODO: this is false -> An instance is properly destroyed through {@link RedstoneLinkable#removeFromNetwork()}.</li>
  *  <li style="color:red">An instance is <b>NOT</b> destroyed when the in world representation is unloaded.</li>
  * </ol>
  *
@@ -107,9 +106,16 @@ public abstract class RedstoneLinkable {
 		this.updateQueued = false;
 	}
 
-	public void destroy() {
+	public void removeFromNetwork() {
 		if (this.network != null) {
-			this.network.removeIn(this, 1);
+			this.network.removeLinkableIn(this, 1);
+		}
+		this.network = null;
+	}
+
+	public void removeFromNetworkInstantly(){
+		if (this.network != null) {
+			this.network.removeLinkable(this);
 		}
 		this.network = null;
 	}
@@ -290,4 +296,6 @@ public abstract class RedstoneLinkable {
 	protected abstract boolean shouldSetMode(final boolean receiver);
 
 	public abstract void writeAdditional(final CompoundTag nbt, final HolderLookup.Provider registries, final DimensionPalette dimensions);
+
+	public abstract void representationUnloaded();
 }

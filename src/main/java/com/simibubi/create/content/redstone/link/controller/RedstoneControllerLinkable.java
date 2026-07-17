@@ -4,7 +4,6 @@ import com.simibubi.create.AllRedstoneLinkables;
 import com.simibubi.create.content.redstone.link.linkable.Frequency;
 import com.simibubi.create.content.redstone.link.RedstoneEntityLinkable;
 import com.simibubi.create.content.redstone.link.network.RedstoneLinkNetwork;
-import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkableSnapshot;
 import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkableType;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
 import net.createmod.catnip.data.Couple;
@@ -26,7 +25,7 @@ public class RedstoneControllerLinkable extends RedstoneEntityLinkable {
 	public void tick() {
 		this.lifetime--;
 		if (this.lifetime <= 0) {
-			this.destroy();
+			this.removeFromNetworkInstantly();
 		} else {
 			super.tick();
 		}
@@ -40,26 +39,6 @@ public class RedstoneControllerLinkable extends RedstoneEntityLinkable {
 	@Override
 	public RedstoneLinkableType getType() {
 		return AllRedstoneLinkables.REDSTONE_CONTROLLER.value();
-	}
-
-	@Override
-	protected boolean shouldSetFrequency(final boolean first, final Frequency frequency) {
-		return true;
-	}
-
-	@Override
-	protected void onFrequencyChanged(final boolean first) {
-
-	}
-
-	@Override
-	protected void onModeChanged(final RedstoneLinkableSnapshot snapshot) {
-
-	}
-
-	@Override
-	protected void onSignalChanged() {
-
 	}
 
 	public void refresh(final int lifetime, final Couple<Frequency> channel) {

@@ -45,6 +45,11 @@ public class RedstoneLinkLinkable extends RedstoneLinkable {
 	}
 
 	@Override
+	public void representationUnloaded() {
+		this.blockEntity = null;
+	}
+
+	@Override
 	public void delayedUpdate() {
 		super.delayedUpdate();
 		this.withBeDo(be -> {
@@ -118,9 +123,5 @@ public class RedstoneLinkLinkable extends RedstoneLinkable {
 	public void setBlockEntity(final RedstoneLinkBlockEntity redstoneLinkBlockEntity) {
 		this.blockEntity = redstoneLinkBlockEntity;
 		this.cachedPosition = redstoneLinkBlockEntity.getBlockPos().getCenter().toVector3f();
-	}
-
-	public void blockEntityUnloaded() {
-		this.blockEntity = null;
 	}
 }

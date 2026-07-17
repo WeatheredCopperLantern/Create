@@ -63,12 +63,7 @@ public abstract class RedstoneLinkable {
 	//region Fields
 	//TODO: Build caching for linkables in communication range, so we can completely skip any checks for signal change/removal updates
 	//Transmission/Receiving ranges get queried a lot. Skipping the ConfigBase#get() method actually has a measurable impact on performance.
-	private static final ModConfigSpec.ConfigValue<Integer> logistics_linkRange;
-
-	static {
-		//noinspection unchecked,CastToIncompatibleInterface
-		logistics_linkRange = (ModConfigSpec.ConfigValue<Integer>) ((CValueAccessor) AllConfigs.server().logistics.linkRange).create$getRawValue();
-	}
+	private static ModConfigSpec.ConfigValue<Integer> logistics_linkRange;
 
 	public final UUID uuid;
 	public final Couple<Frequency> channel;
@@ -146,12 +141,20 @@ public abstract class RedstoneLinkable {
 	@SuppressWarnings("MethodMayBeStatic")
 	@Contract(pure = true)
 	public int getReceivingRange() {
+		if(RedstoneLinkable.logistics_linkRange == null){
+			//noinspection unchecked
+			RedstoneLinkable.logistics_linkRange = (ModConfigSpec.ConfigValue<Integer>) ((CValueAccessor) AllConfigs.server().logistics.linkRange).create$getRawValue();
+		}
 		return RedstoneLinkable.logistics_linkRange.get();
 	}
 
 	@SuppressWarnings("MethodMayBeStatic")
 	@Contract(pure = true)
 	public int getTransmissionRange() {
+		if(RedstoneLinkable.logistics_linkRange == null){
+			//noinspection unchecked
+			RedstoneLinkable.logistics_linkRange = (ModConfigSpec.ConfigValue<Integer>) ((CValueAccessor) AllConfigs.server().logistics.linkRange).create$getRawValue();
+		}
 		return RedstoneLinkable.logistics_linkRange.get();
 	}
 

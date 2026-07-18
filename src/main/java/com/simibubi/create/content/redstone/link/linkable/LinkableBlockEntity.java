@@ -1,10 +1,7 @@
 package com.simibubi.create.content.redstone.link.linkable;
 
-import java.util.function.Consumer;
-
 import com.simibubi.create.Create;
 import com.simibubi.create.content.equipment.clipboard.ClipboardCloneable;
-import com.simibubi.create.content.redstone.link.redstoneLink.RedstoneLinkLinkable;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 
 import net.createmod.catnip.data.Couple;
@@ -18,7 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,7 +24,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public abstract class LinkableBlockEntity<T extends RedstoneLinkable> extends SmartBlockEntity implements MenuProvider, ClipboardCloneable {
+public abstract class LinkableBlockEntity<T extends BlockEntityRedstoneLinkable<?>> extends SmartBlockEntity implements MenuProvider, ClipboardCloneable {
 
 	private final Class<T> linkableType;
 	public T linkable;
@@ -55,15 +51,15 @@ public abstract class LinkableBlockEntity<T extends RedstoneLinkable> extends Sm
 	}
 
 	public T getLinkable() {
-		return linkable;
+		return this.linkable;
 	}
 
 	public abstract void updateFromLinkable();
 
 	@Override
 	public boolean writeToClipboard(final HolderLookup.Provider registries, final CompoundTag tag, final Direction side) {
-		tag.put(RedstoneLinkable.FIRST_FREQUENCY, channel.getFirst().write(registries));
-		tag.put(RedstoneLinkable.SECOND_FREQUENCY, channel.getSecond().write(registries));
+		tag.put(RedstoneLinkable.FIRST_FREQUENCY, this.channel.getFirst().write(registries));
+		tag.put(RedstoneLinkable.SECOND_FREQUENCY, this.channel.getSecond().write(registries));
 		return true;
 	}
 
@@ -71,9 +67,9 @@ public abstract class LinkableBlockEntity<T extends RedstoneLinkable> extends Sm
 	public boolean readFromClipboard(final HolderLookup.Provider registries, final CompoundTag tag, final Player player, final Direction side, final boolean simulate) {
 		if (simulate) return true;
 
-		for (boolean first : Iterate.trueAndFalse) {
-			Tag tmpTag = tag.get(first ? RedstoneLinkable.FIRST_FREQUENCY : RedstoneLinkable.SECOND_FREQUENCY);
-			if (tmpTag != null) linkable.setFrequency(first, Frequency.read(tmpTag, registries));
+		for (final boolean first : Iterate.trueAndFalse) {
+			final Tag tmpTag = tag.get(first ? RedstoneLinkable.FIRST_FREQUENCY : RedstoneLinkable.SECOND_FREQUENCY);
+			if (tmpTag != null) this.linkable.setFrequency(first, Frequency.read(tmpTag, registries));
 		}
 		return true;
 	}

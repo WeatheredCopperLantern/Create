@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.simibubi.create.AllBlockEntityTypes;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllSoundEvents;
+import com.simibubi.create.CreateClient;
 import com.simibubi.create.api.schematic.requirement.SpecialBlockItemRequirement;
 import com.simibubi.create.content.schematics.requirement.ItemRequirement;
 import com.simibubi.create.foundation.block.IBE;
@@ -74,8 +75,7 @@ public class LecternControllerBlock extends LecternBlock implements IBE<LecternC
 	@Override
 	public void onRemove(final BlockState state, final Level level, final BlockPos pos, final BlockState newState, final boolean isMoving) {
 		if (newState.getBlock() != this) {
-			if (!level.isClientSide) this.withBlockEntityDo(level, pos, be -> be.dropController(state));
-
+			this.withBlockEntityDo(level, pos, be -> be.dropController(state));
 			super.onRemove(state, level, pos, newState, isMoving);
 		}
 	}
@@ -92,7 +92,7 @@ public class LecternControllerBlock extends LecternBlock implements IBE<LecternC
 
 	@Override
 	protected ItemInteractionResult useItemOn(final ItemStack stack, final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand hand, final BlockHitResult hitResult) {
-		if (!player.isShiftKeyDown() && LecternControllerBlockEntity.playerInRange(player, pos)) {
+		if (!player.isShiftKeyDown() && LecternControllerBlockEntity.entityInRange(player, pos)) {
 			if (!level.isClientSide) {
 				this.withBlockEntityDo(level, pos, be -> {
 					if (be.isUsedBy(player)) {

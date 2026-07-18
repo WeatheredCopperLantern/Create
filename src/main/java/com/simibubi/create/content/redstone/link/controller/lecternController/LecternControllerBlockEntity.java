@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllSoundEvents;
+import com.simibubi.create.Create;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.redstone.link.controller.LinkedControllerItem;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -22,9 +23,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
@@ -53,7 +54,7 @@ public class LecternControllerBlockEntity extends SmartBlockEntity {
 		if (!(this.level instanceof ServerLevel serverLevel) || this.user == null) return;
 
 		final Entity entity = serverLevel.getEntity(this.user);
-		if (!(entity instanceof final Player player) || !LecternControllerBlockEntity.playerInRange(player, this.worldPosition)) {
+		if (entity == null || (entity instanceof LivingEntity livingEntity && !LecternControllerBlockEntity.entityInRange(livingEntity, this.worldPosition))) {
 			this.removeUser();
 		}
 	}
@@ -107,46 +108,49 @@ public class LecternControllerBlockEntity extends SmartBlockEntity {
 		return this.user != null;
 	}
 
-	public boolean isUsedBy(final Player player) {
-		return this.hasUser() && player.getUUID().equals(this.user);
+	public boolean isUsedBy(final Entity entity) {
+		return this.hasUser() && entity.getUUID().equals(this.user);
 	}
 
-	public static boolean playerInRange(final Player player, final BlockPos pos) {
-		final double reach = 0.4 * player.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE);
-		return player.getEyePosition().distanceToSqr(Vec3.atCenterOf(pos)) < reach * reach;
+	public static boolean entityInRange(final LivingEntity livingEntity, final BlockPos pos) {
+		final double reach = 0.4 * livingEntity.getAttributeValue(Attributes.BLOCK_INTERACTION_RANGE);
+		return livingEntity.getEyePosition().distanceToSqr(Vec3.atCenterOf(pos)) < reach * reach;
 	}
 
 	private void removeUser() {
+		if (this.user != null && this.level instanceof ServerLevel serverLevel && serverLevel.getEntity(this.user) instanceof Entity entity) {
+			Create.LINKED_CONTROLLER_HANDLER.remove(entity);
+		}
 		this.user = null;
 		this.sendData();
 		this.setChanged();
 	}
 
-	private void setUser(final Player player) {
-		this.user = player.getUUID();
+	private void setUser(final Entity entity) {
+		this.user = entity.getUUID();
 		this.sendData();
 		this.setChanged();
 	}
 
-	public void swapControllers(final ItemStack stack, final Player player, final InteractionHand hand, final BlockState state) {
+	public void swapControllers(final ItemStack stack, final LivingEntity livingEntity, final InteractionHand hand, final BlockState state) {
 		final ItemStack newController = stack.copy();
 		stack.setCount(0);
-		if (player.getItemInHand(hand).isEmpty()) {
-			player.setItemInHand(hand, this.createLinkedController());
+		if (livingEntity.getItemInHand(hand).isEmpty()) {
+			livingEntity.setItemInHand(hand, this.createLinkedController());
 		} else {
 			this.dropController(state);
 		}
 		this.setController(newController);
 	}
 
-	public void tryStartUsing(final Player player) {
+	public void tryStartUsing(final Entity entity) {
 		if (!this.hasUser()) {
-			this.setUser(player);
+			this.setUser(entity);
 		}
 	}
 
-	public void tryStopUsing(final Player player) {
-		if (this.isUsedBy(player)) this.removeUser();
+	public void tryStopUsing(final Entity entity) {
+		if (this.isUsedBy(entity)) this.removeUser();
 	}
 
 	@Override
@@ -187,6 +191,14 @@ public class LecternControllerBlockEntity extends SmartBlockEntity {
 		super.writeSafe(compound, registries);
 		compound.putInt("color", this.color.getId());
 		compound.put("ControllerData", CatnipCodecUtils.encode(ItemContainerContents.CODEC, registries, this.controllerData).orElseThrow());
+	}
+
+	@Override
+	public void remove() {
+		assert this.level != null;
+		if (this.level.isClientSide && Minecraft.getInstance().getUser().getProfileId().equals(this.user)) {
+			CreateClient.LINKED_CONTROLLER_HANDLER.deactivateInLectern();
+		}
 	}
 
 	public LecternControllerBlockEntity(final BlockEntityType<?> type, final BlockPos pos, final BlockState state) {

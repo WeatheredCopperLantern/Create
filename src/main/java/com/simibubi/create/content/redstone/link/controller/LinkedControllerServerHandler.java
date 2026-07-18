@@ -1,7 +1,9 @@
 package com.simibubi.create.content.redstone.link.controller;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.simibubi.create.content.redstone.link.linkable.Frequency;
@@ -17,13 +19,30 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 public class LinkedControllerServerHandler {
 
 	//region Fields
+	private final List<Entity> activeEntities;
 	private final Map<Entity, Map<Integer, RedstoneControllerLinkable>> activeSignals;
 	private static final int TIMEOUT = 30;
 
 	//endregion
 
 	public LinkedControllerServerHandler() {
+		activeEntities = new ArrayList<>(5);
 		activeSignals = HashMap.newHashMap(5);
+	}
+
+	public void toggle(Entity entity) {
+		if (activeEntities.remove(entity)) {
+			remove(entity);
+		} else {
+			activeEntities.add(entity);
+		}
+	}
+
+	public void remove(final Entity sender) {
+		final Map<Integer, RedstoneControllerLinkable> senderMap = this.activeSignals.get(sender);
+		if (senderMap == null) return;
+		senderMap.forEach((integer, redstoneControllerLinkable) -> redstoneControllerLinkable.removeFromNetworkInstantly());
+		senderMap.clear();
 	}
 
 	public void handle(final BitSet keys, final Entity sender, final ItemStackHandler frequencyItems) {

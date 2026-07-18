@@ -3,6 +3,7 @@ package com.simibubi.create.content.redstone.link.controller;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
+import com.simibubi.create.Create;
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.redstone.link.linkable.LinkableBlockEntity;
 import com.simibubi.create.foundation.item.ItemHelper;
@@ -94,6 +95,7 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 
 		if (!player.isShiftKeyDown()) {
 			if (level.isClientSide) CreateClient.LINKED_CONTROLLER_HANDLER.toggle();
+			else Create.LINKED_CONTROLLER_HANDLER.toggle(player);
 			this.putOnCooldown(player);
 		}
 

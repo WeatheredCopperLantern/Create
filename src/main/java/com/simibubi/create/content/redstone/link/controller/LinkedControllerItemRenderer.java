@@ -68,27 +68,20 @@ public class LinkedControllerItemRenderer extends CustomRenderedItemModelRendere
 		LinkedControllerItemRenderer.renderNormal(stack, model, renderer, transformType, ms, light);
 	}
 
+	private static boolean isHandContext(final ItemDisplayContext transformType) {
+		return transformType == ItemDisplayContext.FIRST_PERSON_LEFT_HAND || transformType == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || transformType == ItemDisplayContext.THIRD_PERSON_LEFT_HAND || transformType == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
+	}
+
 	protected static void renderNormal(final ItemStack stack, final CustomRenderedItemModel model, final PartialItemModelRenderer renderer, final ItemDisplayContext transformType, final PoseStack ms, final int light) {
-		boolean active = CreateClient.LINKED_CONTROLLER_HANDLER.mode != Mode.IDLE && !CreateClient.LINKED_CONTROLLER_HANDLER.inLectern();
-		boolean animatePosition = transformType != ItemDisplayContext.GUI && !CreateClient.LINKED_CONTROLLER_HANDLER.inLectern();
-		if (active) {
-			final Player player = Minecraft.getInstance().player;
-			assert player != null;
-			final boolean controllerInMain = AllItems.LINKED_CONTROLLERS.contains(player.getMainHandItem());
+		final Player player = Minecraft.getInstance().player;
+		assert player != null;
+		final boolean isHandContext = isHandContext(transformType);
+		final boolean controllerInMain = isHandContext && AllItems.LINKED_CONTROLLERS.contains(player.getMainHandItem());
+		final boolean controllerInOffhand = !controllerInMain && isHandContext && AllItems.LINKED_CONTROLLERS.contains(player.getOffhandItem());
+		final boolean potentiallyActiveController = (controllerInMain && stack == player.getMainHandItem()) || (controllerInOffhand && stack == player.getOffhandItem());
 
-			if (stack == player.getOffhandItem() && controllerInMain) {
-				active = false;
-				animatePosition = false;
-			}
-		} else if (animatePosition) {
-			final Player player = Minecraft.getInstance().player;
-			assert player != null;
-			final boolean controllerInMain = AllItems.LINKED_CONTROLLERS.contains(player.getMainHandItem());
-
-			if (stack == player.getOffhandItem() && controllerInMain) {
-				animatePosition = false;
-			}
-		}
+		boolean animatePosition = potentiallyActiveController && !CreateClient.LINKED_CONTROLLER_HANDLER.inLectern();
+		boolean active = animatePosition && CreateClient.LINKED_CONTROLLER_HANDLER.mode != Mode.IDLE;
 
 		LinkedControllerItemRenderer.render((LinkedControllerItem) stack.getItem(), model, renderer, transformType, ms, light, RenderType.NORMAL, active, true, animatePosition);
 	}

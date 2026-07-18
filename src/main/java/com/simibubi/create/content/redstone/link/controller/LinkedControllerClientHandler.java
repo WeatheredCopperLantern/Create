@@ -3,7 +3,6 @@ package com.simibubi.create.content.redstone.link.controller;
 import java.util.BitSet;
 import java.util.List;
 
-import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.redstone.link.controller.packet.LinkedControllerCopyChannelPacket;
@@ -57,11 +56,6 @@ public class LinkedControllerClientHandler {
 			return;
 		}
 
-		if (this.inLectern() && AllBlocks.LECTERN_CONTROLLER.get().getBlockEntityOptional(mc.level, this.lecternPos).map(be -> !be.isUsedBy(mc.player)).orElse(true)) {
-			this.deactivateInLectern();
-			return;
-		}
-
 		final List<KeyMapping> controls = ControlsUtil.getControls();
 		final BitSet pressedKeys = new BitSet(6);
 
@@ -110,6 +104,7 @@ public class LinkedControllerClientHandler {
 
 	public void deactivateInLectern() {
 		if (this.mode == Mode.ACTIVE && this.inLectern()) {
+			this.lecternPos = null;
 			this.reset();
 		}
 	}
@@ -127,11 +122,7 @@ public class LinkedControllerClientHandler {
 		if (this.inLectern()) {
 			assert this.lecternPos != null;
 			CatnipServices.NETWORK.sendToServer(new LinkedControllerStopLecternPacket(this.lecternPos));
-		}
-		this.lecternPos = null;
-
-		if (!this.currentlyPressed.isEmpty()) {
-			CatnipServices.NETWORK.sendToServer(new LinkedControllerInputPacket(new BitSet(6), null));
+			this.lecternPos = null;
 		}
 		this.currentlyPressed.clear();
 

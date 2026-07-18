@@ -129,6 +129,7 @@ public class CommonEvents {
 	public static void playerLoggedOut(PlayerLoggedOutEvent event) {
 		Player player = event.getEntity();
 		Create.RAILWAYS.playerLogout(player);
+		Create.LINKED_CONTROLLER_HANDLER.remove(player);
 	}
 
 	@SubscribeEvent

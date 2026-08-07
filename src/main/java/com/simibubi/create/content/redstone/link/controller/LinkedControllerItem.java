@@ -5,7 +5,7 @@ import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
 import com.simibubi.create.CreateClient;
-import com.simibubi.create.content.redstone.link.linkable.LinkableBlockEntity;
+import com.simibubi.create.content.redstone.link.linkable.ILinkableBlockEntity;
 import com.simibubi.create.foundation.item.ItemHelper;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -65,7 +65,7 @@ public class LinkedControllerItem extends Item implements MenuProvider {
 				return InteractionResult.SUCCESS;
 			}
 		} else {
-			if (world.getBlockEntity(pos) instanceof LinkableBlockEntity<?>) {
+			if (world.getBlockEntity(pos) instanceof ILinkableBlockEntity) {
 				if (world.isClientSide) CreateClient.LINKED_CONTROLLER_HANDLER.toggleBindMode(pos);
 				this.putOnCooldown(player);
 				return InteractionResult.SUCCESS;

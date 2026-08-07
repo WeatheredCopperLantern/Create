@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.simibubi.create.CreateClient;
 import com.simibubi.create.content.redstone.link.linkable.Frequency;
+import com.simibubi.create.content.redstone.link.linkable.ILinkableBlockEntity;
+import com.simibubi.create.content.redstone.link.linkable.LinkableBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBox;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxRenderer;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
@@ -13,6 +15,7 @@ import com.simibubi.create.foundation.events.ClientEvents;
 import com.simibubi.create.foundation.utility.CreateLang;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import net.createmod.catnip.data.Couple;
+import net.createmod.catnip.data.ImmutableCouple;
 import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.data.Pair;
 import net.createmod.catnip.math.VecHelper;
@@ -59,7 +62,8 @@ public class RedstoneLinkRenderer extends SafeBlockEntityRenderer<RedstoneLinkBl
 		final double max = AllConfigs.client().filterItemRenderDistance.getF() * Math.max(1, Math.tan(Math.toRadians(70.0 * 0.5)) / Math.tan(Math.toRadians(ClientEvents.FOV() * 0.5)));
 
 		if (cameraEntity.position().distanceToSqr(VecHelper.getCenterOf(be.getBlockPos())) <= max * max) {
-			RedstoneLinkRenderer.renderItems(be.channel, ms, be.getBlockPos(), BlockPos.ZERO, be.getLevel(), be.getBlockState(), bufferSource, light, overlay);
+			final LinkableBehaviour<?> linkableBehaviour = ((ILinkableBlockEntity) be).getLinkableBehaviour();
+			RedstoneLinkRenderer.renderItems(be.getLinkableBehaviour().channel, linkableBehaviour.getSlots(), ms, be.getBlockPos(), BlockPos.ZERO, be.getLevel(), be.getBlockState(), bufferSource, light, overlay);
 		}
 
 		final HitResult target = mc.hitResult;
@@ -73,12 +77,15 @@ public class RedstoneLinkRenderer extends SafeBlockEntityRenderer<RedstoneLinkBl
 	}
 
 	public static void renderFrequencySelectionOnBlockEntity(final RedstoneLinkBlockEntity be, final BlockPos pos, final BlockHitResult target) {
+		if (!(be instanceof final ILinkableBlockEntity linkableBlockEntity)) return;
+		final LinkableBehaviour<?> linkableBehaviour = linkableBlockEntity.getLinkableBehaviour();
+		final Couple<ValueBoxTransform> slots = linkableBehaviour.getSlots();
 		for (final boolean first : Iterate.trueAndFalse) {
-			final boolean hit = RedstoneLinkBlock.testHit(be.getLevel(), be.getBlockState(), pos, first, target.getLocation());
-			final ValueBoxTransform transform = first ? RedstoneLinkBlock.SLOTS.getLeft() : RedstoneLinkBlock.SLOTS.getRight();
+			final boolean hit = be.getLinkableBehaviour().testHit(be.getLevel(), be.getBlockState(), pos, first, target.getLocation());
+			final ValueBoxTransform transform = slots.get(first);
 
 			final ValueBox box = new ValueBox(Component.empty(), RedstoneLinkRenderer.aabb, pos).passive(!hit);
-			final boolean empty = be.channel.get(first).stack.isEmpty();
+			final boolean empty = be.getLinkableBehaviour().channel.get(first).stack.isEmpty();
 
 			if (!empty) box.wideOutline();
 
@@ -94,9 +101,9 @@ public class RedstoneLinkRenderer extends SafeBlockEntityRenderer<RedstoneLinkBl
 		}
 	}
 
-	private static void renderItems(final Couple<Frequency> frequencies, final PoseStack ms, final BlockPos pos, final BlockPos renderOffset, final Level level, final BlockState state, final MultiBufferSource buffer, final int light, final int overlay) {
+	private static void renderItems(final ImmutableCouple<Frequency> frequencies, final Couple<ValueBoxTransform> slots, final PoseStack ms, final BlockPos pos, final BlockPos renderOffset, final Level level, final BlockState state, final MultiBufferSource buffer, final int light, final int overlay) {
 		for (final boolean first : Iterate.trueAndFalse) {
-			final ValueBoxTransform transform = first ? RedstoneLinkBlock.SLOTS.getLeft() : RedstoneLinkBlock.SLOTS.getRight();
+			final ValueBoxTransform transform = slots.get(first);
 			final ItemStack stack = frequencies.get(first).stack;
 
 			ms.pushPose();

@@ -33,6 +33,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import javax.annotation.ParametersAreNonnullByDefault;
 import org.apache.commons.codec.digest.MurmurHash3;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -54,7 +55,10 @@ public class Frequency {
 		return Frequency.CODEC.encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), frequency).getOrThrow();
 	}
 
-	public static Frequency read(Tag tag, HolderLookup.Provider registries) {
+	public static Frequency read(@Nullable Tag tag, HolderLookup.Provider registries) {
+		if (tag == null) {
+			return Frequency.EMPTY;
+		}
 		if (tag instanceof final CompoundTag compound && compound.contains("id")) {
 			return Frequency.of(ItemStack.CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE), tag).getOrThrow());
 		}

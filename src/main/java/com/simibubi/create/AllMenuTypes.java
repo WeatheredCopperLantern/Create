@@ -20,10 +20,10 @@ import com.simibubi.create.content.logistics.stockTicker.StockKeeperCategoryMenu
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperCategoryScreen;
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestMenu;
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen;
-import com.simibubi.create.content.redstone.link.redstoneLink.RedstoneLinkMenu;
-import com.simibubi.create.content.redstone.link.redstoneLink.RedstoneLinkScreen;
 import com.simibubi.create.content.redstone.link.controller.LinkedControllerMenu;
 import com.simibubi.create.content.redstone.link.controller.LinkedControllerScreen;
+import com.simibubi.create.content.redstone.link.redstoneLink.RedstoneLinkMenu;
+import com.simibubi.create.content.redstone.link.redstoneLink.RedstoneLinkScreen;
 import com.simibubi.create.content.schematics.cannon.SchematicannonMenu;
 import com.simibubi.create.content.schematics.cannon.SchematicannonScreen;
 import com.simibubi.create.content.schematics.table.SchematicTableMenu;

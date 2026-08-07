@@ -25,6 +25,8 @@ import com.simibubi.create.content.fluids.VirtualFluid;
 import com.simibubi.create.foundation.block.connected.CTModel;
 import com.simibubi.create.foundation.block.connected.ConnectedTextureBehaviour;
 import com.simibubi.create.foundation.item.TooltipModifier;
+import com.simibubi.create.foundation.persistent.PersistentObjectType;
+
 import com.tterrag.registrate.AbstractRegistrate;
 import com.tterrag.registrate.builders.BlockBuilder;
 import com.tterrag.registrate.builders.BlockEntityBuilder.BlockEntityFactory;
@@ -178,6 +180,13 @@ public class CreateRegistrate extends AbstractRegistrate<CreateRegistrate> {
 			this, this, name, callback, CreateRegistries.DISPLAY_TARGET, supplier
 		).byBlock(DisplayTarget.BY_BLOCK).byBlockEntity(DisplayTarget.BY_BLOCK_ENTITY));
 	}
+
+	public <T extends PersistentObjectType<?>> SimpleBuilder<PersistentObjectType<?>, T, CreateRegistrate> persistentObject(String name, Supplier<T> supplier) {
+		return this.entry(name, callback -> new SimpleBuilder<>(
+			this, this, name, callback, CreateRegistries.PERSISTENT_OBJECT_TYPE, supplier
+		).byBlock(PersistentObjectType.REGISTRY));
+	}
+
 
 	/* Palettes */
 

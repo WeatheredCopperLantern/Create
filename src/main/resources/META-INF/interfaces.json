@@ -1,0 +1,5 @@
+{
+    "net/minecraft/world/level/BlockGetter": [
+        "com/simibubi/create/foundation/extension/interfaces/IPersistentObjectSupplier"
+    ]
+}

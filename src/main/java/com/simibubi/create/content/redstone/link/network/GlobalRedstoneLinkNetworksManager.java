@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkable;
+import com.simibubi.create.content.redstone.link.linkable.IRedstoneLinkable;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceKey;
@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 public class GlobalRedstoneLinkNetworksManager {
 
 	public Map<ResourceKey<Level>, RedstoneLinkNetwork> networks;
-	public Map<UUID, RedstoneLinkable> linkables;
+	public Map<UUID, IRedstoneLinkable> linkables;
 
 	private RedstoneLinkNetworksSavedData savedData;
 
@@ -43,14 +43,12 @@ public class GlobalRedstoneLinkNetworksManager {
 		this.savedData.setDirty(true);
 	}
 
-	public void tick(ServerTickEvent.Post event) {
-		//TODO: doesn't work perfectly, sprints tick once to often && steps tick once to few
-		// Probably needs switch to ServerTickEvent.Pre to fix
-		if(event.getServer().tickRateManager().isFrozen() && !event.getServer().tickRateManager().isSteppingForward()) return;
+	public void tick(ServerTickEvent.Pre event) {
+		if (event.getServer().tickRateManager().isFrozen() && !event.getServer().tickRateManager().isSteppingForward()) return;
 		this.networks.values().forEach(RedstoneLinkNetwork::tick);
 	}
 
-	public @Nullable RedstoneLinkable getLinkable(final UUID uuid) {
+	public @Nullable IRedstoneLinkable getLinkable(final UUID uuid) {
 		return this.linkables.get(uuid);
 	}
 

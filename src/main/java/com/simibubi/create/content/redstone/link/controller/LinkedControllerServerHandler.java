@@ -9,6 +9,7 @@ import java.util.Map;
 import com.simibubi.create.content.redstone.link.linkable.Frequency;
 import com.simibubi.create.foundation.utility.ControlsUtil;
 import net.createmod.catnip.data.Couple;
+import net.createmod.catnip.data.ImmutableCouple;
 
 import net.minecraft.world.entity.Entity;
 
@@ -41,7 +42,7 @@ public class LinkedControllerServerHandler {
 	public void remove(final Entity sender) {
 		final Map<Integer, RedstoneControllerLinkable> senderMap = this.activeSignals.get(sender);
 		if (senderMap == null) return;
-		senderMap.forEach((integer, redstoneControllerLinkable) -> redstoneControllerLinkable.removeFromNetworkInstantly());
+		//senderMap.forEach((integer, redstoneControllerLinkable) -> redstoneControllerLinkable.removeFromNetworkInstantly());
 		senderMap.clear();
 	}
 
@@ -50,16 +51,16 @@ public class LinkedControllerServerHandler {
 
 		for (int i = 0; i < ControlsUtil.getControls().size(); i++) {
 			final boolean pressed = keys.get(i);
-			final Couple<Frequency> channel = Couple.create(Frequency.of(frequencyItems.getStackInSlot(i * 2)), Frequency.of(frequencyItems.getStackInSlot(i * 2 + 1)));
+			final ImmutableCouple<Frequency> channel = ImmutableCouple.create(Frequency.of(frequencyItems.getStackInSlot(i * 2)), Frequency.of(frequencyItems.getStackInSlot(i * 2 + 1)));
 			final RedstoneControllerLinkable link = senderMap.computeIfAbsent(i, integer -> {
-				if (pressed) return new RedstoneControllerLinkable(channel, sender);
+				//if (pressed) return new RedstoneControllerLinkable(channel, sender);
 				return null;
 			});
 			if (link == null) continue;
 			if (pressed) {
 				link.refresh(LinkedControllerServerHandler.TIMEOUT, channel);
 			} else {
-				link.removeFromNetworkInstantly();
+			//	link.removeFromNetworkInstantly();
 			}
 		}
 	}

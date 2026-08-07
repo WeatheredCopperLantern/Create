@@ -6,14 +6,16 @@ pluginManagement {
     }
 }
 
-if (file("Ponder").exists()) {
-    includeBuild(".")
-    includeBuild("Ponder") {
-        dependencySubstitution {
-            substitute(module("net.createmod.ponder:ponder-neoforge")).using(project(":neoforge"))
-            substitute(module("net.createmod.ponder:ponder-common")).using(project(":common"))
-        }
-    }
-}
+includeBuild("../Ponder")
+
+//if (file("Ponder").exists()) {
+//    includeBuild(".")
+//    includeBuild("Ponder") {
+//        dependencySubstitution {
+//            substitute(module("net.createmod.ponder:ponder-neoforge")).using(project(":neoforge"))
+//            substitute(module("net.createmod.ponder:ponder-common")).using(project(":common"))
+//        }
+//    }
+//}
 
 rootProject.name = "$mod_id-$minecraft_version"

@@ -8,20 +8,17 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import com.simibubi.create.Create;
-import com.simibubi.create.api.registry.CreateBuiltInRegistries;
-import com.simibubi.create.content.redstone.link.linkable.Frequency;
-import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkable;
-import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkableSnapshot;
-import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkableType;
 import com.simibubi.create.content.redstone.link.interfaces.ICustomReceive;
-import com.simibubi.create.content.redstone.link.interfaces.ITickingLinkable;
+import com.simibubi.create.content.redstone.link.linkable.Frequency;
+import com.simibubi.create.content.redstone.link.linkable.IRedstoneLinkable;
+import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkableSnapshot;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
 import net.createmod.catnip.data.Couple;
+import net.createmod.catnip.data.ImmutableCouple;
 import net.createmod.catnip.data.Pair;
 import net.createmod.catnip.nbt.NBTHelper;
 
@@ -30,8 +27,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -42,16 +37,11 @@ import org.jetbrains.annotations.Contract;
 public class RedstoneLinkNetwork {
 
 	// region Sets & Lists ===========================================================
-	private Map<Couple<Frequency>, Couple<Set<RedstoneLinkable>>> channels;
+	private final Map<ImmutableCouple<Frequency>, Couple<Set<IRedstoneLinkable>>> channels;
 
-	private final Queue<RedstoneLinkable> updates = new ArrayDeque<>(16);
-	private final Queue<RedstoneLinkable> recalcQueue = new ArrayDeque<>(16);
-	private final Queue<Pair<RedstoneLinkable, Integer>> queuedReceiverSignals = new ArrayDeque<>(16);
-	private final Map<RedstoneLinkable, Integer> queuedRemovals = new HashMap<>(23 /* Allows 16 entries before resize */, 0.7f);
-
-	private final Collection<ITickingLinkable> tickingLinkables = new HashSet<>(23 /* Allows 16 entries before resize */, 0.7f);
-	private final Queue<ITickingLinkable> tickingAdds = new ArrayDeque<>(4);
-	private final Queue<ITickingLinkable> tickingRemovals = new ArrayDeque<>(4);
+	private final Queue<IRedstoneLinkable> recalcQueue = new ArrayDeque<>(16);
+	private final Queue<Pair<IRedstoneLinkable, Integer>> queuedReceiverSignals = new ArrayDeque<>(16);
+	private final Map<IRedstoneLinkable, Integer> queuedRemovals = HashMap.newHashMap(16);
 
 	//endregion
 
@@ -61,110 +51,27 @@ public class RedstoneLinkNetwork {
 	public CompoundTag write(final HolderLookup.Provider registries, final DimensionPalette dimensions) {
 		final CompoundTag tag = new CompoundTag(1);
 
-		tag.put("Channels", NBTHelper.writeCompoundList(this.channels.entrySet(), entry -> {
-			final CompoundTag channelNBT = new CompoundTag(4);
-
-			final Couple<Frequency> channel = entry.getKey();
-			final Couple<Set<RedstoneLinkable>> linkables = entry.getValue();
-
-			if (linkables.both(Set::isEmpty)) return null;
-
-			channel.forEachWithParams((frequency, name) -> channelNBT.put(name, frequency.write(registries)), Couple.create("Frequency_1", "Frequency_2"));
-
-			linkables.forEachWithParams((redstoneLinkables, name) -> channelNBT.put(name, NBTHelper.writeCompoundList(redstoneLinkables, linkable -> {
-				if (!linkable.doSave()) return null;
-
-				final ResourceLocation resourceLocation = CreateBuiltInRegistries.REDSTONE_LINKABLE.getKey(linkable.getType());
-				if (resourceLocation == null) {
-					Create.LOGGER.error("{} is not a registered RedstoneLinkable, it will NOT be saved. Overwrite RedstoneLinkable#doSave() if this is wanted.", linkable.getClass().getName());
-					return null;
-				}
-
-				final CompoundTag linkableNBT = linkable.write(registries, dimensions);
-				NBTHelper.writeResourceLocation(linkableNBT, "ResourceLocation", resourceLocation);
-
-				return linkableNBT;
-			})), Couple.create("Receivers", "Transmitters"));
-
-			return channelNBT;
-		}));
-
 		final ListTag listTag = new ListTag();
-		for (final RedstoneLinkable linkable : this.updates) {
-			listTag.add(NbtUtils.createUUID(linkable.uuid));
-		}
-		tag.put("Updates", listTag);
-
-		listTag.clear();
-		for (final RedstoneLinkable linkable : this.recalcQueue) {
-			listTag.add(NbtUtils.createUUID(linkable.uuid));
+		for (final IRedstoneLinkable linkable : this.recalcQueue) {
+			listTag.add(NbtUtils.createUUID(linkable.getUUID()));
 		}
 		tag.put("Recalc", listTag);
 
-		tag.put("QueuedSignals", NBTHelper.writeCompoundList(this.queuedReceiverSignals, redstoneLinkableIntegerPair -> {
+		tag.put("QueuedSignals", NBTHelper.writeCompoundList(this.queuedReceiverSignals, IRedstoneLinkableIntegerPair -> {
 			final CompoundTag compoundTag = new CompoundTag(2);
-			compoundTag.putUUID("uuid", redstoneLinkableIntegerPair.getFirst().uuid);
-			compoundTag.putInt("strength", redstoneLinkableIntegerPair.getSecond());
+			compoundTag.putUUID("UUID", IRedstoneLinkableIntegerPair.getFirst().getUUID());
+			compoundTag.putInt("Strength", IRedstoneLinkableIntegerPair.getSecond());
 			return compoundTag;
 		}));
 
-		tag.put("QueuedRemovals", NBTHelper.writeCompoundList(this.queuedRemovals.entrySet(), redstoneLinkableIntegerEntry -> {
+		tag.put("QueuedRemovals", NBTHelper.writeCompoundList(this.queuedRemovals.entrySet(), IRedstoneLinkableIntegerEntry -> {
 			final CompoundTag compoundTag = new CompoundTag(2);
-			compoundTag.putUUID("uuid", redstoneLinkableIntegerEntry.getKey().uuid);
-			compoundTag.putInt("time", redstoneLinkableIntegerEntry.getValue());
+			compoundTag.putUUID("UUID", IRedstoneLinkableIntegerEntry.getKey().getUUID());
+			compoundTag.putInt("Time", IRedstoneLinkableIntegerEntry.getValue());
 			return compoundTag;
 		}));
 
 		return tag;
-	}
-
-	public static RedstoneLinkNetwork read(final CompoundTag tag, final HolderLookup.Provider registries, final DimensionPalette dimensions, final Map<UUID, RedstoneLinkable> linkables, final ServerLevel level) {
-		final RedstoneLinkNetwork network = new RedstoneLinkNetwork();
-		final ListTag channelsTag = tag.getList("Channels", Tag.TAG_COMPOUND);
-		final Map<Couple<Frequency>, Couple<Set<RedstoneLinkable>>> channels = new HashMap<>((int) Math.ceil(channelsTag.size() / 0.7f), 0.7f);
-
-		NBTHelper.iterateCompoundList(channelsTag, channelNBT -> {
-			final Couple<Frequency> channel = Couple.createWithContext(first -> Frequency.read(channelNBT.getCompound(first ? "Frequency_1" : "Frequency_2"), registries));
-
-			final Couple<Set<RedstoneLinkable>> sets = Couple.createWithContext(aBoolean -> {
-				final ListTag linkablesTag = channelNBT.getList(aBoolean ? "Receivers" : "Transmitters", Tag.TAG_COMPOUND);
-				final Set<RedstoneLinkable> set = new HashSet<>((int) Math.ceil(linkablesTag.size() / 0.7f), 0.7f);
-
-				NBTHelper.iterateCompoundList(linkablesTag, linkableNBT -> {
-					final RedstoneLinkableType linkType = CreateBuiltInRegistries.REDSTONE_LINKABLE.get(NBTHelper.readResourceLocation(linkableNBT, "ResourceLocation"));
-					assert linkType != null;
-					final RedstoneLinkable link = linkType.factory().apply(linkableNBT, channel.copy(), aBoolean, registries, dimensions, network);
-					set.add(link);
-					linkables.put(link.uuid, link);
-					if (link instanceof ITickingLinkable tickingLinkable) {
-						network.tickingLinkables.add(tickingLinkable);
-					}
-				});
-				return set;
-			});
-
-			channels.put(channel, sets);
-		});
-
-		ListTag listTag = tag.getList("Updates", Tag.TAG_INT_ARRAY);
-		listTag.forEach(tag1 -> network.updates.add(linkables.get(NbtUtils.loadUUID(tag1))));
-
-		listTag = tag.getList("Recalc", Tag.TAG_INT_ARRAY);
-		listTag.forEach(tag1 -> network.recalcQueue.add(linkables.get(NbtUtils.loadUUID(tag1))));
-
-		NBTHelper.iterateCompoundList(tag.getList("QueuedSignals", Tag.TAG_COMPOUND), compoundTag -> {
-			final int strength = compoundTag.getInt("strength");
-			network.queuedReceiverSignals.add(Pair.of(linkables.get(compoundTag.getUUID("uuid")), strength));
-		});
-
-		NBTHelper.iterateCompoundList(tag.getList("QueuedRemovals", Tag.TAG_COMPOUND), compoundTag -> {
-			final int time = compoundTag.getInt("time");
-			network.queuedRemovals.put(linkables.get(compoundTag.getUUID("uuid")), time);
-		});
-
-		network.channels = channels;
-		network.level = level;
-		return network;
 	}
 
 	public RedstoneLinkNetwork(final ServerLevel level) {
@@ -172,17 +79,13 @@ public class RedstoneLinkNetwork {
 		this.level = level;
 	}
 
-	private RedstoneLinkNetwork() {
-
-	}
-
 	//endregion
 
 	public void tick() {
-		//Tick + Handle queuedRemovals
-		final Iterator<Map.Entry<RedstoneLinkable, Integer>> iter = this.queuedRemovals.entrySet().iterator();
+		//Handle queuedRemovals
+		final Iterator<Map.Entry<IRedstoneLinkable, Integer>> iter = this.queuedRemovals.entrySet().iterator();
 		while (iter.hasNext()) {
-			final Map.Entry<RedstoneLinkable, Integer> entry = iter.next();
+			final Map.Entry<IRedstoneLinkable, Integer> entry = iter.next();
 			if (entry.getValue() <= 0) {
 				this.removeLinkable(entry.getKey());
 				iter.remove();
@@ -193,23 +96,19 @@ public class RedstoneLinkNetwork {
 
 		//Handle queuedReceiverSignals
 		while (!this.queuedReceiverSignals.isEmpty()) {
-			final Pair<RedstoneLinkable, Integer> entry = this.queuedReceiverSignals.remove();
-			final RedstoneLinkable linkable = entry.getFirst();
+			final Pair<IRedstoneLinkable, Integer> entry = this.queuedReceiverSignals.remove();
+			final IRedstoneLinkable linkable = entry.getFirst();
 			if (linkable.isReceiver()) {
-				linkable.setReceivedStrength(entry.getSecond());
+				linkable.setSignal(entry.getSecond());
 			}
-		}
-
-		//Handle updates
-		while (!this.updates.isEmpty()) {
-			this.updates.remove().delayedUpdate();
 		}
 
 		//Handle recalcQueue
 		while (!this.recalcQueue.isEmpty()) {
-			final RedstoneLinkable linkable = this.recalcQueue.remove();
-			final Set<RedstoneLinkable> inRange = new HashSet<>(23 /* Allows 16 entries before resize */, 0.7f);
-			this.forLinkableInRange(linkable, redstoneLinkable -> true, inRange::add);
+			final IRedstoneLinkable linkable = this.recalcQueue.remove();
+			final Set<IRedstoneLinkable> inRange = HashSet.newHashSet(16);
+			this.forLinkableInRange(linkable, IRedstoneLinkable -> true, inRange::add);
+			linkable.considerRecalcDequeued();
 
 			if (linkable instanceof final ICustomReceive customReceiveLinkable) {
 				customReceiveLinkable.calculateSignal(inRange);
@@ -217,8 +116,8 @@ public class RedstoneLinkNetwork {
 			}
 
 			int maxStrength = 0;
-			for (final RedstoneLinkable candidate : inRange) {
-				final int strength = candidate.getTransmittedStrength();
+			for (final IRedstoneLinkable candidate : inRange) {
+				final int strength = candidate.getSignal();
 				if (strength > maxStrength) {
 					maxStrength = strength;
 					if (strength == 15) {
@@ -226,99 +125,78 @@ public class RedstoneLinkNetwork {
 					}
 				}
 			}
-			linkable.considerRecalcDequeued();
 			this.queuedReceiverSignals.add(Pair.of(linkable, maxStrength));
-		}
-
-		//Tick ITickingLinkables
-		while (!this.tickingAdds.isEmpty()) {
-			this.tickingLinkables.add(this.tickingAdds.remove());
-		}
-		this.tickingLinkables.forEach(ITickingLinkable::tick);
-
-		while (!this.tickingRemovals.isEmpty()) {
-			this.tickingLinkables.remove(this.tickingRemovals.remove());
 		}
 	}
 
-	public void addLinkable(final RedstoneLinkable linkable) {
-		this.getChannel(linkable.channel).get(linkable.isReceiver()).add(linkable);
-		if (linkable instanceof final ITickingLinkable tickingLinkable) {
-			tickingAdds.add(tickingLinkable);
-		}
-		Create.REDSTONE_LINK_NETWORK.linkables.put(linkable.uuid, linkable);
+	public void addLinkable(final IRedstoneLinkable linkable) {
+		this.getChannel(linkable.getChannel()).get(linkable.isReceiver()).add(linkable);
+		Create.REDSTONE_LINK_NETWORK.linkables.put(linkable.getUUID(), linkable);
 		Create.REDSTONE_LINK_NETWORK.setDirty();
 		if (linkable.isReceiver() && linkable.allowRecalcQueue()) {
 			linkable.considerRecalcQueued();
 			this.recalcQueue.add(linkable);
-		} else if (linkable.getTransmittedStrength() > 0) {
-			this.forLinkableInRange(linkable, RedstoneLinkable::allowRecalcQueue, linkable1 -> {
+		} else if (linkable.getSignal() > 0) {
+			this.forLinkableInRange(linkable, IRedstoneLinkable::allowRecalcQueue, linkable1 -> {
 				linkable1.considerRecalcQueued();
 				this.recalcQueue.add(linkable1);
 			});
 		}
 	}
 
-	public void removeLinkable(final RedstoneLinkable linkable) {
-		this.getChannel(linkable.channel).get(linkable.isReceiver()).remove(linkable);
-		Create.REDSTONE_LINK_NETWORK.linkables.remove(linkable.uuid);
-		if (linkable instanceof ITickingLinkable tickingLinkable) {
-			tickingRemovals.add(tickingLinkable);
-		}
+	public void removeLinkable(final IRedstoneLinkable linkable) {
+		this.getChannel(linkable.getChannel()).get(linkable.isReceiver()).remove(linkable);
+		Create.REDSTONE_LINK_NETWORK.linkables.remove(linkable.getUUID());
 		Create.REDSTONE_LINK_NETWORK.setDirty();
-		if (linkable.isTransmitter() && linkable.getTransmittedStrength() > 0) {
-			this.forLinkableInRange(linkable, RedstoneLinkable::allowRecalcQueue, linkable1 -> {
+		if (linkable.isTransmitter() && linkable.getSignal() > 0) {
+			this.forLinkableInRange(linkable, IRedstoneLinkable::allowRecalcQueue, linkable1 -> {
 				linkable1.considerRecalcQueued();
 				this.recalcQueue.add(linkable1);
 			});
 		}
 	}
 
-	public void removeLinkableIn(final RedstoneLinkable linkable, final int ticks) {
-		this.queuedRemovals.compute(linkable, (redstoneLinkable, integer) -> (integer == null) ? ticks : Math.max(integer, ticks));
+	public void removeLinkableIn(final IRedstoneLinkable linkable, final int ticks) {
+		this.queuedRemovals.compute(linkable, (IRedstoneLinkable, integer) -> (integer == null) ? ticks : Math.max(integer, ticks));
 	}
 
-	public void queueUpdate(final RedstoneLinkable linkable) {
-		this.updates.add(linkable);
-	}
-
-	public void forLinkableInRange(final RedstoneLinkableSnapshot previous, final Predicate<RedstoneLinkable> check, final Consumer<RedstoneLinkable> action) {
-		for (final RedstoneLinkable linkable2 : this.getChannel(previous.channel()).get(!previous.receiver())) {
+	public void forLinkableInRange(final RedstoneLinkableSnapshot previous, final Predicate<IRedstoneLinkable> check, final Consumer<IRedstoneLinkable> action) {
+		for (final IRedstoneLinkable linkable2 : this.getChannel(previous.channel()).get(!previous.receiver())) {
 			if (RedstoneLinkNetwork.canCommunicate(previous, linkable2) && check.test(linkable2)) {
 				action.accept(linkable2);
 			}
 		}
 	}
 
-	public void forLinkableInRange(final RedstoneLinkable linkable, final Predicate<RedstoneLinkable> check, final Consumer<RedstoneLinkable> action) {
-		for (final RedstoneLinkable linkable2 : this.getChannel(linkable.channel).get(linkable.isTransmitter())) {
+	public void forLinkableInRange(final IRedstoneLinkable linkable, final Predicate<IRedstoneLinkable> check, final Consumer<IRedstoneLinkable> action) {
+		for (final IRedstoneLinkable linkable2 : this.getChannel(linkable.getChannel()).get(linkable.isTransmitter())) {
 			if (RedstoneLinkNetwork.canCommunicate(linkable, linkable2) && check.test(linkable2)) {
 				action.accept(linkable2);
 			}
 		}
 	}
 
-	public void channelChanged(final RedstoneLinkable linkable, final RedstoneLinkableSnapshot snapshot) {
+	public void channelChanged(final IRedstoneLinkable linkable, final RedstoneLinkableSnapshot snapshot) {
 		this.getChannel(snapshot.channel()).get(linkable.isReceiver()).remove(linkable);
-		this.getChannel(linkable.channel).get(linkable.isReceiver()).add(linkable);
+		this.getChannel(linkable.getChannel()).get(linkable.isReceiver()).add(linkable);
 		Create.REDSTONE_LINK_NETWORK.setDirty();
 
 		if (linkable.isTransmitter() && snapshot.signal() > 0) {
-			this.forLinkableInRange(snapshot, RedstoneLinkable::allowRecalcQueue, this.recalcQueue::add);
-			this.forLinkableInRange(linkable, RedstoneLinkable::allowRecalcQueue, this.recalcQueue::add);
+			this.forLinkableInRange(snapshot, IRedstoneLinkable::allowRecalcQueue, this.recalcQueue::add);
+			this.forLinkableInRange(linkable, IRedstoneLinkable::allowRecalcQueue, this.recalcQueue::add);
 		} else if (linkable.isReceiver() && linkable.allowRecalcQueue()) {
 			linkable.considerRecalcQueued();
 			this.recalcQueue.add(linkable);
 		}
 	}
 
-	public void modeChanged(final RedstoneLinkable linkable, final RedstoneLinkableSnapshot snapshot) {
-		this.getChannel(linkable.channel).get(snapshot.receiver()).remove(linkable);
-		this.getChannel(linkable.channel).get(linkable.isReceiver()).add(linkable);
+	public void modeChanged(final IRedstoneLinkable linkable, final RedstoneLinkableSnapshot snapshot) {
+		this.getChannel(linkable.getChannel()).get(snapshot.receiver()).remove(linkable);
+		this.getChannel(linkable.getChannel()).get(linkable.isReceiver()).add(linkable);
 		Create.REDSTONE_LINK_NETWORK.setDirty();
 
 		if (!snapshot.receiver() && snapshot.signal() > 0) {
-			this.forLinkableInRange(snapshot, RedstoneLinkable::allowRecalcQueue, linkable1 -> {
+			this.forLinkableInRange(snapshot, IRedstoneLinkable::allowRecalcQueue, linkable1 -> {
 				linkable1.considerRecalcQueued();
 				this.recalcQueue.add(linkable1);
 			});
@@ -327,44 +205,42 @@ public class RedstoneLinkNetwork {
 		if (linkable.isReceiver() && linkable.allowRecalcQueue()) {
 			linkable.considerRecalcQueued();
 			this.recalcQueue.add(linkable);
-		} else if (!linkable.isReceiver()) {
-			linkable.queueUpdate();
 		}
 	}
 
-	public void signalChanged(final RedstoneLinkable linkable, final RedstoneLinkableSnapshot snapshot) {
+	public void signalChanged(final IRedstoneLinkable linkable, final RedstoneLinkableSnapshot snapshot) {
 		Create.REDSTONE_LINK_NETWORK.setDirty();
 		this.forLinkableInRange(linkable, linkable1 -> {
 			if (!linkable1.allowRecalcQueue()) return false;
 			if (linkable1 instanceof ICustomReceive) return true;
-			final int currentStrength = linkable1.getReceivedStrength();
-			return (currentStrength == snapshot.signal() || currentStrength < linkable.getTransmittedStrength());
+			final int currentStrength = linkable1.getSignal();
+			return (currentStrength == snapshot.signal() || currentStrength < linkable.getSignal());
 		}, linkable1 -> {
 			linkable1.considerRecalcQueued();
 			this.recalcQueue.add(linkable1);
 		});
 	}
 
-	public void linkMoved(final RedstoneLinkable linkable, final RedstoneLinkableSnapshot snapshot) {
+	public void linkMoved(final IRedstoneLinkable linkable, final RedstoneLinkableSnapshot snapshot) {
 		Create.REDSTONE_LINK_NETWORK.setDirty();
 		if (linkable.isReceiver() && linkable.allowRecalcQueue()) {
 			linkable.considerRecalcQueued();
 			this.recalcQueue.add(linkable);
 		} else if (linkable.isTransmitter()) {
-			final Collection<RedstoneLinkable> oldReceivers = new HashSet<>(23 /* Allows 16 entries before resize */, 0.7f);
-			final Collection<RedstoneLinkable> newReceivers = new HashSet<>(23 /* Allows 16 entries before resize */, 0.7f);
+			final Collection<IRedstoneLinkable> oldReceivers = new HashSet<>(23 /* Allows 16 entries before resize */, 0.7f);
+			final Collection<IRedstoneLinkable> newReceivers = new HashSet<>(23 /* Allows 16 entries before resize */, 0.7f);
 
-			this.forLinkableInRange(snapshot, RedstoneLinkable::allowRecalcQueue, oldReceivers::add);
-			this.forLinkableInRange(linkable, RedstoneLinkable::allowRecalcQueue, newReceivers::add);
+			this.forLinkableInRange(snapshot, IRedstoneLinkable::allowRecalcQueue, oldReceivers::add);
+			this.forLinkableInRange(linkable, IRedstoneLinkable::allowRecalcQueue, newReceivers::add);
 
-			for (final RedstoneLinkable link : oldReceivers) {
+			for (final IRedstoneLinkable link : oldReceivers) {
 				if (!newReceivers.contains(link)) {
 					link.considerRecalcQueued();
 					this.recalcQueue.add(link);
 				}
 			}
 
-			for (final RedstoneLinkable link : newReceivers) {
+			for (final IRedstoneLinkable link : newReceivers) {
 				if (!oldReceivers.contains(link)) {
 					link.considerRecalcQueued();
 					this.recalcQueue.add(link);
@@ -378,7 +254,7 @@ public class RedstoneLinkNetwork {
 	 * <p>Instead assumes that linkable2 is the opposite of linkable1.</p>
 	 */
 	@Contract(pure = true)
-	public static boolean canCommunicate(final RedstoneLinkable linkable1, final RedstoneLinkable linkable2) {
+	public static boolean canCommunicate(final IRedstoneLinkable linkable1, final IRedstoneLinkable linkable2) {
 		if (linkable1.isReceiver()) {
 			return linkable1.getReceivingPosition().distanceSquared(linkable2.getTransmissionPosition()) <= Math.pow(Math.min(linkable1.getReceivingRange(), linkable1.getTransmissionRange()), 2);
 		} else {
@@ -391,7 +267,7 @@ public class RedstoneLinkNetwork {
 	 * <p>Instead assumes that linkable2 is the opposite of linkable1.</p>
 	 */
 	@Contract(pure = true)
-	public static boolean canCommunicate(final RedstoneLinkableSnapshot linkable1, final RedstoneLinkable linkable2) {
+	public static boolean canCommunicate(final RedstoneLinkableSnapshot linkable1, final IRedstoneLinkable linkable2) {
 		if (linkable1.receiver()) {
 			return linkable1.receivingPosition().distanceSquared(linkable2.getTransmissionPosition()) <= Math.pow(Math.min(linkable1.receivingRange(), linkable1.transmissionRange()), 2);
 		} else {
@@ -400,7 +276,7 @@ public class RedstoneLinkNetwork {
 	}
 
 	@Contract(pure = true)
-	public Couple<Set<RedstoneLinkable>> getChannel(final Couple<Frequency> key) {
+	public Couple<Set<IRedstoneLinkable>> getChannel(final ImmutableCouple<Frequency> key) {
 		return this.channels.computeIfAbsent(key, frequencies -> Couple.create(new HashSet<>(12, 0.7f), new HashSet<>(12, 0.7f)));
 	}
 }

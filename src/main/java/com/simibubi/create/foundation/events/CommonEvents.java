@@ -97,13 +97,15 @@ import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 @EventBusSubscriber
 public class CommonEvents {
 
 	@SubscribeEvent
-	public static void onServerTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
-		Create.REDSTONE_LINK_NETWORK.tick(event);
+	public static void onServerTick(ServerTickEvent.Post event) {
+		//Systems that should account for /tick [freeze/step/sprint], need to be in ServerTickEvent.Pre.
+		//TickRateManager#frozenTicksToRun gets reduced before ServerTickEvent.Post fires, causing TickRateManager#isSteppingForward() to return false one tick too early when using /tick step.
 		Create.SCHEMATIC_RECEIVER.tick();
 		Create.LAGGER.tick();
 		ServerSpeedProvider.serverTick();
@@ -111,6 +113,13 @@ public class CommonEvents {
 		TrainMapSync.serverTick(event);
 		ServerChainConveyorHandler.tick();
 		TickBasedCache.tick();
+	}
+
+	@SubscribeEvent
+	public static void onServerTickPre(ServerTickEvent.Pre event) {
+		Create.SCHEDULER.tick(event);
+		Create.PERSISTENT_OBJECTS.tick(event);
+		Create.REDSTONE_LINK_NETWORK.tick(event);
 	}
 
 	@SubscribeEvent
@@ -190,15 +199,18 @@ public class CommonEvents {
 	@SubscribeEvent
 	public static void serverStopping(ServerStoppingEvent event) {
 		Create.SCHEMATIC_RECEIVER.shutdown();
+		Create.SCHEDULER.shutdown();
 	}
 
 	@SubscribeEvent
 	public static void onLoadWorld(LevelEvent.Load event) {
 		LevelAccessor world = event.getLevel();
+		Create.SCHEDULER.levelLoaded(world);
 		Create.TORQUE_PROPAGATOR.onLoadWorld(world);
 		Create.RAILWAYS.levelLoaded(world);
 		Create.LOGISTICS.levelLoaded(world);
 		Create.REDSTONE_LINK_NETWORK.levelLoaded(world);
+		Create.PERSISTENT_OBJECTS.levelLoaded(world);
 	}
 
 	@SubscribeEvent

@@ -1,6 +1,5 @@
 package com.simibubi.create.api.registry;
 
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.Create;
 import com.simibubi.create.api.behaviour.display.DisplaySource;
 import com.simibubi.create.api.behaviour.display.DisplayTarget;
@@ -15,11 +14,12 @@ import com.simibubi.create.content.kinetics.fan.processing.FanProcessingType;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPointType;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttributeType;
 import com.simibubi.create.content.logistics.packagePort.PackagePortTargetType;
-
-import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkableType;
+import com.simibubi.create.foundation.persistent.PersistentObjectType;
 
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+
+import com.mojang.serialization.MapCodec;
 
 /**
  * Keys for registries added by Create.
@@ -40,7 +40,7 @@ public class CreateRegistries {
 	public static final ResourceKey<Registry<MapCodec<? extends PotatoProjectileRenderMode>>> POTATO_PROJECTILE_RENDER_MODE = key("potato_projectile/render_mode");
 	public static final ResourceKey<Registry<MapCodec<? extends PotatoProjectileEntityHitAction>>> POTATO_PROJECTILE_ENTITY_HIT_ACTION = key("potato_projectile/entity_hit_action");
 	public static final ResourceKey<Registry<MapCodec<? extends PotatoProjectileBlockHitAction>>> POTATO_PROJECTILE_BLOCK_HIT_ACTION = key("potato_projectile/block_hit_action");
-	public static final ResourceKey<Registry<RedstoneLinkableType>> REDSTONE_LINKABLE = key("redstone_linkable");
+	public static final ResourceKey<Registry<PersistentObjectType<?>>> PERSISTENT_OBJECT_TYPE = key("persistent_object_type");
 
 	private static <T> ResourceKey<Registry<T>> key(String name) {
 		return ResourceKey.createRegistryKey(Create.asResource(name));

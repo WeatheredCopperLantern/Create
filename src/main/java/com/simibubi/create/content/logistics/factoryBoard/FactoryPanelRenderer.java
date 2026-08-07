@@ -93,7 +93,7 @@ public class FactoryPanelRenderer extends SmartBlockEntityRenderer<FactoryPanelB
 
 		FactoryPanelSupportBehaviour sbe = FactoryPanelBehaviour.linkAt(behaviour.getWorld(), connection);
 		boolean displayLinkMode = sbe != null && sbe.blockEntity instanceof DisplayLinkBlockEntity;
-		boolean redstoneLinkMode = sbe != null && false;//sbe.blockEntity instanceof RedstoneLinkBlockEntity;
+		boolean redstoneLinkMode = sbe != null && false;//sbe.blockEntity instanceof RedstoneLinkBlockEntityOld;
 		boolean pathReversed = sbe != null && !sbe.isOutput();
 
 		int color = 0;

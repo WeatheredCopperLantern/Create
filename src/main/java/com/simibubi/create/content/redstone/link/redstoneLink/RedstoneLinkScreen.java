@@ -66,8 +66,7 @@ public class RedstoneLinkScreen extends AbstractSimiContainerScreen<RedstoneLink
 
 		final PoseStack ms = guiGraphics.pose();
 		TransformStack.of(ms).pushPose().translate(this.leftPos + this.imageWidth + 40, y + this.imageHeight - AllGuiTextures.PLAYER_INVENTORY.getHeight(), 100).scale(50).rotateXDegrees(-22).rotateYDegrees(-202);
-
-		GuiGameElement.of(this.menu.contentHolder.getBlockState().setValue(DirectionalBlock.FACING, Direction.UP).setValue(RedstoneLinkBlock.ROTATED_ANTENNA, true)).render(guiGraphics);
+		GuiGameElement.of(this.menu.contentHolder.blockEntity.getBlockState().setValue(DirectionalBlock.FACING, Direction.UP).setValue(RedstoneLinkBlock.ROTATED_ANTENNA, true)).render(guiGraphics);
 		ms.popPose();
 	}
 }

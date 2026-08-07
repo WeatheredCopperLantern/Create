@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.simibubi.create.Create;
-import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkable;
+import com.simibubi.create.content.redstone.link.linkable.IRedstoneLinkable;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
 import net.createmod.catnip.nbt.NBTHelper;
 
@@ -29,17 +29,17 @@ import org.jspecify.annotations.NonNull;
 public class RedstoneLinkNetworksSavedData extends SavedData {
 
 	public Map<ResourceKey<Level>, RedstoneLinkNetwork> networks;
-	public Map<UUID, RedstoneLinkable> linkables;
+	public Map<UUID, IRedstoneLinkable> linkables;
 
 	@Override
-	public CompoundTag save(final CompoundTag tag, final HolderLookup.@NonNull Provider registries) {
+	public CompoundTag save(final CompoundTag tag, final HolderLookup.Provider registries) {
 		final GlobalRedstoneLinkNetworksManager linkNetworks = Create.REDSTONE_LINK_NETWORK;
 		final DimensionPalette dimensions = new DimensionPalette();
 
 		tag.put("Networks", NBTHelper.writeCompoundList(linkNetworks.networks.entrySet(), set -> {
 			final CompoundTag networkNBT = new CompoundTag(2);
 			networkNBT.putInt("D", dimensions.encode(set.getKey()));
-			networkNBT.put("Network", set.getValue().write(registries, dimensions));
+			//networkNBT.put("Network", set.getValue().write(registries, dimensions));
 			return networkNBT;
 		}));
 
@@ -53,7 +53,7 @@ public class RedstoneLinkNetworksSavedData extends SavedData {
 	private static RedstoneLinkNetworksSavedData load(final CompoundTag tag, final HolderLookup.Provider registries, final MinecraftServer server) {
 		final Set<ResourceKey<Level>> levelKeys = server.levelKeys();
 		final Map<ResourceKey<Level>, RedstoneLinkNetwork> networks = new HashMap<>((int) Math.ceil(levelKeys.size() / 0.7), 0.7f);
-		final Map<UUID, RedstoneLinkable> linkables = new HashMap<>((int) Math.ceil(tag.getInt("Linkables") / 0.7), 0.7f);
+		final Map<UUID, IRedstoneLinkable> linkables = new HashMap<>((int) Math.ceil(tag.getInt("Linkables") / 0.7), 0.7f);
 
 		final DimensionPalette dimensions = DimensionPalette.read(tag);
 
@@ -61,8 +61,8 @@ public class RedstoneLinkNetworksSavedData extends SavedData {
 			final ResourceKey<Level> levelKey = dimensions.decode(compoundTag.getInt("D"));
 			final ServerLevel level = server.getLevel(levelKey);
 			assert level != null;
-			final RedstoneLinkNetwork network = RedstoneLinkNetwork.read(compoundTag.getCompound("Network"), registries, dimensions, linkables, level);
-			networks.put(dimensions.decode(compoundTag.getInt("D")), network);
+			//final RedstoneLinkNetwork network = RedstoneLinkNetwork.read(compoundTag.getCompound("Network"), registries, dimensions, linkables, level);
+			//networks.put(dimensions.decode(compoundTag.getInt("D")), network);
 		});
 
 		levelKeys.forEach(levelKey -> networks.computeIfAbsent(levelKey, u -> new RedstoneLinkNetwork(Objects.requireNonNull(server.getLevel(u)))));
@@ -78,7 +78,7 @@ public class RedstoneLinkNetworksSavedData extends SavedData {
 		return new SavedData.Factory<>(() -> new RedstoneLinkNetworksSavedData(server), (compoundTag, provider) -> RedstoneLinkNetworksSavedData.load(compoundTag, provider, server));
 	}
 
-	private RedstoneLinkNetworksSavedData(final Map<ResourceKey<Level>, RedstoneLinkNetwork> networks, final Map<UUID, RedstoneLinkable> linkables) {
+	private RedstoneLinkNetworksSavedData(final Map<ResourceKey<Level>, RedstoneLinkNetwork> networks, final Map<UUID, IRedstoneLinkable> linkables) {
 		this.networks = networks;
 		this.linkables = linkables;
 	}

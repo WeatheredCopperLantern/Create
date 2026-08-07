@@ -13,7 +13,7 @@ import com.simibubi.create.content.kinetics.fan.processing.FanProcessingTypeRegi
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPointType;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttributeType;
 import com.simibubi.create.content.logistics.packagePort.PackagePortTargetType;
-import com.simibubi.create.content.redstone.link.linkable.RedstoneLinkableType;
+import com.simibubi.create.foundation.persistent.PersistentObjectType;
 
 import net.minecraft.core.RegistrationInfo;
 import net.minecraft.core.Registry;
@@ -44,7 +44,7 @@ public class CreateBuiltInRegistries {
 	public static final Registry<MapCodec<? extends PotatoProjectileRenderMode>> POTATO_PROJECTILE_RENDER_MODE = simple(CreateRegistries.POTATO_PROJECTILE_RENDER_MODE);
 	public static final Registry<MapCodec<? extends PotatoProjectileEntityHitAction>> POTATO_PROJECTILE_ENTITY_HIT_ACTION = simple(CreateRegistries.POTATO_PROJECTILE_ENTITY_HIT_ACTION);
 	public static final Registry<MapCodec<? extends PotatoProjectileBlockHitAction>> POTATO_PROJECTILE_BLOCK_HIT_ACTION = simple(CreateRegistries.POTATO_PROJECTILE_BLOCK_HIT_ACTION);
-	public static final Registry<RedstoneLinkableType> REDSTONE_LINKABLE = simple(CreateRegistries.REDSTONE_LINKABLE);
+	public static final Registry<PersistentObjectType<?>> PERSISTENT_OBJECT_TYPE = simple(CreateRegistries.PERSISTENT_OBJECT_TYPE);
 
 	private static <T> Registry<T> simple(ResourceKey<Registry<T>> key) {
 		return register(key, false, () -> {

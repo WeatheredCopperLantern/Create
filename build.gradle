@@ -33,6 +33,11 @@ neoForge {
         publish(file("src/main/resources/META-INF/accesstransformer.cfg"))
     }
 
+    interfaceInjectionData {
+        from "src/main/resources/META-INF/interfaces.json"
+        publish(file("src/main/resources/META-INF/interfaces.json"))
+    }
+
     if (parchment_version != "none") {
         parchment {
             minecraftVersion = parchment_minecraft_version == "same" ? minecraft_version : parchment_minecraft_version

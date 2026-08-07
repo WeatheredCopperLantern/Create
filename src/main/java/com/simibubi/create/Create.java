@@ -35,7 +35,9 @@ import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
+import com.simibubi.create.foundation.persistent.GlobalPersistentObjectManager;
 import com.simibubi.create.foundation.recipe.AllIngredients;
+import com.simibubi.create.foundation.utility.Scheduler;
 import com.simibubi.create.infrastructure.command.ServerLagger;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import com.simibubi.create.infrastructure.data.CreateDatagen;
@@ -90,10 +92,12 @@ public class Create {
 	 */
 	private static final CreateRegistrate REGISTRATE = CreateRegistrate.create(ID).defaultCreativeTab((ResourceKey<CreativeModeTab>) null).setTooltipModifierFactory(item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE).andThen(TooltipModifier.mapNull(KineticStats.create(item))));
 
+	public static final Scheduler SCHEDULER = new Scheduler();
 	public static final ServerSchematicLoader SCHEMATIC_RECEIVER = new ServerSchematicLoader();
 	public static final GlobalRedstoneLinkNetworksManager REDSTONE_LINK_NETWORK = new GlobalRedstoneLinkNetworksManager();
 	public static final GlobalFactoryBoardNetworkManager FACTORY_BOARD_NETWORK = new GlobalFactoryBoardNetworkManager();
 	public static final LinkedControllerServerHandler LINKED_CONTROLLER_HANDLER = new LinkedControllerServerHandler();
+	public static final GlobalPersistentObjectManager PERSISTENT_OBJECTS = new GlobalPersistentObjectManager();
 	public static final TorquePropagator TORQUE_PROPAGATOR = new TorquePropagator();
 	public static final GlobalRailwayManager RAILWAYS = new GlobalRailwayManager();
 	public static final GlobalLogisticsManager LOGISTICS = new GlobalLogisticsManager();
@@ -133,6 +137,7 @@ public class Create {
 		AllDataComponents.register(modEventBus);
 		AllMapDecorationTypes.register(modEventBus);
 		AllMountedStorageTypes.register();
+		AllPersistentObjectTypes.register();
 
 		AllConfigs.register(modLoadingContext, modContainer);
 
@@ -192,7 +197,6 @@ public class Create {
 		AllPotatoProjectileRenderModes.init();
 		AllPotatoProjectileEntityHitActions.init();
 		AllPotatoProjectileBlockHitActions.init();
-		AllRedstoneLinkables.init();
 
 		if (event.getRegistry() == BuiltInRegistries.TRIGGER_TYPES) {
 			AllAdvancements.register();

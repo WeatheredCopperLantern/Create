@@ -50,7 +50,8 @@
     "accessor.UseOnContextAccessor",
     "datafixer.BlockPosFormatAndRenamesFixMixin",
     "datafixer.ItemStackComponentizationFixMixin",
-    "datafixer.V1460Mixin"
+    "datafixer.V1460Mixin",
+    "extension.ServerLevelExtension"
   ],
   "client": [
     "accessor.AgeableListModelAccessor",

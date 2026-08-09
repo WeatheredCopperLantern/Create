@@ -36,15 +36,14 @@ public class ListFilterItem extends FilterItem {
 			: CreateLang.translateDirect("gui.filter.allow_list")).withStyle(ChatFormatting.GOLD));
 		int count = 0;
 		for (int i = 0; i < filterItems.getSlots(); i++) {
+			ItemStack filterStack = filterItems.getStackInSlot(i);
+			if (filterStack.isEmpty())
+				continue;
 			if (count > 3) {
 				list.add(Component.literal("- ...")
 					.withStyle(ChatFormatting.DARK_GRAY));
 				break;
 			}
-
-			ItemStack filterStack = filterItems.getStackInSlot(i);
-			if (filterStack.isEmpty())
-				continue;
 			list.add(Component.literal("- ")
 				.append(filterStack.getHoverName())
 				.withStyle(ChatFormatting.GRAY));

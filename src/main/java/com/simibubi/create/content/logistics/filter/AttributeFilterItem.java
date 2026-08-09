@@ -52,7 +52,7 @@ public class AttributeFilterItem extends FilterItem {
 				break;
 			}
 			list.add(Component.literal("- ")
-				.append(attribute.format(inverted)));
+				.append(attribute.format(inverted)).withStyle(ChatFormatting.GRAY));
 			count++;
 		}
 

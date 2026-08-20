@@ -27,12 +27,17 @@ import com.simibubi.create.content.logistics.stockTicker.PackageOrderWithCrafts;
 import com.simibubi.create.content.logistics.tableCloth.ShoppingListItem.ShoppingList;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe.SequencedAssembly;
 import com.simibubi.create.content.redstone.displayLink.ClickToLinkBlockItem.ClickToLinkData;
+import com.simibubi.create.content.redstone.link.ChannelItemsData;
+import com.simibubi.create.content.redstone.link.linkable.Frequency;
 import com.simibubi.create.content.schematics.cannon.SchematicannonBlockEntity.SchematicannonOptions;
 import com.simibubi.create.content.trains.track.BezierTrackPointLocation;
 import com.simibubi.create.content.trains.track.TrackPlacement.ConnectingFrom;
 
 import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
 import net.createmod.catnip.codecs.stream.CatnipStreamCodecs;
+import net.createmod.catnip.data.Couple;
+import net.createmod.catnip.data.ImmutableCouple;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.Vec3i;
@@ -226,6 +231,11 @@ public class AllDataComponents {
 	public static final DataComponentType<CompoundTag> MINECRAFT_CONTRAPTION_DATA = register(
 			"minecart_contraption_data",
 			builder -> builder.persistent(CompoundTag.CODEC).networkSynchronized(ByteBufCodecs.COMPOUND_TAG)
+	);
+
+	public static final DataComponentType<ChannelItemsData> CHANNEL_ITEMS = register(
+		"channel_items",
+		builder -> builder.persistent(ChannelItemsData.CODEC).networkSynchronized(ChannelItemsData.STREAM_CODEC)
 	);
 
 	public static final DataComponentType<ItemContainerContents> LINKED_CONTROLLER_ITEMS = register(

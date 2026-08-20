@@ -33,6 +33,11 @@ neoForge {
         publish(file("src/main/resources/META-INF/accesstransformer.cfg"))
     }
 
+    interfaceInjectionData {
+        from "src/main/resources/META-INF/interfaces.json"
+        publish(file("src/main/resources/META-INF/interfaces.json"))
+    }
+
     if (parchment_version != "none") {
         parchment {
             minecraftVersion = parchment_minecraft_version == "same" ? minecraft_version : parchment_minecraft_version
@@ -97,8 +102,15 @@ repositories {
     maven { url = "https://maven.blamejared.com" } // JEI, Vazkii's Mods
     maven { url = "https://maven.theillusivec4.top/" } // Curios API
     maven { url = "https://maven.squiddev.cc" } // CC: Tweaked
+    exclusiveContent {
+        forRepository {
+            maven { url = "https://api.modrinth.com/maven" }
+        }
+        filter {
+            includeGroup("maven.modrinth")
+        }
+    }
     maven { url = "https://www.cursemaven.com" }
-    maven { url = "https://api.modrinth.com/maven" }
     maven { url = "https://maven.ftb.dev/releases" } // FTB Mods
     maven { url = "https://maven.architectury.dev" } // Arch API
     // NeoForge config api port, needed by ponder

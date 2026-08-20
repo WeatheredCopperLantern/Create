@@ -6,6 +6,8 @@ import com.simibubi.create.infrastructure.gametest.tests.TestContraptions;
 import com.simibubi.create.infrastructure.gametest.tests.TestFluids;
 import com.simibubi.create.infrastructure.gametest.tests.TestItems;
 import com.simibubi.create.infrastructure.gametest.tests.TestMisc;
+import com.simibubi.create.infrastructure.gametest.tests.TestFeatures;
+import com.simibubi.create.infrastructure.gametest.tests.TestMovableBEs;
 import com.simibubi.create.infrastructure.gametest.tests.TestProcessing;
 import com.simibubi.create.infrastructure.gametest.tests.TestRegressions;
 
@@ -24,7 +26,9 @@ public class CreateGameTests {
 			TestItems.class,
 			TestMisc.class,
 			TestProcessing.class,
-			TestRegressions.class
+			TestRegressions.class,
+			TestMovableBEs.class
+			//TestFeatures.class
 	};
 
 	@SubscribeEvent

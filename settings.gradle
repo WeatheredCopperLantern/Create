@@ -16,4 +16,6 @@ if (file("Ponder").exists()) {
     }
 }
 
+includeBuild("../Ponder")
+
 rootProject.name = "$mod_id-$minecraft_version"

@@ -4,6 +4,8 @@ import java.util.function.Supplier;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+
+import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.Create;
 import com.simibubi.create.CreateClient;
@@ -274,6 +276,17 @@ public class ClientEvents {
 			return;
 		if (event.getEntity() == null)
 			return;
+
+		//TODO: Make this use a Registry, like TooltipModifier does just for DataComponentType instead of Item
+		ItemStack stack = event.getItemStack();
+		if (stack.has(AllDataComponents.CHANNEL_ITEMS)) {
+			stack.addToTooltip(
+				AllDataComponents.CHANNEL_ITEMS,
+				event.getContext(),
+				event.getToolTip()::add,
+				event.getFlags()
+			);
+		}
 
 		Item item = event.getItemStack().getItem();
 		TooltipModifier modifier = TooltipModifier.REGISTRY.get(item);

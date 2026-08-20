@@ -22,6 +22,11 @@
     "ProjectileUtilMixin",
     "SmithingMenuMixin",
     "WaterWheelFluidSpreadMixin",
+    "LevelChunkMixin",
+    "ServerGamePacketListenerImplMixin",
+    "PistonBaseBlockMixin",
+    "PistonMovingBlockEntityMixin",
+    "MovingPistonBlockMixin",
     "accessor.BlockBehaviourAccessor",
     "accessor.BlockLootSubProviderAccessor",
     "accessor.ConcretePowderBlockAccessor",
@@ -48,7 +53,11 @@
     "accessor.UseOnContextAccessor",
     "datafixer.BlockPosFormatAndRenamesFixMixin",
     "datafixer.ItemStackComponentizationFixMixin",
-    "datafixer.V1460Mixin"
+    "datafixer.V1460Mixin",
+    "extension.ServerLevelExtension",
+    "extension.BlockStateBaseExtension",
+    "extension.LevelExtension",
+    "extension.LevelChunkExtension"
   ],
   "client": [
     "accessor.AgeableListModelAccessor",

@@ -38,10 +38,14 @@ import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
+import com.simibubi.create.foundation.persistent.GlobalPersistentObjectManager;
 import com.simibubi.create.foundation.recipe.AllIngredients;
 import com.simibubi.create.infrastructure.command.ServerLagger;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import com.simibubi.create.infrastructure.data.CreateDatagen;
+import com.simibubi.create.infrastructure.gametest.blockBoundObjects.AllTestBlockBoundObjectTypes;
+import com.simibubi.create.infrastructure.gametest.blockEntities.AllTestBlockEntityTypes;
+import com.simibubi.create.infrastructure.gametest.blocks.AllTestBlocks;
 import com.simibubi.create.infrastructure.worldgen.AllFeatures;
 import com.simibubi.create.infrastructure.worldgen.AllPlacementModifiers;
 
@@ -101,6 +105,7 @@ public class Create {
 	public static final GlobalRailwayManager RAILWAYS = new GlobalRailwayManager();
 	public static final GlobalLogisticsManager LOGISTICS = new GlobalLogisticsManager();
 	public static final ServerLagger LAGGER = new ServerLagger();
+	public static final GlobalPersistentObjectManager PERSISTENT_OBJECTS = new GlobalPersistentObjectManager();
 
 	public Create(IEventBus eventBus, ModContainer modContainer) {
 		onCtor(eventBus, modContainer);
@@ -136,8 +141,13 @@ public class Create {
 		AllDataComponents.register(modEventBus);
 		AllMapDecorationTypes.register(modEventBus);
 		AllMountedStorageTypes.register();
+		AllPersistentObjectTypes.register();
 
 		AllConfigs.register(modLoadingContext, modContainer);
+
+		AllTestBlocks.register();
+		AllTestBlockEntityTypes.register();
+		AllTestBlockBoundObjectTypes.register();
 
 		// TODO - Make these use Registry.register and move them into the RegisterEvent
 		AllPackagePortTargetTypes.register(modEventBus);

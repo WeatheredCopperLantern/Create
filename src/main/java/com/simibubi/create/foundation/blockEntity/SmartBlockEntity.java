@@ -39,6 +39,7 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
 	protected int lazyTickRate;
 	protected int lazyTickCounter;
 	private boolean chunkUnloaded;
+	private boolean beingPushedByPiston;
 
 	// Used for simulating this BE in a client-only setting
 	private boolean virtualMode;
@@ -51,6 +52,10 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
 		ArrayList<BlockEntityBehaviour> list = new ArrayList<>();
 		addBehaviours(list);
 		list.forEach(b -> behaviours.put(b.getType(), b));
+	}
+
+	public void updateWorldPosition(BlockPos newWorldPosition){
+		this.worldPosition = newWorldPosition;
 	}
 
 	public abstract void addBehaviours(List<BlockEntityBehaviour> behaviours);
@@ -124,6 +129,13 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
 		read(tag, registries, false);
 	}
 
+	public void setBeingPushedByPiston(boolean state){
+		this.beingPushedByPiston = state;
+	}
+
+	protected void onPistonPushStart() {}
+	protected void onPistonPushEnd() {}
+
 	@Override
 	public void onChunkUnloaded() {
 		super.onChunkUnloaded();
@@ -146,7 +158,7 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
 	}
 
 	/**
-	 * Block destroyed or picked up by a contraption. Usually detaches kinetics
+	 * Block destroyed or picked up by a contraption / moved by a piston. Usually detaches kinetics
 	 */
 	public void remove() {}
 
@@ -156,6 +168,8 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
 	public void destroy() {
 		forEachBehaviour(BlockEntityBehaviour::destroy);
 	}
+
+	public void inTransit() {}
 
 	@Override
 	public final void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
@@ -219,6 +233,10 @@ public abstract class SmartBlockEntity extends CachedRenderBBBlockEntity
 
 	public boolean isChunkUnloaded() {
 		return chunkUnloaded;
+	}
+
+	public boolean isBeingPushedByPiston(){
+		return this.beingPushedByPiston;
 	}
 
 	@Override

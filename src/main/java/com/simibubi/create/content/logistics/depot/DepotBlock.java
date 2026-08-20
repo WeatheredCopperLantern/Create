@@ -35,6 +35,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 @MethodsReturnNonnullByDefault
 public class DepotBlock extends Block implements IBE<DepotBlockEntity>, IWrenchable, ProperWaterloggedBlock {
 
+	@Override
+	public boolean isBEPushable() {
+		return true;
+	}
+
 	public DepotBlock(Properties p_i48440_1_) {
 		super(p_i48440_1_);
 		registerDefaultState(defaultBlockState().setValue(WATERLOGGED, false));

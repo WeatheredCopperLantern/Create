@@ -96,9 +96,15 @@ import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 @EventBusSubscriber
 public class CommonEvents {
+
+	@SubscribeEvent
+	public static void onServerTickPre(ServerTickEvent.Pre event) {
+		Create.PERSISTENT_OBJECTS.tick(event);
+	}
 
 	@SubscribeEvent
 	public static void onServerTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
@@ -196,6 +202,7 @@ public class CommonEvents {
 		Create.TORQUE_PROPAGATOR.onLoadWorld(world);
 		Create.RAILWAYS.levelLoaded(world);
 		Create.LOGISTICS.levelLoaded(world);
+		Create.PERSISTENT_OBJECTS.levelLoaded(world);
 	}
 
 	@SubscribeEvent

@@ -1,13 +1,21 @@
 package com.simibubi.create.content.redstone.link;
 
 import com.simibubi.create.AllBlockEntityTypes;
+import com.simibubi.create.AllPersistentObjectTypes;
 import com.simibubi.create.AllShapes;
+import com.simibubi.create.content.redstone.link.redstoneLink.RedstoneLinkBlockBoundLinkable;
+import com.simibubi.create.foundation.block.IBBO;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.WrenchableDirectionalBlock;
+import com.simibubi.create.foundation.persistent.PersistentObjectType;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -19,6 +27,7 @@ import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -26,10 +35,15 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE<RedstoneLinkBlockEntity> {
+public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE<RedstoneLinkBlockEntity>, IBBO<RedstoneLinkBlockBoundLinkable> {
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 	public static final BooleanProperty RECEIVER = BooleanProperty.create("receiver");
+
+	@Override
+	public PersistentObjectType<RedstoneLinkBlockBoundLinkable> getBlockBoundObjectType() {
+		return AllPersistentObjectTypes.REDSTONE_LINK.get();
+	}
 
 	public RedstoneLinkBlock(Properties properties) {
 		super(properties);
@@ -37,10 +51,13 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos,
-		boolean isMoving) {
-		if (level.isClientSide)
-			return;
+	public boolean isBEPushable() {
+		return true;
+	}
+
+	@Override
+	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+		if (level.isClientSide) return;
 
 		Direction blockFacing = state.getValue(FACING);
 		if (fromPos.equals(pos.relative(blockFacing.getOpposite()))) {
@@ -51,8 +68,13 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 	}
 
 	@Override
+	protected void onPlace(final BlockState state, final Level level, final BlockPos pos, final BlockState oldState, final boolean movedByPiston) {
+		super.onPlace(state, level, pos, oldState, movedByPiston);
+	}
+
+	@Override
 	public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {
-		IBE.onRemove(pState, pLevel, pPos, pNewState);
+		onIBERemove(pState, pLevel, pPos, pNewState, pMovedByPiston);
 	}
 
 	@Override
@@ -83,6 +105,14 @@ public class RedstoneLinkBlock extends WrenchableDirectionalBlock implements IBE
 		BlockState state = defaultBlockState();
 		state = state.setValue(FACING, context.getClickedFace());
 		return state;
+	}
+
+	@Override
+	public ItemStack getCloneItemStack(final BlockState state, final HitResult target, final LevelReader level, final BlockPos pos, final Player player) {
+		final ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
+		stack.set(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY.with(RECEIVER, state.getValue(RECEIVER)));
+
+		return stack;
 	}
 
 	@Override

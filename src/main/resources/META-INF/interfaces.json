@@ -1,0 +1,8 @@
+{
+    "net/minecraft/world/level/BlockGetter": [
+        "com/simibubi/create/foundation/extension/interfaces/IPersistentObjectSupplier"
+    ],
+    "net/minecraft/world/level/block/state/BlockBehaviour$BlockStateBase": [
+        "com/simibubi/create/foundation/extension/interfaces/IdontKnowHowToCallThis"
+    ]
+}

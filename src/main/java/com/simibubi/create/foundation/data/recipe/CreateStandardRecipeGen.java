@@ -1089,6 +1089,8 @@ public final class CreateStandardRecipeGen extends BaseRecipeProvider {
 			.pattern("C")
 			.pattern("S")),
 
+	REDSTONE_LINK_CLEAR = clearData(AllBlocks.REDSTONE_LINK),
+
 	ITEM_HATCH = create(AllBlocks.ITEM_HATCH).unlockedBy(I::andesiteAlloy)
 		.viaShapeless(b -> b.requires(I.andesiteAlloy())
 			.requires(Items.IRON_TRAPDOOR)),

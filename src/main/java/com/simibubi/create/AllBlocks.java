@@ -230,6 +230,7 @@ import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlock;
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkBlockItem;
 import com.simibubi.create.content.redstone.link.RedstoneLinkBlock;
 import com.simibubi.create.content.redstone.link.RedstoneLinkGenerator;
+import com.simibubi.create.content.redstone.link.RedstoneLinkItem;
 import com.simibubi.create.content.redstone.link.controller.LecternControllerBlock;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeBlock;
 import com.simibubi.create.content.redstone.nixieTube.NixieTubeGenerator;
@@ -2098,12 +2099,13 @@ public class AllBlocks {
 		REGISTRATE.block("redstone_link", RedstoneLinkBlock::new)
 			.initialProperties(SharedProperties::wooden)
 			.properties(p -> p.mapColor(MapColor.TERRACOTTA_BROWN)
+				.pushReaction(PushReaction.IGNORE)
 				.forceSolidOn())
 			.transform(axeOrPickaxe())
 			.tag(AllBlockTags.BRITTLE.tag, AllBlockTags.SAFE_NBT.tag)
 			.blockstate(new RedstoneLinkGenerator()::generate)
 			.addLayer(() -> RenderType::cutoutMipped)
-			.item()
+			.item(RedstoneLinkItem::new)
 			.transform(customItemModel("_", "transmitter"))
 			.register();
 

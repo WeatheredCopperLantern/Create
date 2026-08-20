@@ -26,32 +26,48 @@ public interface IBE<T extends BlockEntity> extends EntityBlock {
 
 	BlockEntityType<? extends T> getBlockEntityType();
 
+	default boolean isBEPushable() {
+		return false;
+	}
+
 	default void withBlockEntityDo(BlockGetter world, BlockPos pos, Consumer<T> action) {
 		getBlockEntityOptional(world, pos).ifPresent(action);
 	}
 
 	default InteractionResult onBlockEntityUse(BlockGetter world, BlockPos pos, Function<T, InteractionResult> action) {
-		return getBlockEntityOptional(world, pos).map(action)
-			.orElse(InteractionResult.PASS);
+		return getBlockEntityOptional(world, pos).map(action).orElse(InteractionResult.PASS);
 	}
 
 	default ItemInteractionResult onBlockEntityUseItemOn(BlockGetter world, BlockPos pos, Function<T, ItemInteractionResult> action) {
-		return getBlockEntityOptional(world, pos).map(action)
-				.orElse(ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION);
+		return getBlockEntityOptional(world, pos).map(action).orElse(ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION);
+	}
+
+	/**
+	 * This is kept for compatibility only. <br>
+	 * Call {@link #onIBERemove(BlockState, Level, BlockPos, BlockState, boolean)} instead
+	 */
+	@Deprecated
+	static void onRemove(BlockState blockState, Level level, BlockPos pos, BlockState newBlockState) {
+		if (!blockState.hasBlockEntity()) return;
+		if (blockState.is(newBlockState.getBlock()) && newBlockState.hasBlockEntity()) return;
+		BlockEntity blockEntity = level.getBlockEntity(pos);
+		if (blockEntity instanceof SmartBlockEntity sbe) sbe.destroy();
+		level.removeBlockEntity(pos);
 	}
 
 	/**
 	 * if the IBE is bound to a SmartBlockEntity, which implements destroy(),<br>
 	 * call this method in BlockBehaviour::onRemove (replace super call)
 	 */
-	static void onRemove(BlockState blockState, Level level, BlockPos pos, BlockState newBlockState) {
-		if (!blockState.hasBlockEntity())
-			return;
-		if (blockState.is(newBlockState.getBlock()) && newBlockState.hasBlockEntity())
-			return;
+	default void onIBERemove(BlockState blockState, Level level, BlockPos pos, BlockState newBlockState, boolean movedByPiston) {
+		if (!blockState.hasBlockEntity()) return;
+		if (blockState.is(newBlockState.getBlock()) && newBlockState.hasBlockEntity()) return;
 		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if (blockEntity instanceof SmartBlockEntity sbe)
-			sbe.destroy();
+		if (blockEntity instanceof SmartBlockEntity sbe) {
+			if (!movedByPiston || !isBEPushable()) {
+				sbe.destroy();
+			}
+		}
 		level.removeBlockEntity(pos);
 	}
 
@@ -65,10 +81,8 @@ public interface IBE<T extends BlockEntity> extends EntityBlock {
 	}
 
 	@Override
-	default <S extends BlockEntity> BlockEntityTicker<S> getTicker(Level p_153212_, BlockState p_153213_,
-		BlockEntityType<S> p_153214_) {
-		if (SmartBlockEntity.class.isAssignableFrom(getBlockEntityClass()))
-			return new SmartBlockEntityTicker<>();
+	default <S extends BlockEntity> BlockEntityTicker<S> getTicker(Level p_153212_, BlockState p_153213_, BlockEntityType<S> p_153214_) {
+		if (SmartBlockEntity.class.isAssignableFrom(getBlockEntityClass())) return new SmartBlockEntityTicker<>();
 		return null;
 	}
 
@@ -78,12 +92,9 @@ public interface IBE<T extends BlockEntity> extends EntityBlock {
 		BlockEntity blockEntity = worldIn.getBlockEntity(pos);
 		Class<T> expectedClass = getBlockEntityClass();
 
-		if (blockEntity == null)
-			return null;
-		if (!expectedClass.isInstance(blockEntity))
-			return null;
+		if (blockEntity == null) return null;
+		if (!expectedClass.isInstance(blockEntity)) return null;
 
 		return (T) blockEntity;
 	}
-
 }

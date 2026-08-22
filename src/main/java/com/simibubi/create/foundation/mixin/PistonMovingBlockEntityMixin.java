@@ -1,8 +1,10 @@
 package com.simibubi.create.foundation.mixin;
 
+import com.simibubi.create.Create;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.extension.interfaces.ILevelInterface;
 import com.simibubi.create.foundation.extension.interfaces.PistonMovingBlockEntityAccessor;
+import com.simibubi.create.foundation.persistent.BlockBoundObject;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -33,6 +35,17 @@ public class PistonMovingBlockEntityMixin extends BlockEntity implements PistonM
 	@Unique
 	private SmartBlockEntity create$be;
 
+	@Unique
+	private static boolean create$placeMovedBE(final Level instance, final BlockPos blockPos, final BlockState blockState, final int i, final Operation<Boolean> original, final SmartBlockEntity movedBE) {
+		if (movedBE != null) {
+			movedBE.updateWorldPosition(blockPos);
+			final boolean result = ((ILevelInterface) instance).create$setBlockWithBlockEntity(blockPos, blockState, i, movedBE);
+			movedBE.setBeingPushedByPiston(false);
+			return result;
+		}
+		return original.call(instance, blockPos, blockState, i);
+	}
+
 	@Override
 	public void create$setBlockEntity(final SmartBlockEntity blockEntity) {
 		this.create$be = blockEntity;
@@ -46,25 +59,13 @@ public class PistonMovingBlockEntityMixin extends BlockEntity implements PistonM
 	@WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
 	private static boolean create$finalizeMovement(final Level instance, final BlockPos blockPos, final BlockState blockState, final int i, final Operation<Boolean> original, @Local(argsOnly = true) final PistonMovingBlockEntity blockEntity) {
 		final SmartBlockEntity movedBE = ((PistonMovingBlockEntityAccessor) blockEntity).create$getBlockEntity();
-		if (movedBE != null) {
-			movedBE.updateWorldPosition(blockPos);
-			final boolean result = ((ILevelInterface) instance).create$setBlockWithBlockEntity(blockPos, blockState, i, movedBE);
-			movedBE.setBeingPushedByPiston(false);
-			return result;
-		}
-		return original.call(instance, blockPos, blockState, i);
+		return create$placeMovedBE(instance, blockPos, blockState, i, original, movedBE);
 	}
 
 	@WrapOperation(method = "finalTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
 	private boolean create$finalizeMovement2(final Level level, final BlockPos blockPos, final BlockState blockState, final int i, final Operation<Boolean> original) {
 		final SmartBlockEntity movedBE = this.create$getBlockEntity();
-		if (movedBE != null) {
-			movedBE.updateWorldPosition(blockPos);
-			final boolean result = ((ILevelInterface) level).create$setBlockWithBlockEntity(blockPos, blockState, i, movedBE);
-			movedBE.setBeingPushedByPiston(false);
-			return result;
-		}
-		return original.call(level, blockPos, blockState, i);
+		return create$placeMovedBE(level, blockPos, blockState, i, original, movedBE);
 	}
 
 	@Inject(method = "saveAdditional", at = @At(value = "RETURN"))
@@ -83,6 +84,14 @@ public class PistonMovingBlockEntityMixin extends BlockEntity implements PistonM
 		if (be instanceof SmartBlockEntity smartBE) {
 			smartBE.loadWithComponents(beCompound, registries);
 			this.create$setBlockEntity(smartBE);
+		}
+	}
+
+	@Inject(method = "setLevel", at = @At("TAIL"))
+	private void create$setLevel(final Level level, final CallbackInfo ci) {
+		final SmartBlockEntity movedBE = this.create$getBlockEntity();
+		if (movedBE != null) {
+			movedBE.setLevel(level);
 		}
 	}
 

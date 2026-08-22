@@ -7,6 +7,7 @@ import com.simibubi.create.foundation.block.IBBO;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.extension.interfaces.PistonMovingBlockEntityAccessor;
+import com.simibubi.create.foundation.persistent.IBBOBlockEntity;
 
 import net.createmod.catnip.data.TriState;
 
@@ -53,10 +54,15 @@ public class PistonBaseBlockMixin {
 	private void create$onMove(final Level level, final BlockPos pos, final Direction facing, final boolean extending, final CallbackInfoReturnable<Boolean> cir, @Local(name = "list") final List<BlockPos> list, @Share("blockEntities") LocalRef<HashMap<BlockPos, SmartBlockEntity>> blockEntities) {
 		for (final BlockPos blockpos : list) {
 			if (level.getBlockEntity(blockpos) instanceof final SmartBlockEntity smartBE) {
-				HashMap<BlockPos, SmartBlockEntity> beCache = blockEntities.get();
-				if (beCache == null) blockEntities.set(HashMap.newHashMap(PistonStructureResolver.MAX_PUSH_DEPTH));
-				blockEntities.get().put(blockpos.relative(extending ? facing : facing.getOpposite()), smartBE);
+				if (blockEntities.get() == null) blockEntities.set(HashMap.newHashMap(PistonStructureResolver.MAX_PUSH_DEPTH));
+				final BlockPos newPos = blockpos.relative(extending ? facing : facing.getOpposite());
+				blockEntities.get().put(newPos, smartBE);
 				smartBE.setBeingPushedByPiston(true);
+				if (smartBE instanceof final IBBOBlockEntity<?> ibboBlockEntity) {
+					ibboBlockEntity.withBlockBoundObjectDo(level, blockpos, blockBoundObject -> {
+						blockBoundObject.setBlockPos(newPos);
+					});
+				}
 				level.removeBlockEntity(blockpos);
 			}
 		}

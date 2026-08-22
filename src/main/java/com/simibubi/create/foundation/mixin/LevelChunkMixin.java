@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LevelChunk.class)
@@ -31,7 +32,7 @@ public abstract class LevelChunkMixin {
 
 	@Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;hasBlockEntity()Z", ordinal = 0))
 	private void create$removeBlockBoundObject(final BlockPos pos, final BlockState newState, final boolean isMoving, final CallbackInfoReturnable<BlockState> cir, @Local final Block newBlock, @Local(ordinal = 1) final BlockState oldState) {
-		if (level.isClientSide()) return;
+		if (isMoving || level.isClientSide()) return;
 		if (oldState.getBlock() != newBlock && oldState.create$hasBlockBoundObject()) {
 			this.create$removeBlockBoundObject(pos);
 		}
@@ -39,15 +40,12 @@ public abstract class LevelChunkMixin {
 
 	@Unique
 	public void create$removeBlockBoundObject(BlockPos pos) {
-		final BlockBoundObject bbo = Create.PERSISTENT_OBJECTS.getManager(this.level.dimension()).removePersistentBlockBoundObject(pos);
-		if (bbo != null) {
-			bbo.setRemoved();
-		}
+		Create.PERSISTENT_OBJECTS.getManager(this.level.dimension()).removePersistentBlockBoundObject(pos);
 	}
 
 	@Inject(method = "setBlockState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;hasBlockEntity()Z", ordinal = 1))
 	private void create$addNewBlockBoundObject(final BlockPos pos, final BlockState newState, final boolean isMoving, final CallbackInfoReturnable<BlockState> cir, @Local final Block newBlock, @Local(ordinal = 1) final BlockState oldState) {
-		if (!(this.level instanceof final ServerLevel serverLevel)) return;
+		if (isMoving || !(this.level instanceof final ServerLevel serverLevel)) return;
 		if (newState.create$hasBlockBoundObject()) {
 			BlockBoundObject bbo = Create.PERSISTENT_OBJECTS.getManager(this.level.dimension()).getPersistentBlockBoundObject(pos);
 			if (bbo != null && !bbo.isValidBlockState(newState)) {

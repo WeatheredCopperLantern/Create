@@ -12,6 +12,7 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -44,7 +45,10 @@ public class DummyBBOBlockEntity extends BBOBlockEntity<DummyBlockBoundObject> {
 	@Override
 	protected void write(final CompoundTag tag, final HolderLookup.Provider registries, final boolean clientPacket) {
 		super.write(tag, registries, clientPacket);
-		this.withBlockBoundObjectDo(bbo -> tag.putInt("Value", bbo.getValue()));
+		this.withBlockBoundObjectDo(bbo -> {
+			tag.putInt("Value", bbo.getValue());
+			tag.put("bboPos", NbtUtils.writeBlockPos(bbo.getBlockpos()));
+		});
 	}
 
 	@Override

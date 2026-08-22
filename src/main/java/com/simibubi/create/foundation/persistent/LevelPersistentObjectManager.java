@@ -73,7 +73,10 @@ public class LevelPersistentObjectManager extends SavedData {
 	public @Nullable BlockBoundObject removePersistentBlockBoundObject(final BlockPos pos) {
 		this.setDirty(true);
 		final BlockBoundObject bbo = this.persistentBlockBoundObjects.remove(pos);
-		this.persistentObjects.remove(bbo.uuid);
+		if(bbo != null){
+			this.persistentObjects.remove(bbo.uuid);
+			bbo.setRemoved();
+		}
 		return bbo;
 	}
 

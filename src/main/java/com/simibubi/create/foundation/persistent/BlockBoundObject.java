@@ -47,6 +47,18 @@ public abstract class BlockBoundObject extends PersistentObject {
 
 	}
 
+	public void destroy(){
+
+	}
+
+	public BlockPos getBlockpos() {
+		return this.blockPos;
+	}
+
+	public void setBlockPos(final BlockPos blockPos){
+		this.blockPos = blockPos;
+	}
+
 	@Override
 	@OverridingMethodsMustInvokeSuper
 	public Tag save(final CompoundTag tag, final HolderLookup.Provider provider) {

@@ -26,14 +26,14 @@ public abstract class BBOBlockEntity<T extends BlockBoundObject> extends SmartBl
 
 	@Override
 	public @Nullable T getBlockBoundObject(final BlockGetter level, final BlockPos pos) {
-		if (this.bbo == null) {
+		if (this.bbo == null && this.level != null) {
 			this.bbo = IBBOBlockEntity.super.getBlockBoundObject(level, pos);
 		}
 		return this.bbo;
 	}
 
 	public @Nullable T getBlockBoundObject() {
-		if (this.bbo == null) {
+		if (this.bbo == null && this.level != null) {
 			this.bbo = IBBOBlockEntity.super.getBlockBoundObject(this.level, this.getBlockPos());
 		}
 		return this.bbo;

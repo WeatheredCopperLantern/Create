@@ -18,6 +18,17 @@ public class BBOBlock extends Block implements IBE<DummyBBOBlockEntity>, IBBO<Du
 		super(properties);
 	}
 
+	@SuppressWarnings("RedundantMethodOverride")
+	@Override
+	public boolean isBBOPushable() {
+		return true;
+	}
+
+	@Override
+	public boolean isBEPushable() {
+		return true;
+	}
+
 	@Override
 	public PersistentObjectType<DummyBlockBoundObject> getBlockBoundObjectType() {
 		return AllTestBlockBoundObjectTypes.DUMMY.get();

@@ -42,6 +42,16 @@ public class AllTestBlocks {
 			)
 			.register();
 
+	public static final BlockEntry<ImmovableBlock2> IMMOVABLE_BBO =
+		REGISTRATE.block("gametest_immovable_bbo", ImmovableBlock2::new)
+			.initialProperties(() -> Blocks.STONE)
+			.blockstate((ctx, prov) ->
+				prov.simpleBlock(ctx.getEntry(), prov.models().getExistingFile(
+					ResourceLocation.withDefaultNamespace("block/crying_obsidian")
+				))
+			)
+			.register();
+
 	public static void register() {
 	}
 }

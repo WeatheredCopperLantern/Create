@@ -7,29 +7,29 @@ import com.simibubi.create.infrastructure.gametest.blockBoundObjects.AllTestBloc
 import com.simibubi.create.infrastructure.gametest.blockBoundObjects.DummyBlockBoundObject;
 import com.simibubi.create.infrastructure.gametest.blockEntities.AllTestBlockEntityTypes;
 import com.simibubi.create.infrastructure.gametest.blockEntities.DummyBBOBlockEntity;
+import com.simibubi.create.infrastructure.gametest.blockEntities.DummyBlockEntity;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class BBOBlock extends Block implements IBE<DummyBBOBlockEntity>, IBBO<DummyBlockBoundObject> {
+public class ImmovableBlock2 extends Block implements IBE<DummyBBOBlockEntity>, IBBO<DummyBlockBoundObject> {
 
-	public BBOBlock(final BlockBehaviour.Properties properties) {
-		super(properties);
+	@Override
+	public Class<DummyBBOBlockEntity> getBlockEntityClass() {
+		return DummyBBOBlockEntity.class;
 	}
 
-	@SuppressWarnings("RedundantMethodOverride")
 	@Override
-	public boolean isBBOPushable() {
-		return true;
+	public BlockEntityType<? extends DummyBBOBlockEntity> getBlockEntityType() {
+		return AllTestBlockEntityTypes.DUMMY_BBO.get();
 	}
 
 	@Override
@@ -43,8 +43,8 @@ public class BBOBlock extends Block implements IBE<DummyBBOBlockEntity>, IBBO<Du
 	}
 
 	@Override
-	public Class<DummyBBOBlockEntity> getBlockEntityClass() {
-		return DummyBBOBlockEntity.class;
+	public boolean isBBOPushable() {
+		return false;
 	}
 
 	@Override
@@ -52,8 +52,7 @@ public class BBOBlock extends Block implements IBE<DummyBBOBlockEntity>, IBBO<Du
 		this.onIBERemove(state, level, pos, newState, movedByPiston);
 	}
 
-	@Override
-	public BlockEntityType<? extends DummyBBOBlockEntity> getBlockEntityType() {
-		return AllTestBlockEntityTypes.DUMMY_BBO.get();
+	public ImmovableBlock2(final Properties properties) {
+		super(properties);
 	}
 }

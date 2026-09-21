@@ -25,6 +25,7 @@ public abstract class BlockBoundObject extends PersistentObject {
 	protected final Block block;
 	protected BlockPos blockPos;
 	protected BlockState state;
+	private boolean beingPushedByPiston;
 
 	@OverridingMethodsMustInvokeSuper
 	public void setBlockState(final BlockState state) {
@@ -57,6 +58,14 @@ public abstract class BlockBoundObject extends PersistentObject {
 
 	public void setBlockPos(final BlockPos blockPos){
 		this.blockPos = blockPos;
+	}
+
+	public void setBeingPushedByPiston(boolean state){
+		this.beingPushedByPiston = state;
+	}
+
+	public boolean isBeingPushedByPiston(){
+		return this.beingPushedByPiston;
 	}
 
 	@Override

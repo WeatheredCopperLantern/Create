@@ -39,25 +39,26 @@ public class TestBBO {
 	public static void newPosSameBE(CreateGameTestHelper helper) {
 		// Using a WeakReference is very likely unnecessary, but it doesn't hurt either
 		final WeakReference<BlockBoundObject> originalBBo = new WeakReference<>(helper.getBlockBoundObject(AllTestBlockBoundObjectTypes.DUMMY.get(), new BlockPos(3, 2, 1)));
+		final boolean[] isBeingPushedByPistonStates = {false, true}; // Default to the opposite of the wanted values
 		helper.pullLever(1, 2, 1);
 		helper.succeedWhen(() -> {
 			BlockBoundObject bbo = originalBBo.get();
 			if (bbo == null) helper.fail("NO BBO? :(");
 			switch ((int) helper.getTick()) {
 				case 1 -> {
-					isBeingPushedByPistonStates[0] = smartBE.isBeingPushedByPiston();
+					isBeingPushedByPistonStates[0] = bbo.isBeingPushedByPiston();
 					helper.fail("Waiting");
 				}
 				case 3 -> {
-					isBeingPushedByPistonStates[1] = smartBE.isBeingPushedByPiston();
+					isBeingPushedByPistonStates[1] = bbo.isBeingPushedByPiston();
 
 					if (!isBeingPushedByPistonStates[0] || isBeingPushedByPistonStates[1]) {
 						helper.fail("Incorrect isBeingPushedByPistonStates. Expected: {true, false}, Got: {%s, %s}.".formatted(isBeingPushedByPistonStates[0], isBeingPushedByPistonStates[1]));
 					}
 
-					final BlockEntity movedBE = helper.getBlockEntity(new BlockPos(4, 2, 1));
+					final BlockBoundObject movedBBO = helper.getBlockBoundObject(AllTestBlockBoundObjectTypes.DUMMY.get(), new BlockPos(4, 2, 1));
 
-					if (!originalBBo.refersTo(movedBE)) {
+					if (!originalBBo.refersTo(movedBBO)) {
 						helper.fail("Original BBO wasn't reused");
 					}
 					helper.succeed();
@@ -66,5 +67,4 @@ public class TestBBO {
 			}
 		});
 	}
-
 }
